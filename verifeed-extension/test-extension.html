@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeriFeed Tunai-Style Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+        
+        .test-container {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        
+        .video-test {
+            position: relative;
+            margin: 24px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e4e6eb;
+        }
+        
+        .video-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        video {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .test-button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px 4px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .results {
+            margin-top: 24px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .success {
+            color: #28a745;
+        }
+        
+        .error {
+            color: #dc3545;
+        }
+        
+        .simulated-facebook {
+            background: #1877f2;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 VeriFeed - Tunai-Style Verification Test</h1>
+        <p>Testing the new "Verify" button overlay similar to Tunai AI fact-checking tool on Facebook videos.</p>
+        
+        <div class="simulated-facebook">Simulated Facebook Post</div>
+        
+        <div class="video-test">
+            <h3>Facebook Video Post Simulation</h3>
+            <div class="video-container">
+                <video controls src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <!-- Verify button will be injected here by content script -->
+            </div>
+            <div style="margin-top: 16px;">
+                <button class="test-button" onclick="testVerifyButton()">Test Verify Button</button>
+                <button class="test-button" onclick="testServerConnection()">Test Server Connection</button>
+                <button class="test-button" onclick="simulateVerification()">Simulate Verification</button>
+            </div>
+        </div>
+        
+        <div class="video-test">
+            <h3>Another Video Post</h3>
+            <div class="video-container">
+                <video controls src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        
+        <div class="results" id="testResults">
+            <h3>Test Results</h3>
+            <div id="resultsContent">No tests run yet. Click the buttons above to test the Tunai-style verification system.</div>
+        </div>
+    </div>
+
+    <script src="content.js"></script>
+    <script>
+        // Test functions
+        function testVerifyButton() {
+            const results = document.getElementById('resultsContent');
+            results.innerHTML = '<p>Testing Verify button injection...</p>';
+            
+            if (typeof VeriFeedDetector !== 'undefined') {
+                const videos = document.querySelectorAll('.video-container');
+                results.innerHTML += `<p>Found ${videos.length} video containers</p>`;
+                
+                // Simulate the button injection
+                videos.forEach((container, index) => {
+                    const video = container.querySelector('video');
+                    if (video) {
+                        const verifyBtn = document.createElement('button');
+                        verifyBtn.className = 'verifeed-verify-btn';
+                        verifyBtn.innerHTML = `
+                            <span class="verifeed-btn-icon">🔍</span>
+                            <span class="verifeed-btn-text">Verify</span>
+                        `;
+                        verifyBtn.onclick = () => simulateVerification(container);
+                        container.appendChild(verifyBtn);
+                        
+                        results.innerHTML += `<p>✅ Added Verify button to video ${index + 1}</p>`;
+                    }
+                });
+                
+                results.innerHTML += '<p class="success">✅ Verify button test passed! Buttons should appear on videos.</p>';
+            } else {
+                results.innerHTML += '<p class="error">❌ VeriFeedDetector not found</p>';
+            }
+        }
+        
+        function testServerConnection() {
+            const results = document.getElementById('resultsContent');
+            results.innerHTML = '<p>Testing backend server connection...</p>';
+            
+            fetch('http://localhost:5000/health')
+                .then(response => response.json())
+                .then(data => {
+                    results.innerHTML += `<p>Server status: ${data.status}</p>`;
+                    results.innerHTML += `<p>Device: ${data.device}, Model loaded: ${data.model_loaded}</p>`;
+                    results.innerHTML += '<p class="success">✅ Server connection successful! Backend is ready.</p>';
+                })
+                .catch(error => {
+                    results.innerHTML += `<p class="error">❌ Server connection failed: ${error.message}</p>`;
+                    results.innerHTML += '<p>Make sure the backend server is running on port 5000</p>';
+                });
+        }
+        
+        function simulateVerification(container = null) {
+            const targetContainer = container || document.querySelector('.video-container');
+            const results = document.getElementById('resultsContent');
+            results.innerHTML = '<p>Simulating verification process...</p>';
+            
+            // Simulate loading state
+            const loadingPopup = document.createElement('div');
+            loadingPopup.className = 'verifeed-popup verifeed-loading-popup';
+            loadingPopup.innerHTML = `
+                <div class="verifeed-popup-content">
+                    <div class="verifeed-popup-header">
+                        <h3>🔍 Verifying Video</h3>
+                    </div>
+                    <div class="verifeed-popup-body">
+                        <div class="verifeed-loading-spinner"></div>
+                        <p>Analyzing for deepfake content...</p>
+                        <p class="verifeed-popup-note">This may take a few moments</p>
+                    </div>
+                </div>
+            `;
+            
+            if (targetContainer) {
+                targetContainer.appendChild(loadingPopup);
+                results.innerHTML += '<p>✅ Loading popup displayed</p>';
+                
+                // Simulate result after delay
+                setTimeout(() => {
+                    loadingPopup.remove();
+                    
+                    const resultPopup = document.createElement('div');
+                    resultPopup.className = 'verifeed-popup verifeed-results-popup high-confidence';
+                    resultPopup.innerHTML = `
+                        <div class="verifeed-popup-content">
+                            <div class="verifeed-popup-header">
+                                <h3>✅ Likely Authentic</h3>
+                                <button class="verifeed-close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+                            </div>
+                            <div class="verifeed-popup-body">
+                                <div class="verifeed-result-details">
+                                    <div class="verifeed-confidence-meter">
+                                        <div class="verifeed-confidence-bar" style="width: 85%"></div>
+                                    </div>
+                                    <p class="verifeed-confidence-text">Confidence: 85%</p>
+                                    <p class="verifeed-analysis-text">
+                                        This video appears to be authentic based on our AI analysis.
+                                    </p>
+                                </div>
+                                <div class="verifeed-popup-footer">
+                                    <p class="verifeed-disclaimer">
+                                        <small>AI-powered analysis by VeriFeed. Results are estimates and should be used as guidance only.</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    targetContainer.appendChild(resultPopup);
+                    results.innerHTML += '<p class="success">✅ Verification simulation complete! Results popup displayed.</p>';
+                    results.innerHTML += '<p>This demonstrates the Tunai-style user experience with verification button and results popup.</p>';
+                    
+                }, 2000);
+            }
+        }
+        
+        // Initialize test environment
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Tunai-style test environment ready');
+            
+            // Initialize VeriFeed
+            if (typeof initializeVeriFeed === 'function') {
+                initializeVeriFeed();
+                console.log('VeriFeed initialized with Tunai-style verification');
+                
+                // Auto-test after a delay
+                setTimeout(() => {
+                    testVerifyButton();
+                    testServerConnection();
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

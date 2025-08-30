@@ -1,0 +1,283 @@
+/* VeriFeed Styles for Tunai-style Facebook Integration */
+
+/* Verify Button Styles */
+.verifeed-verify-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.verifeed-verify-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.verifeed-btn-icon {
+    font-size: 14px;
+}
+
+.verifeed-btn-text {
+    white-space: nowrap;
+}
+
+/* Popup Styles */
+.verifeed-popup {
+    position: absolute;
+    top: 50px;
+    right: 12px;
+    z-index: 1001;
+    min-width: 280px;
+    max-width: 320px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    animation: verifeed-popup-slide 0.3s ease-out;
+    overflow: hidden;
+}
+
+.verifeed-popup-content {
+    padding: 0;
+}
+
+.verifeed-popup-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.verifeed-popup-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.verifeed-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.verifeed-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.verifeed-popup-body {
+    padding: 20px;
+}
+
+.verifeed-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: verifeed-spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+.verifeed-popup-note {
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Results Styles */
+.verifeed-result-details {
+    text-align: center;
+}
+
+.verifeed-confidence-meter {
+    width: 100%;
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    margin: 16px 0;
+    overflow: hidden;
+}
+
+.verifeed-confidence-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.verifeed-results-popup.high-confidence .verifeed-confidence-bar {
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.verifeed-results-popup.medium-confidence .verifeed-confidence-bar {
+    background: linear-gradient(90deg, #ffc107, #fd7e14);
+}
+
+.verifeed-results-popup.low-confidence .verifeed-confidence-bar {
+    background: linear-gradient(90deg, #dc3545, #e83e8c);
+}
+
+.verifeed-confidence-text {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 8px 0;
+    color: #333;
+}
+
+.verifeed-analysis-text {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #555;
+    margin: 12px 0;
+}
+
+.verifeed-popup-footer {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.verifeed-disclaimer {
+    font-size: 11px;
+    color: #888;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Error Popup Styles */
+.verifeed-error-popup .verifeed-popup-header {
+    background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+}
+
+.verifeed-retry-btn {
+    padding: 8px 16px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 12px;
+    transition: background 0.2s ease;
+}
+
+.verifeed-retry-btn:hover {
+    background: #5a67d8;
+}
+
+/* Animations */
+@keyframes verifeed-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes verifeed-popup-slide {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .verifeed-verify-btn {
+        top: 8px;
+        right: 8px;
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+    
+    .verifeed-popup {
+        min-width: 250px;
+        max-width: 280px;
+        right: 8px;
+    }
+    
+    .verifeed-popup-header h3 {
+        font-size: 14px;
+    }
+    
+    .verifeed-popup-body {
+        padding: 16px;
+    }
+}
+
+/* Dark Mode Support */
+[data-darkmode] .verifeed-popup {
+    background: #2d3748;
+    border-color: #4a5568;
+}
+
+[data-darkmode] .verifeed-popup-body {
+    color: #e2e8f0;
+}
+
+[data-darkmode] .verifeed-confidence-meter {
+    background: #4a5568;
+}
+
+[data-darkmode] .verifeed-confidence-text {
+    color: #e2e8f0;
+}
+
+[data-darkmode] .verifeed-analysis-text {
+    color: #cbd5e0;
+}
+
+[data-darkmode] .verifeed-popup-footer {
+    border-top-color: #4a5568;
+}
+
+[data-darkmode] .verifeed-disclaimer {
+    color: #a0aec0;
+}
+
+/* Facebook-specific adjustments */
+[role="article"] .verifeed-verify-btn,
+[data-pagelet*="video"] .verifeed-verify-btn {
+    top: 8px;
+    right: 8px;
+}
+
+/* Ensure popup stays above Facebook content */
+.verifeed-popup {
+    z-index: 9999 !important;
+}
+
+.verifeed-verify-btn {
+    z-index: 9998 !important;
+}

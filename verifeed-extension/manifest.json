@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "VeriFeed - Deepfake Video Detector",
+  "version": "1.0.0",
+  "description": "Detect deepfake videos on Facebook with AI-powered analysis",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "webRequest",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "https://*.facebook.com/*",
+    "http://localhost:5000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.facebook.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "VeriFeed - Check for Deepfakes"
+  },
+  "icons": {
+    "16": "icons/icon16.txt",
+    "48": "icons/icon48.txt",
+    "128": "icons/icon128.txt"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*", "styles.css"],
+      "matches": ["https://*.facebook.com/*"]
+    }
+  ]
+}
