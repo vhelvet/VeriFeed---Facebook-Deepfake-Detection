@@ -12,7 +12,7 @@ class VeriFeedDetector {
     }
 
     init() {
-        console.log('VeriFeed initialized on Facebook - Tunai-style verification');
+        console.log('VeriFeed initialized on Facebook');
         this.loadSettings();
         this.setupMutationObserver();
         this.scanForVideos();

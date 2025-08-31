@@ -11,7 +11,8 @@
     "webNavigation"
   ],
   "host_permissions": [
-    "https://*.facebook.com/*",
+    "https://facebook.com/",
+    "https://www.facebook.com/*",
     "http://localhost:5000/*"
   ],
   "background": {
@@ -19,7 +20,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.facebook.com/*"],
+      "matches": ["https://facebook.com/", "https://www.facebook.com/*"],
       "js": ["content.js"],
       "css": ["styles.css"],
       "run_at": "document_idle"
