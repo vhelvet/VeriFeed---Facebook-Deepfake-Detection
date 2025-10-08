@@ -419,6 +419,124 @@ def health_check():
 @app.route('/frame_analyze', methods=['POST'])
 def analyze_frames():
     start_time = time.time()
+
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+
+        frames = data.get('frames', [])
+        platform = data.get('platform', 'facebook')
+
+        if not frames:
+            return jsonify({'error': 'No frames provided'}), 400
+
+        # Validate platform scope
+        if platform.lower() != 'facebook':
+            return jsonify({
+                'error': 'Unsupported platform',
+                'message': 'Only Facebook videos are supported as per scope and delimitation.',
+                'platform_received': platform,
+                'allowed_platform': 'facebook'
+            }), 400
+
+        # CRITICAL FIX: Calculate frame hash for debugging consistency
+        frame_hash = hashlib.md5(''.join(frames[:3]).encode()).hexdigest()[:8]
+        logger.info(f"Analyzing {len(frames)} frames from {platform} (hash: {frame_hash})")
+
+        # Validate frames
+        validated_frames = []
+        for frame in frames:
+            if isinstance(frame, str) and len(frame) > 100:
+                if not frame.startswith('data:image/'):
+                    frame = f'data:image/jpeg;base64,{frame}'
+                validated_frames.append(frame)
+
+        if not validated_frames:
+            return jsonify({'error': 'No valid frames in request'}), 400
+
+        # Validate frame count against scope
+        if not (15 <= len(validated_frames) <= 100):
+            return jsonify({
+                'error': 'Invalid frame count',
+                'message': 'Only videos between 15 to 100 frames are allowed as per project scope.',
+                'frame_count': len(validated_frames),
+                'allowed_range': [15, 100]
+            }), 400
+
+        logger.info(f"Validated {len(validated_frames)} frames for processing")
+
+        # Load model based on frame count
+        model_data = model_manager.load_model(len(validated_frames))
+        model = model_data['model']
+        model_info = model_data['info']
+
+        # Facebook-optimized preprocessing
+        frames_tensor, faces_detected, avg_quality = preprocess_frames_facebook(validated_frames)
+
+        # Reject if no face was detected in any frame
+        if faces_detected == 0:
+            return jsonify({
+                'error': 'No recognizable faces found in the video frames',
+                'message': 'The system only analyzes facial manipulations as per scope and delimitation.',
+                'faces_detected': 0,
+                'scope_requirements': {
+                    'requires_visible_face': True,
+                    'supported_platform': 'facebook',
+                    'frame_range': [15, 100]
+                }
+            }), 400
+
+        # Prediction
+        prediction_result = predict_deepfake_facebook(model, frames_tensor, avg_quality)
+        processing_time = time.time() - start_time
+
+        response = {
+            'prediction': prediction_result['prediction'],
+            'confidence': prediction_result['confidence'],
+            'is_deepfake': prediction_result['is_deepfake'],
+            'probabilities': prediction_result['probabilities'],
+            'processing_time': round(processing_time, 2),
+            'frames_processed': frames_tensor.shape[1],
+            'faces_detected': faces_detected,
+            'model_accuracy': model_info['accuracy'],
+            'warnings': prediction_result['warnings'],
+            'base_confidence': prediction_result['base_confidence'],
+            'video_analysis': {
+                'avg_quality': round(avg_quality, 3),
+                'quality_category': 'high' if avg_quality >= 0.8 else 'medium' if avg_quality >= 0.6 else 'low'
+            },
+            'facebook_adjustments': prediction_result['facebook_adjustments'],
+            'platform': platform,
+            'frame_hash': frame_hash
+        }
+
+        logger.info(f"FB Analysis [{frame_hash}]: {response['prediction']} ({response['confidence']:.1f}%) - "
+                    f"Quality: {avg_quality:.2f}, Time: {processing_time:.2f}s")
+
+        return jsonify(response)
+
+    except Exception as e:
+        error_message = str(e)
+        logger.error(f"Error in Facebook frame_analyze: {error_message}")
+
+        return jsonify({
+            'error': error_message,
+            'details': 'The video could not be analyzed because it does not meet the scope and limitations of the system.',
+            'scope_requirements': {
+                'platform': 'facebook-only',
+                'min_frames': 15,
+                'max_frames': 100,
+                'face_required': True,
+                'audio_not_supported': True,
+                'context_not_analyzed': True
+            },
+            'timestamp': datetime.now().isoformat(),
+            'platform': platform if 'platform' in locals() else 'unknown'
+        }), 400
+
+
+    start_time = time.time()
     
     try:
         data = request.get_json()
