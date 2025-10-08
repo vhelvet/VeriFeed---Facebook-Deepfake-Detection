@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 import time
 import hashlib
-
+from mtcnn import MTCNN  
 
 
 logging.basicConfig(level=logging.INFO)
@@ -262,48 +262,93 @@ def decode_base64_image(base64_string):
         return None
 
 
+# Global MTCNN detector
+mtcnn_detector = None
+
+def init_mtcnn():
+    """Initialize MTCNN detector using mtcnn package (CPU fallback)"""
+    global mtcnn_detector
+    if mtcnn_detector is None:
+        try:
+            from mtcnn import MTCNN
+            mtcnn_detector = MTCNN()  # No arguments for mtcnn package
+            logger.info("✓ MTCNN face detector initialized (mtcnn package, CPU fallback)")
+            return True
+        except ImportError:
+            logger.warning("⚠️  mtcnn package not installed. Run: pip install mtcnn tensorflow")
+            logger.warning("Falling back to OpenCV + face_recognition")
+            return False
+        except Exception as e:
+            logger.warning(f"⚠️  MTCNN initialization failed: {e}")
+            logger.warning("Falling back to OpenCV + face_recognition")
+            return False
+    return mtcnn_detector is not None
+
+
+
 def extract_face_only(rgb_frame):
     """
-    PRODUCTION: Robust face detection with multiple fallback strategies.
-    Optimized for low-quality Facebook videos with comprehensive error handling.
+    PRODUCTION: MTCNN-first face detection (using mtcnn package)
+    Optimized for all skin tones and low-quality Facebook videos.
     """
     try:
+        # Strategy 1: MTCNN (BEST for all skin tones)
+        if mtcnn_detector is not None:
+            try:
+                # MTCNN from 'mtcnn' package expects RGB numpy array
+                # Returns list of dicts with 'box' and 'confidence'
+                results = mtcnn_detector.detect_faces(rgb_frame)
+                
+                if results and len(results) > 0:
+                    # Get face with highest confidence
+                    best_face = max(results, key=lambda x: x['confidence'])
+                    box = best_face['box']  # [x, y, width, height]
+                    confidence = best_face['confidence']
+                    
+                    x, y, w, h = box
+                    
+                    # Add generous padding
+                    padding = max(5, int(min(w, h) * 0.15))
+                    
+                    top = max(0, y - padding)
+                    bottom = min(rgb_frame.shape[0], y + h + padding)
+                    left = max(0, x - padding)
+                    right = min(rgb_frame.shape[1], x + w + padding)
+                    
+                    face_region = rgb_frame[top:bottom, left:right]
+                    
+                    # Validate face region
+                    if face_region.shape[0] >= 10 and face_region.shape[1] >= 10:
+                        logger.debug(f"Face detected via MTCNN (confidence: {confidence:.2f})")
+                        return face_region
+            except Exception as e:
+                logger.debug(f"MTCNN detection failed: {e}")
+        
+        # Strategy 2: OpenCV Haar Cascade (fast fallback)
         cascade = init_cv_cascade()
         gray = cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2GRAY)
-        
-        # Strategy 1: OpenCV Haar Cascade with multiple passes
         gray_eq = cv2.equalizeHist(gray)
         
-        # Multiple detection passes with increasingly relaxed parameters
         detection_configs = [
-            # Config 1: Standard detection
             {'scaleFactor': 1.1, 'minNeighbors': 3, 'minSize': (20, 20)},
-            # Config 2: More relaxed for low quality
             {'scaleFactor': 1.05, 'minNeighbors': 2, 'minSize': (15, 15)},
-            # Config 3: Very relaxed for compressed videos
             {'scaleFactor': 1.1, 'minNeighbors': 1, 'minSize': (10, 10)},
-            # Config 4: Ultra relaxed (last resort)
             {'scaleFactor': 1.05, 'minNeighbors': 1, 'minSize': (8, 8)},
         ]
         
         faces = []
         for config in detection_configs:
-            # Try on equalized image first
             faces = cascade.detectMultiScale(gray_eq, **config)
             if len(faces) > 0:
                 break
-            
-            # Try on original grayscale
             faces = cascade.detectMultiScale(gray, **config)
             if len(faces) > 0:
                 break
         
         if len(faces) > 0:
-            # Select largest face (deterministic)
             largest_face = max(faces, key=lambda f: f[2] * f[3])
             x, y, w, h = largest_face
             
-            # More generous padding for better context
             padding = max(5, int(min(w, h) * 0.15))
             
             top = max(0, y - padding)
@@ -313,23 +358,20 @@ def extract_face_only(rgb_frame):
             
             face_region = rgb_frame[top:bottom, left:right]
             
-            # Lower size threshold for compressed videos
             if face_region.shape[0] >= 10 and face_region.shape[1] >= 10:
+                logger.debug("Face detected via OpenCV Haar Cascade")
                 return face_region
         
-        # Strategy 2: face_recognition HOG model (more robust for difficult cases)
+        # Strategy 3: face_recognition HOG
         try:
-            # Try with 1 upsample for better detection
             faces = face_recognition.face_locations(rgb_frame, model="hog", number_of_times_to_upsample=1)
             
-            # Try without upsample if first attempt fails
             if not faces:
                 faces = face_recognition.face_locations(rgb_frame, model="hog", number_of_times_to_upsample=0)
             
             if faces:
                 top, right, bottom, left = faces[0]
                 
-                # Add padding
                 h, w = rgb_frame.shape[:2]
                 padding = max(5, int(min(right-left, bottom-top) * 0.15))
                 
@@ -341,67 +383,45 @@ def extract_face_only(rgb_frame):
                 face_region = rgb_frame[top:bottom, left:right]
                 
                 if face_region.shape[0] >= 10 and face_region.shape[1] >= 10:
+                    logger.debug("Face detected via face_recognition HOG")
                     return face_region
         except Exception as e:
             logger.debug(f"face_recognition HOG failed: {e}")
         
-        # Strategy 3: Try CNN model ONLY if available (requires GPU dlib)
-        try:
-            # Check if CNN model is available (will be fast on GPU, slow on CPU)
-            faces = face_recognition.face_locations(rgb_frame, model="cnn", number_of_times_to_upsample=0)
-            
-            if faces:
-                top, right, bottom, left = faces[0]
-                
-                h, w = rgb_frame.shape[:2]
-                padding = max(5, int(min(right-left, bottom-top) * 0.15))
-                
-                top = max(0, top - padding)
-                bottom = min(h, bottom + padding)
-                left = max(0, left - padding)
-                right = min(w, right + padding)
-                
-                face_region = rgb_frame[top:bottom, left:right]
-                
-                if face_region.shape[0] >= 10 and face_region.shape[1] >= 10:
-                    return face_region
-        except Exception as e:
-            logger.debug(f"face_recognition CNN failed (this is normal if dlib not compiled with CUDA): {e}")
-        
-        # Strategy 4: Skin-tone detection (last resort for very compressed frames)
+        # Strategy 4: Skin-tone detection (HSV + YCrCb for all skin tones)
         hsv = cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2HSV)
+        ycrcb = cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2YCrCb)
         
-        # Expanded skin color ranges for different skin tones
-        # Range 1: Lighter skin tones
-        lower_skin1 = np.array([0, 20, 70], dtype=np.uint8)
-        upper_skin1 = np.array([20, 255, 255], dtype=np.uint8)
+        # HSV skin detection
+        lower_skin_hsv = np.array([0, 20, 70], dtype=np.uint8)
+        upper_skin_hsv = np.array([20, 255, 255], dtype=np.uint8)
+        skin_mask_hsv = cv2.inRange(hsv, lower_skin_hsv, upper_skin_hsv)
         
-        # Range 2: Darker skin tones
-        lower_skin2 = np.array([0, 10, 40], dtype=np.uint8)
-        upper_skin2 = np.array([25, 255, 200], dtype=np.uint8)
+        # YCrCb skin detection (better for darker skin)
+        lower_skin_ycrcb = np.array([0, 133, 77], dtype=np.uint8)
+        upper_skin_ycrcb = np.array([255, 173, 127], dtype=np.uint8)
+        skin_mask_ycrcb = cv2.inRange(ycrcb, lower_skin_ycrcb, upper_skin_ycrcb)
         
-        skin_mask1 = cv2.inRange(hsv, lower_skin1, upper_skin1)
-        skin_mask2 = cv2.inRange(hsv, lower_skin2, upper_skin2)
-        skin_mask = cv2.bitwise_or(skin_mask1, skin_mask2)
+        # Combine masks
+        skin_mask = cv2.bitwise_or(skin_mask_hsv, skin_mask_ycrcb)
+        
+        # Clean up mask
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+        skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_CLOSE, kernel)
+        skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_OPEN, kernel)
         
         skin_ratio = np.sum(skin_mask > 0) / (rgb_frame.shape[0] * rgb_frame.shape[1])
         
-        # If significant skin-tone area detected, use center crop as fallback
-        if skin_ratio > 0.12:  # Lowered threshold from 15% to 12%
-            logger.debug(f"Using skin-tone center crop fallback (skin ratio: {skin_ratio:.2f})")
-            
-            h, w = rgb_frame.shape[:2]
-            
-            # Find the centroid of skin pixels for better centering
+        if skin_ratio > 0.10:
             moments = cv2.moments(skin_mask)
             if moments["m00"] != 0:
                 center_x = int(moments["m10"] / moments["m00"])
                 center_y = int(moments["m01"] / moments["m00"])
             else:
-                center_x, center_y = w // 2, h // 2
+                center_x, center_y = rgb_frame.shape[1] // 2, rgb_frame.shape[0] // 2
             
-            # Extract region around skin centroid
-            crop_size = min(h, w, max(h, w) // 2)  # Smaller crop for better face focus
+            h, w = rgb_frame.shape[:2]
+            crop_size = min(h, w, max(h, w) // 2)
             half_size = crop_size // 2
             
             top = max(0, center_y - half_size)
@@ -412,21 +432,18 @@ def extract_face_only(rgb_frame):
             face_region = rgb_frame[top:bottom, left:right]
             
             if face_region.shape[0] >= 10 and face_region.shape[1] >= 10:
+                logger.debug(f"Face detected via skin-tone (ratio: {skin_ratio:.2f})")
                 return face_region
         
-        # Strategy 5: Edge detection fallback (detect high-edge areas = potential face features)
+        # Strategy 5: Edge detection fallback
         try:
             edges = cv2.Canny(gray_eq, 50, 150)
-            
-            # Find contours
             contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             
             if contours:
-                # Find largest contour
                 largest_contour = max(contours, key=cv2.contourArea)
                 x, y, w, h = cv2.boundingRect(largest_contour)
                 
-                # Validate aspect ratio (faces are roughly square)
                 aspect_ratio = w / float(h) if h > 0 else 0
                 if 0.5 < aspect_ratio < 2.0 and w > 20 and h > 20:
                     padding = max(5, int(min(w, h) * 0.15))
@@ -439,12 +456,12 @@ def extract_face_only(rgb_frame):
                     face_region = rgb_frame[top:bottom, left:right]
                     
                     if face_region.shape[0] >= 10 and face_region.shape[1] >= 10:
-                        logger.debug("Using edge detection fallback")
+                        logger.debug("Face detected via edge detection")
                         return face_region
         except Exception as e:
-            logger.debug(f"Edge detection fallback failed: {e}")
+            logger.debug(f"Edge detection failed: {e}")
         
-        # NO FACE FOUND - Return None
+        # NO FACE FOUND
         return None
         
     except Exception as e:
@@ -775,41 +792,64 @@ if __name__ == '__main__':
     try:
         print("=" * 60)
         print("Facebook-Compatible VeriFeed Backend Starting")
-        print("FACE-ONLY MODE ENABLED")
+        print("MTCNN + Multi-Strategy Face Detection")
         print("=" * 60)
        
-        print("Step 1: Initializing OpenCV cascade...")
+        print("\nStep 1: Initializing face detectors...")
+        
+        # Initialize MTCNN first
+        mtcnn_available = init_mtcnn()
+        if mtcnn_available:
+            print("✓ MTCNN detector initialized (best for all skin tones)")
+        else:
+            print("⚠️  MTCNN not available, using fallback detectors")
+            print("   To enable MTCNN: pip install mtcnn tensorflow-cpu")
+        
+        # Initialize OpenCV cascade
         init_cv_cascade()
-        print("✓ OpenCV cascade initialized")
-       
-        print("Step 2: Checking model availability...")
+        print("✓ OpenCV Haar Cascade initialized")
+        
+        print("\nStep 2: Checking model availability...")
         if len(model_manager.model_info) == 0:
             print("⚠️  WARNING: No models found in models/ directory")
+            print("   Please add your trained models (.pt files) to the 'models' folder")
         else:
             print(f"✓ Found models for {len(model_manager.model_info)} sequence lengths")
             for seq_len, models in model_manager.model_info.items():
                 best_model = models[0]
                 print(f"   {seq_len} frames: {best_model['filename']} (acc: {best_model['accuracy']}%)")
        
-        print("Step 3: Configuration...")
-        print(f"✓ FACE-ONLY mode: Enabled (frames without faces are skipped)")
-        print(f"✓ Torch seed: 42")
-        print(f"✓ NumPy seed: 42")
+        print("\nStep 3: Configuration...")
+        detection_pipeline = "MTCNN → OpenCV → face_recognition → Skin-tone → Edges" if mtcnn_available else "OpenCV → face_recognition → Skin-tone → Edges"
+        print(f"✓ Detection pipeline: {detection_pipeline}")
+        print(f"✓ Skin-tone detection: HSV + YCrCb (all skin tones)")
+        print(f"✓ Model selection: Based on extracted faces (not submitted frames)")
+        print(f"✓ Torch seed: 42 (deterministic)")
+        print(f"✓ NumPy seed: 42 (deterministic)")
         print(f"✓ CUDNN deterministic: True")
         print(f"✓ Dropout disabled in inference")
-        print(f"✓ Sequential frame processing: enabled")
         print(f"✓ Device: {DEVICE}")
        
         print("\n" + "=" * 60)
-        print("🚀 Starting FACE-ONLY DETECTION server...")
-        print("📍 Content script endpoint: http://localhost:5000/frame_analyze")
-        print("🔍 Only extracted faces will be analyzed")
-        print("⚠️  Frames without detectable faces will be skipped")
+        print("🚀 Server Ready!")
         print("=" * 60)
+        print(f"📍 Endpoint: http://localhost:5000/frame_analyze")
+        print(f"🌍 Works with ALL skin tones" + (" (MTCNN enabled)" if mtcnn_available else ""))
+        print(f"🎯 Optimized for compressed Facebook videos")
+        print(f"🔍 Only detected faces are analyzed (face-only mode)")
+        print(f"⚙️  Model auto-selection based on face count")
+        print("=" * 60)
+        
+        # Add blank line for better readability
+        print("\n📊 Waiting for requests...\n")
        
         app.run(host='localhost', port=5000, debug=False, threaded=True, use_reloader=False)
        
     except Exception as e:
-        print(f"❌ Server startup failed: {e}")
+        print(f"\n❌ Server startup failed: {e}")
         import traceback
         traceback.print_exc()
+        print("\n💡 Troubleshooting:")
+        print("   1. Check if port 5000 is available")
+        print("   2. Ensure all dependencies are installed: pip install -r requirements.txt")
+        print("   3. For MTCNN: pip install mtcnn tensorflow-cpu")
