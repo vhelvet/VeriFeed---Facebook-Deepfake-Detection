@@ -7,11 +7,10 @@
     "activeTab",
     "scripting",
     "storage",
-    "webRequest",
-    "webNavigation"
+    "tabs"
   ],
   "host_permissions": [
-    "https://facebook.com/",
+    "https://facebook.com/*",
     "https://www.facebook.com/*",
     "http://localhost:5000/*"
   ],
@@ -20,25 +19,24 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://facebook.com/", "https://www.facebook.com/*"],
+      "matches": [
+        "https://facebook.com/*",
+        "https://www.facebook.com/*"
+      ],
       "js": ["content.js"],
       "css": ["styles.css"],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": false
     }
   ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "VeriFeed - Check for Deepfakes"
   },
-  "icons": {
-    "16": "icons/icon16.txt",
-    "48": "icons/icon48.txt",
-    "128": "icons/icon128.txt"
-  },
   "web_accessible_resources": [
     {
-      "resources": ["icons/*", "styles.css"],
-      "matches": ["https://*.facebook.com/*"]
+      "resources": ["popup.js"],
+      "matches": ["<all_urls>"]
     }
   ]
 }

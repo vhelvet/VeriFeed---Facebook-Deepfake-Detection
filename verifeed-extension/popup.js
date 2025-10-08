@@ -1,99 +1,141 @@
-// VeriFeed Popup Script - Handles user interface and settings
-
+// VeriFeed Popup Script
 class VeriFeedPopup {
     constructor() {
+        this.serverUrl = 'http://localhost:5000';
         this.settings = {
-            enabled: true,
+            verifeedEnabled: true,
             autoAnalyze: true,
             showIndicators: true,
             confidenceThreshold: 40
         };
-
+        
         this.init();
     }
 
     async init() {
-        console.log('VeriFeed popup initialized');
+        console.log('[VeriFeed Popup] Initializing...');
+        
+        // Load settings first
         await this.loadSettings();
+        
+        // Setup UI
         this.setupEventListeners();
-        this.checkServerStatus();
         this.updateUI();
+        
+        // Check server status
+        this.checkServerStatus();
+        
+        // Auto-refresh status every 10 seconds
+        setInterval(() => this.checkServerStatus(), 10000);
     }
 
     async loadSettings() {
-        try {
-            const result = await chrome.storage.local.get(['verifeedSettings']);
-            if (result.verifeedSettings) {
-                this.settings = { ...this.settings, ...result.verifeedSettings };
-            }
-        } catch (error) {
-            console.error('Error loading settings:', error);
-        }
+        return new Promise((resolve) => {
+            chrome.storage.local.get([
+                'verifeedEnabled',
+                'autoAnalyze', 
+                'showIndicators',
+                'confidenceThreshold',
+                'serverUrl'
+            ], (result) => {
+                this.settings = {
+                    verifeedEnabled: result.verifeedEnabled !== false,
+                    autoAnalyze: result.autoAnalyze !== false,
+                    showIndicators: result.showIndicators !== false,
+                    confidenceThreshold: result.confidenceThreshold || 40
+                };
+                this.serverUrl = result.serverUrl || 'http://localhost:5000';
+                resolve();
+            });
+        });
     }
 
     async saveSettings() {
-        try {
-            await chrome.storage.local.set({ verifeedSettings: this.settings });
-            
-            // Notify background script about settings change
-            await chrome.runtime.sendMessage({
-                action: 'updateSettings',
-                settings: this.settings
-            });
-        } catch (error) {
-            console.error('Error saving settings:', error);
-        }
+        return new Promise((resolve) => {
+            chrome.storage.local.set({
+                ...this.settings,
+                serverUrl: this.serverUrl
+            }, resolve);
+        });
     }
 
     setupEventListeners() {
-        // Toggle switches
-        document.getElementById('toggleEnabled').addEventListener('change', (e) => {
-            this.settings.enabled = e.target.checked;
-            this.saveSettings();
+        // Enable/Disable toggle
+        const toggleEnabled = document.getElementById('toggleEnabled');
+        toggleEnabled.checked = this.settings.verifeedEnabled;
+        toggleEnabled.addEventListener('change', async (e) => {
+            this.settings.verifeedEnabled = e.target.checked;
+            await this.saveSettings();
+            this.notifyContentScript();
+            this.updateUI();
         });
 
-        document.getElementById('toggleAutoAnalyze').addEventListener('change', (e) => {
+        // Auto-analyze toggle
+        const toggleAutoAnalyze = document.getElementById('toggleAutoAnalyze');
+        toggleAutoAnalyze.checked = this.settings.autoAnalyze;
+        toggleAutoAnalyze.addEventListener('change', async (e) => {
             this.settings.autoAnalyze = e.target.checked;
-            this.saveSettings();
+            await this.saveSettings();
+            this.notifyContentScript();
         });
 
-        document.getElementById('toggleShowIndicators').addEventListener('change', (e) => {
+        // Show indicators toggle
+        const toggleShowIndicators = document.getElementById('toggleShowIndicators');
+        toggleShowIndicators.checked = this.settings.showIndicators;
+        toggleShowIndicators.addEventListener('change', async (e) => {
             this.settings.showIndicators = e.target.checked;
-            this.saveSettings();
+            await this.saveSettings();
+            this.notifyContentScript();
         });
 
         // Confidence threshold slider
-        const thresholdSlider = document.getElementById('confidenceThreshold');
+        const confidenceThreshold = document.getElementById('confidenceThreshold');
         const thresholdValue = document.getElementById('thresholdValue');
-
-        thresholdSlider.addEventListener('input', (e) => {
-            const value = e.target.value;
+        
+        confidenceThreshold.value = this.settings.confidenceThreshold;
+        thresholdValue.textContent = `${this.settings.confidenceThreshold}%`;
+        
+        confidenceThreshold.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
             thresholdValue.textContent = `${value}%`;
-            this.settings.confidenceThreshold = parseInt(value);
-            this.saveSettings();
         });
 
-        // Action buttons
+        confidenceThreshold.addEventListener('change', async (e) => {
+            this.settings.confidenceThreshold = parseInt(e.target.value);
+            await this.saveSettings();
+            this.notifyContentScript();
+        });
+
+        // Refresh button
         document.getElementById('btnRefresh').addEventListener('click', () => {
             this.checkServerStatus();
+            this.refreshContentScript();
         });
 
+        // Analyze Now button
         document.getElementById('btnAnalyze').addEventListener('click', () => {
-            this.analyzeCurrentPage();
+            this.triggerAnalysis();
         });
     }
 
     updateUI() {
-        // Update toggle switches
-        document.getElementById('toggleEnabled').checked = this.settings.enabled;
-        document.getElementById('toggleAutoAnalyze').checked = this.settings.autoAnalyze;
-        document.getElementById('toggleShowIndicators').checked = this.settings.showIndicators;
+        const isEnabled = this.settings.verifeedEnabled;
         
-        // Update confidence threshold
-        const thresholdSlider = document.getElementById('confidenceThreshold');
-        const thresholdValue = document.getElementById('thresholdValue');
-        thresholdSlider.value = this.settings.confidenceThreshold;
-        thresholdValue.textContent = `${this.settings.confidenceThreshold}%`;
+        // Enable/disable other controls based on main toggle
+        document.getElementById('toggleAutoAnalyze').disabled = !isEnabled;
+        document.getElementById('toggleShowIndicators').disabled = !isEnabled;
+        document.getElementById('confidenceThreshold').disabled = !isEnabled;
+        document.getElementById('btnAnalyze').disabled = !isEnabled;
+
+        // Update button text based on status
+        const analyzeBtn = document.getElementById('btnAnalyze');
+        if (!isEnabled) {
+            analyzeBtn.textContent = 'Disabled';
+            analyzeBtn.style.opacity = '0.5';
+        } else {
+            analyzeBtn.textContent = 'Analyze Now';
+            analyzeBtn.style.opacity = '1';
+        }
     }
 
     async checkServerStatus() {
@@ -101,159 +143,115 @@ class VeriFeedPopup {
         const statusText = document.getElementById('statusText');
         const statusInfo = document.getElementById('statusInfo');
 
-        // Show loading state
-        statusDot.className = 'status-dot';
-        statusText.textContent = 'Checking...';
-        statusInfo.textContent = 'Connecting to analysis server...';
-
         try {
-            const response = await chrome.runtime.sendMessage({
-                action: 'checkHealth'
+            statusText.textContent = 'Checking...';
+            statusDot.className = 'status-dot';
+            
+            const response = await fetch(`${this.serverUrl}/health`, {
+                method: 'GET',
+                timeout: 5000
             });
 
-            if (response && response.status) {
-                this.updateServerStatus(response.status);
+            if (response.ok) {
+                const data = await response.json();
+                statusDot.className = 'status-dot online';
+                statusText.textContent = 'Online';
+                statusInfo.textContent = `Server ready • Model: ${data.model_loaded ? 'Loaded' : 'Not loaded'} • Device: ${data.device || 'Unknown'}`;
             } else {
-                this.updateServerStatus('offline');
+                throw new Error(`Server returned ${response.status}`);
             }
         } catch (error) {
-            console.error('Error checking server status:', error);
-            this.updateServerStatus('offline');
+            console.error('[VeriFeed Popup] Server check failed:', error);
+            statusDot.className = 'status-dot offline';
+            statusText.textContent = 'Offline';
+            statusInfo.textContent = 'Cannot connect to analysis server. Make sure the backend is running on localhost:5000';
         }
     }
 
-    updateServerStatus(status) {
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        const statusInfo = document.getElementById('statusInfo');
-
-        statusDot.className = `status-dot ${status}`;
-        
-        switch (status) {
-            case 'online':
-                statusText.textContent = 'Online';
-                statusInfo.textContent = 'Server is ready to analyze videos';
-                break;
-            case 'offline':
-                statusText.textContent = 'Offline';
-                statusInfo.textContent = 'Analysis server is not available. Please make sure the server is running.';
-                break;
-            default:
-                statusText.textContent = 'Unknown';
-                statusInfo.textContent = 'Unable to determine server status';
-        }
-    }
-
-    async analyzeCurrentPage() {
+    async notifyContentScript() {
         try {
-            // Get current active tab
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             
-            if (tab && tab.url.includes('facebook.com')) {
-                // Send message to content script to analyze videos
-                const response = await chrome.tabs.sendMessage(tab.id, {
-                    action: 'analyzeSpecificVideo',
-                    videoSelector: 'video'
+            if (tab && (tab.url.includes('facebook.com') || tab.url.includes('fb.com'))) {
+                chrome.tabs.sendMessage(tab.id, {
+                    action: 'updateSettings',
+                    settings: this.settings
                 });
-
-                if (response && response.success) {
-                    this.showNotification('Analysis started', 'success');
-                } else {
-                    this.showNotification('No videos found to analyze', 'warning');
-                }
-            } else {
-                this.showNotification('Please open Facebook to analyze videos', 'info');
             }
         } catch (error) {
-            console.error('Error analyzing current page:', error);
-            this.showNotification('Error starting analysis', 'error');
+            console.error('[VeriFeed Popup] Failed to notify content script:', error);
         }
     }
 
-    showNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 16px;
-            border-radius: 8px;
-            color: white;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 10000;
-            animation: slideIn 0.3s ease;
-            max-width: 280px;
-        `;
-
-        // Set background color based on type
-        const colors = {
-            success: '#28a745',
-            error: '#dc3545',
-            warning: '#ffc107',
-            info: '#17a2b8'
-        };
-        
-        notification.style.background = colors[type] || colors.info;
-        notification.textContent = message;
-
-        // Add to document
-        document.body.appendChild(notification);
-
-        // Remove after 3 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
+    async refreshContentScript() {
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            
+            if (tab && (tab.url.includes('facebook.com') || tab.url.includes('fb.com'))) {
+                chrome.tabs.sendMessage(tab.id, {
+                    action: 'refresh'
+                });
             }
-        }, 3000);
+        } catch (error) {
+            console.error('[VeriFeed Popup] Failed to refresh content script:', error);
+        }
     }
 
-    // Handle messages from background script
-    setupMessageListener() {
-        chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            switch (request.action) {
-                case 'serverStatusUpdate':
-                    this.updateServerStatus(request.status);
-                    break;
-                case 'settingsUpdated':
-                    this.settings = { ...this.settings, ...request.settings };
-                    this.updateUI();
-                    break;
+    async triggerAnalysis() {
+        if (!this.settings.verifeedEnabled) return;
+
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            
+            if (tab && (tab.url.includes('facebook.com') || tab.url.includes('fb.com'))) {
+                // Send message to content script to analyze visible videos
+                chrome.tabs.sendMessage(tab.id, {
+                    action: 'analyzeAllVideos'
+                });
+
+                // Update button to show it's working
+                const analyzeBtn = document.getElementById('btnAnalyze');
+                const originalText = analyzeBtn.textContent;
+                analyzeBtn.textContent = 'Analyzing...';
+                analyzeBtn.disabled = true;
+
+                setTimeout(() => {
+                    analyzeBtn.textContent = originalText;
+                    analyzeBtn.disabled = false;
+                }, 3000);
+
+            } else {
+                alert('Please navigate to Facebook to analyze videos.');
             }
-        });
+        } catch (error) {
+            console.error('[VeriFeed Popup] Failed to trigger analysis:', error);
+        }
+    }
+
+    async getCurrentTabInfo() {
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            return tab;
+        } catch (error) {
+            console.error('[VeriFeed Popup] Failed to get tab info:', error);
+            return null;
+        }
     }
 }
 
-// Initialize the popup when DOM is loaded
+// Initialize popup when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const veriFeedPopup = new VeriFeedPopup();
-    veriFeedPopup.setupMessageListener();
+    new VeriFeedPopup();
 });
 
-// Add CSS for notifications
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+// Handle messages from content script
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'analysisComplete') {
+        // You can update UI here if needed when analysis completes
+        console.log('[VeriFeed Popup] Analysis completed:', request.result);
     }
     
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
+    if (request.action === 'analysisError') {
+        console.error('[VeriFeed Popup] Analysis error:', request.error);
     }
-`;
-document.head.appendChild(style);
+});
