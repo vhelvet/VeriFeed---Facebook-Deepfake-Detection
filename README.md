@@ -1,6 +1,6 @@
 # VeriFeed1.0
 
-VeriFeed is a Chrome extension that detects deepfake videos on social media platforms like Facebook. It uses a deep learning model (ResNext50 + LSTM) to analyze videos and provide real-time deepfake detection.
+VeriFeed is a browser extension that detects deepfake videos on Facebook. It uses a deep learning model (ResNext50 + LSTM) to analyze videos and provide real-time deepfake detection.
 
 ## Project Structure
 
