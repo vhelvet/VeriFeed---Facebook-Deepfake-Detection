@@ -502,8 +502,10 @@ class VeriFeedDetector {
 
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
-        canvas.width = 112;
-        canvas.height = 112;
+        canvas.width = videoElement.videoWidth || videoElement.clientWidth;
+        canvas.height = videoElement.videoHeight || videoElement.clientHeight;
+        
+        console.log(`Canvas dimensions: ${canvas.width}x${canvas.height}`);
 
         const frames = [];
         const duration = videoElement.duration;
