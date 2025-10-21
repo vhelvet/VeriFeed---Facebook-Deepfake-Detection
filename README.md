@@ -1,6 +1,12 @@
 # VeriFeed1.0
 
-VeriFeed is a browser extension that detects deepfake videos on Facebook. It uses a deep learning model (ResNext50 + LSTM) to analyze videos and provide real-time deepfake detection.
+VeriFeed is a Browser extension that detects deepfake videos on social media platforms like Facebook. It uses a deep learning model (ResNext50 + LSTM) to analyze videos and provide real-time deepfake detection.
+>>>>>>> Stashed changes
+=======
+VeriFeed is a Browser extension that detects deepfake videos on social media platforms like Facebook. It uses a deep learning model (ResNext50 + LSTM) to analyze videos and provide real-time deepfake detection.
+=======
+VeriFeed is a Browser extension that detects deepfake videos on social media platforms like Facebook. It uses a deep learning model (ResNext50 + LSTM) to analyze videos and provide real-time deepfake detection.
+>>>>>>> Stashed changes
 
 ## Project Structure
 
@@ -10,7 +16,7 @@ verifeed/
 │   ├── app.py                # Main Flask application
 │   ├── requirements.txt      # Python dependencies
 │   └── test_api.py          # API testing script
-├── verifeed-extension/       # Chrome extension
+├── verifeed-extension/       # Browser extension
 │   ├── manifest.json        # Extension manifest
 │   ├── content.js           # Content script for Facebook
 │   ├── background.js        # Background script
@@ -41,9 +47,9 @@ verifeed/
 
 The server will start on `http://localhost:5000`
 
-### 2. Chrome Extension Setup
+### 2. Browser Extension Setup
 
-1. Open Chrome and go to `chrome://extensions/`
+1. Open Browser and go to `browser://extensions/`
 2. Enable "Developer mode" (toggle in top right)
 3. Click "Load unpacked"
 4. Select the `verifeed-extension` directory
@@ -75,7 +81,7 @@ The server will start on `http://localhost:5000`
 
 ✅ Backend server running successfully on port 5000  
 ✅ API endpoints working correctly  
-✅ Chrome extension files created  
+✅ Browser extension files created  
 ✅ Deep learning model initialized  
 ✅ Pre-trained model weights loaded (10 models available)  
 ✅ Real video processing integration  
@@ -85,7 +91,7 @@ The server will start on `http://localhost:5000`
 1. Add pre-trained model weights for accurate detection
 2. Implement real video download/processing from social media
 3. Add more social media platform support
-4. Improve UI/UX of the Chrome extension
+4. Improve UI/UX of the Browser extension
 5. Add batch processing capabilities
 
 ## Development Notes

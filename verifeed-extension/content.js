@@ -8,12 +8,9 @@ class VeriFeedDetector {
     this.serverUrl = "http://localhost:5000";
     this.isEnabled = true;
     this.observer = null;
-    this.activePopup = null;
-    this.activeStyle = null;
     this.maxRetries = 3;
     this.retryDelay = 1000;
-    this.scrollListener = null;
-    this.clickListener = null;
+    // Popup methods are now handled directly in this class
 
     this.init();
   }
@@ -111,17 +108,42 @@ class VeriFeedDetector {
       '[data-pagelet*="timeline"]',
       '[data-pagelet*="main_column"]',
       '[data-pagelet*="content"]',
+      // Additional selectors for current Facebook structure
+      '[data-visualcompletion="ignore-dynamic"]',
+      '[data-instancekey]',
+      'div[data-pagelet]',
+      // More specific video post selectors
+      'div[role="article"]',
+      'article',
+      // Facebook's current video post structure
+      'div[data-ad-preview="message"]',
+      'div[aria-label*="video"]',
     ];
 
     const posts = new Set();
 
     selectors.forEach((selector) => {
       document.querySelectorAll(selector).forEach((element) => {
+        // Exclude Facebook stories - they have different data attributes
+        const isStory = element.closest('[data-pagelet*="story"]') ||
+                       element.closest('[aria-label*="story"]') ||
+                       element.closest('.story') ||
+                       element.closest('[data-visualcompletion*="story"]') ||
+                       element.getAttribute('data-pagelet')?.includes('story') ||
+                       element.classList?.contains('story');
+
+        if (isStory) {
+          console.log("Excluding story element from video posts scan");
+          return;
+        }
+
         if (
           element.querySelector("video") ||
           element.textContent?.includes("video") ||
           element.getAttribute("data-ft")?.includes("video") ||
-          element.getAttribute("data-pagelet")?.includes("video")
+          element.getAttribute("data-pagelet")?.includes("video") ||
+          element.querySelector('[aria-label*="video"]') ||
+          element.querySelector('[data-visualcompletion*="media"]')
         ) {
           posts.add(element);
         }
@@ -430,7 +452,7 @@ class VeriFeedDetector {
 
       console.log("=== CALLING showResultsPopup ===");
       console.log("Passing to popup - prediction:", analysisData.prediction, "confidence:", analysisData.confidence);
-      
+
       // CRITICAL: Force a small delay to ensure DOM is ready
       setTimeout(() => {
         this.showResultsPopup(buttonElement, analysisData);
@@ -1133,6 +1155,35 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       } else {
         sendResponse({ success: false, error: "Video element not found" });
       }
+    } else {
+      sendResponse({
+        success: false,
+        error: "VeriFeed not enabled or not initialized",
+      });
+    }
+  }
+
+  if (request.action === "analyzeAllVideos") {
+    if (veriFeedInstance && veriFeedInstance.isEnabled) {
+      console.log("Analyzing all videos...");
+      const veriFeedButtons = document.querySelectorAll(".verifeed-verify-btn");
+      console.log(`Found ${veriFeedButtons.length} VeriFeed buttons to analyze`);
+
+      veriFeedButtons.forEach((button, index) => {
+        setTimeout(() => {
+          console.log(`Triggering analysis for video ${index + 1}/${veriFeedButtons.length}`);
+          const container = button.closest('[role="article"], [data-pagelet*="video"], [data-pagelet*="FeedUnit"]');
+          const videoElement = container ? container.querySelector("video") : null;
+
+          if (container && videoElement) {
+            veriFeedInstance.handleVerifyClick(container, videoElement, button);
+          } else {
+            console.log(`Skipping video ${index + 1}: container or video not found`);
+          }
+        }, index * 2000); // Stagger analysis by 2 seconds to avoid overwhelming the server
+      });
+
+      sendResponse({ success: true, message: `Started analysis for ${veriFeedButtons.length} videos` });
     } else {
       sendResponse({
         success: false,

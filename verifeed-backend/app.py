@@ -45,7 +45,7 @@ CORS(app)
 im_size = 112
 mean = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
-MODELS_DIR = 'verifeed-backend/models'
+MODELS_DIR = 'models'
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -261,4 +261,4 @@ if __name__ == '__main__':
     print("=" * 70)
     print("VERIFEED SERVER - MODEL PROOF MODE ENABLED")
     print("=" * 70)
-    app.run(host='localhost', port=5000, debug=False, threaded=True)
+    app.run(host='127.0.0.1', port=5000, debug=False, threaded=True)
