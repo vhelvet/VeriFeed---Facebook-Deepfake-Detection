@@ -93,8 +93,13 @@ class VeriFeedDetector {
         return;
       }
 
-      // Ultra-comprehensive exclusion logic for Facebook stories and MyDay
-      const isStory = container.closest('[data-pagelet*="story"]') ||
+      const dataPagelet = container.getAttribute('data-pagelet') || '';
+      const isReel = dataPagelet.toLowerCase().includes('reel');
+
+      console.log(`DEBUG: Checking video container - dataPagelet: "${dataPagelet}", isReel: ${isReel}`);
+
+      // Ultra-comprehensive exclusion logic for Facebook stories and MyDay (excluding reels)
+      const isStory = !isReel && (container.closest('[data-pagelet*="story"]') ||
                      container.closest('[data-pagelet*="Stories"]') ||
                      container.closest('[data-pagelet*="stories"]') ||
                      container.closest('[aria-label*="story"]') ||
@@ -126,9 +131,9 @@ class VeriFeedDetector {
                      container.getAttribute('data-pagelet')?.includes('Story') ||
                      container.classList?.contains('Story') ||
                      container.closest('[role*="Story"]') ||
-                     container.closest('[data-testid*="Story"]');
+                     container.closest('[data-testid*="Story"]'));
 
-      const isMyDay = container.closest('[data-pagelet*="myday"]') ||
+      const isMyDay = !isReel && (container.closest('[data-pagelet*="myday"]') ||
                       container.closest('[data-pagelet*="MyDay"]') ||
                       container.closest('[data-pagelet*="My Day"]') ||
                       container.closest('[data-pagelet*="my day"]') ||
@@ -168,21 +173,17 @@ class VeriFeedDetector {
                       container.getAttribute('data-pagelet')?.includes('Myday') ||
                       container.classList?.contains('Myday') ||
                       container.closest('[role*="Myday"]') ||
-                      container.closest('[data-testid*="Myday"]');
+                      container.closest('[data-testid*="Myday"]'));
 
-      // Additional broad exclusions for story-like content
-      const isStoryLike = container.closest('[data-pagelet*="reel"]') ||
-                         container.closest('[data-pagelet*="Reel"]') ||
-                         container.closest('[aria-label*="reel"]') ||
-                         container.closest('[aria-label*="Reel"]') ||
-                         container.closest('.reel') ||
-                         container.closest('[class*="reel"]') ||
-                         container.closest('[data-pagelet*="highlight"]') ||
+      // Additional broad exclusions for story-like content (excluding reels to allow VeriFeed button)
+      const isStoryLike = !isReel && (container.closest('[data-pagelet*="highlight"]') ||
                          container.closest('[data-pagelet*="Highlight"]') ||
                          container.closest('[aria-label*="highlight"]') ||
                          container.closest('[aria-label*="Highlight"]') ||
                          container.closest('.highlight') ||
-                         container.closest('[class*="highlight"]');
+                         container.closest('[class*="highlight"]'));
+
+      console.log(`DEBUG: Exclusion check results - isStory: ${isStory}, isMyDay: ${isMyDay}, isStoryLike: ${isStoryLike}`);
 
       if (isStory || isMyDay || isStoryLike) {
         console.log("Excluding video from button addition:", {
@@ -196,6 +197,8 @@ class VeriFeedDetector {
         });
         return;
       }
+
+      console.log(`DEBUG: Video passed exclusion checks, proceeding to add button`);
 
       if (container.querySelector(".verifeed-verify-btn")) {
         console.log(
@@ -231,6 +234,7 @@ class VeriFeedDetector {
   findVideoPosts() {
     const selectors = [
       '[data-pagelet*="video"]',
+      '[data-pagelet*="reel"]',
       '[data-pagelet*="FeedUnit"]',
       '[role="article"]',
       '[data-ft*="video"]',
@@ -255,8 +259,11 @@ class VeriFeedDetector {
 
     selectors.forEach((selector) => {
       document.querySelectorAll(selector).forEach((element) => {
-        // Ultra-comprehensive exclusion logic for Facebook stories and MyDay
-        const isStory = element.closest('[data-pagelet*="story"]') ||
+        const dataPagelet = element.getAttribute('data-pagelet') || '';
+        const isReel = dataPagelet.toLowerCase().includes('reel');
+
+        // Ultra-comprehensive exclusion logic for Facebook stories and MyDay (excluding reels)
+        const isStory = !isReel && (element.closest('[data-pagelet*="story"]') ||
                        element.closest('[data-pagelet*="Stories"]') ||
                        element.closest('[data-pagelet*="stories"]') ||
                        element.closest('[aria-label*="story"]') ||
@@ -288,9 +295,9 @@ class VeriFeedDetector {
                        element.getAttribute('data-pagelet')?.includes('Story') ||
                        element.classList?.contains('Story') ||
                        element.closest('[role*="Story"]') ||
-                       element.closest('[data-testid*="Story"]');
+                       element.closest('[data-testid*="Story"]'));
 
-        const isMyDay = element.closest('[data-pagelet*="myday"]') ||
+        const isMyDay = !isReel && (element.closest('[data-pagelet*="myday"]') ||
                         element.closest('[data-pagelet*="MyDay"]') ||
                         element.closest('[data-pagelet*="My Day"]') ||
                         element.closest('[data-pagelet*="my day"]') ||
@@ -330,21 +337,15 @@ class VeriFeedDetector {
                         element.getAttribute('data-pagelet')?.includes('Myday') ||
                         element.classList?.contains('Myday') ||
                         element.closest('[role*="Myday"]') ||
-                        element.closest('[data-testid*="Myday"]');
+                        element.closest('[data-testid*="Myday"]'));
 
-        // Additional broad exclusions for story-like content
-        const isStoryLike = element.closest('[data-pagelet*="reel"]') ||
-                           element.closest('[data-pagelet*="Reel"]') ||
-                           element.closest('[aria-label*="reel"]') ||
-                           element.closest('[aria-label*="Reel"]') ||
-                           element.closest('.reel') ||
-                           element.closest('[class*="reel"]') ||
-                           element.closest('[data-pagelet*="highlight"]') ||
+        // Additional broad exclusions for story-like content (excluding reels to allow VeriFeed button)
+        const isStoryLike = !isReel && (element.closest('[data-pagelet*="highlight"]') ||
                            element.closest('[data-pagelet*="Highlight"]') ||
                            element.closest('[aria-label*="highlight"]') ||
                            element.closest('[aria-label*="Highlight"]') ||
                            element.closest('.highlight') ||
-                           element.closest('[class*="highlight"]');
+                           element.closest('[class*="highlight"]'));
 
         if (isStory || isMyDay || isStoryLike) {
           console.log("Excluding element from video posts scan:", {
