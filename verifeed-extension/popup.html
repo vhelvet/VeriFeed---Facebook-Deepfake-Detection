@@ -15,7 +15,8 @@
             width: 320px;
             min-height: 400px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: url('VeriFeed-Background.png') no-repeat center center fixed;
+            background-size: cover;
             color: white;
             padding: 0;
         }
@@ -25,25 +26,61 @@
         }
 
         .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
         }
 
-        .logo {
+        .logo-img {
+            width: auto;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .close-btn, .refresh-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover, .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .logo-text {
+            text-align: center;
             font-size: 24px;
             font-weight: bold;
-            margin-bottom: 5px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            background: linear-gradient(45deg, #ffffff, #3b82f6, #8b5cf6, #ec4899, #ffffff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
         .subtitle {
+            text-align: center;
             font-size: 12px;
             opacity: 0.8;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 15px;
         }
 
         .status-card {
@@ -169,73 +206,6 @@
             transform: translateX(20px);
         }
 
-        .slider-range {
-            width: 100%;
-            margin: 10px 0;
-        }
-
-        .slider-range input {
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.3);
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        .slider-range input::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #28a745;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        .confidence-value {
-            text-align: center;
-            font-size: 12px;
-            margin-top: 5px;
-            opacity: 0.8;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
-        }
-
-        .btn.primary {
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            border: none;
-        }
-
-        .btn.primary:hover {
-            background: linear-gradient(45deg, #ff5252, #3db7af);
-            transform: translateY(-1px);
-        }
-
         .footer {
             text-align: center;
             margin-top: 20px;
@@ -243,6 +213,41 @@
             border-top: 1px solid rgba(255, 255, 255, 0.2);
             font-size: 11px;
             opacity: 0.7;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .footer-link {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
+            transition: opacity 0.3s;
+        }
+
+        .footer-link:hover {
+            opacity: 0.8;
+        }
+
+        .gmail-icon {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .website-icon {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            filter: brightness(0) invert(1);
         }
 
         .loading {
@@ -275,9 +280,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">VeriFeed</div>
-            <div class="subtitle">AI-Powered Deepfake Detection</div>
+            <img src="VeriFeed-Logo.png" alt="VeriFeed Logo" class="logo-img">
+            <div class="header-right">
+                <button class="refresh-btn" id="btnRefresh" title="Refresh">↻</button>
+                <button class="close-btn" id="btnClose" title="Close">×</button>
+            </div>
         </div>
+        <div class="logo-text">VeriFeed</div>
+        <div class="subtitle">AI-Powered Deepfake Detection</div>
 
         <div class="status-card">
             <div class="status-header">
@@ -294,7 +304,7 @@
 
         <div class="settings-section">
             <div class="settings-title">Detection Settings</div>
-            
+
             <div class="setting-item">
                 <span class="setting-label">Enable VeriFeed</span>
                 <label class="toggle-switch">
@@ -303,34 +313,20 @@
                 </label>
             </div>
 
-            <div class="setting-item">
-                <span class="setting-label">Auto-analyze videos</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="toggleAutoAnalyze" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
 
-            <div class="setting-item">
-                <span class="setting-label">Show indicators</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="toggleShowIndicators" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="slider-range">
-                <span class="setting-label">Confidence Threshold: <span id="thresholdValue">40%</span></span>
-                <input type="range" id="confidenceThreshold" min="20" max="80" value="40">
-            </div>
-        </div>
-
-        <div class="actions">
-            <button class="btn" id="btnRefresh">Refresh</button>
-            <button class="btn primary" id="btnAnalyze">Analyze Now</button>
         </div>
 
         <div class="footer">
+            <div class="footer-links">
+                <a href="mailto:verifeedofficial@gmail.com" class="footer-link">
+                    <span class="gmail-icon">✉</span>
+                    verifeedofficial@gmail.com
+                </a>
+                <a href="http://localhost:5173/" target="_blank" class="footer-link">
+                    <span class="website-icon">🌐</span>
+                    VeriFeed Official Website
+                </a>
+            </div>
             VeriFeed v1.0.0 • Powered by AI
         </div>
     </div>

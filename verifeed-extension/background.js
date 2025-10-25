@@ -8,9 +8,6 @@ chrome.runtime.onInstalled.addListener((details) => {
     // Set default settings
     chrome.storage.local.set({
       verifeedEnabled: true,
-      autoAnalyze: true,
-      showIndicators: true,
-      confidenceThreshold: 40,
       serverUrl: 'http://localhost:5000'
     });
   }
@@ -22,9 +19,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     case 'getSettings':
       chrome.storage.local.get([
         'verifeedEnabled',
-        'autoAnalyze',
-        'showIndicators', 
-        'confidenceThreshold',
         'serverUrl'
       ], (result) => {
         sendResponse(result);

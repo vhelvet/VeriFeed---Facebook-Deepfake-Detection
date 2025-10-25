@@ -26,7 +26,27 @@ class VeriFeedDetector {
   loadSettings() {
     chrome.storage.local.get(["verifeedEnabled"], (result) => {
       this.isEnabled = result.verifeedEnabled !== false;
+      this.updateUI();
     });
+  }
+
+  updateSettings(newSettings) {
+    this.isEnabled = newSettings.verifeedEnabled !== false;
+    this.updateUI();
+  }
+
+  updateUI() {
+    if (this.isEnabled) {
+      this.scanForVideos();
+    } else {
+      this.removeAllButtons();
+    }
+  }
+
+  removeAllButtons() {
+    const buttons = document.querySelectorAll('.verifeed-verify-btn');
+    buttons.forEach(button => button.remove());
+    this.analyzedVideos.clear();
   }
 
   setupMutationObserver() {
@@ -73,6 +93,110 @@ class VeriFeedDetector {
         return;
       }
 
+      // Ultra-comprehensive exclusion logic for Facebook stories and MyDay
+      const isStory = container.closest('[data-pagelet*="story"]') ||
+                     container.closest('[data-pagelet*="Stories"]') ||
+                     container.closest('[data-pagelet*="stories"]') ||
+                     container.closest('[aria-label*="story"]') ||
+                     container.closest('[aria-label*="Stories"]') ||
+                     container.closest('[aria-label*="stories"]') ||
+                     container.closest('.story') ||
+                     container.closest('[class*="story"]') ||
+                     container.closest('[data-visualcompletion*="story"]') ||
+                     container.closest('[data-visualcompletion*="Stories"]') ||
+                     container.closest('[data-visualcompletion*="stories"]') ||
+                     container.getAttribute('data-pagelet')?.includes('story') ||
+                     container.getAttribute('data-pagelet')?.includes('Stories') ||
+                     container.getAttribute('data-pagelet')?.includes('stories') ||
+                     container.classList?.contains('story') ||
+                     container.classList?.contains('Stories') ||
+                     container.classList?.contains('stories') ||
+                     container.closest('[role*="story"]') ||
+                     container.closest('[data-testid*="story"]') ||
+                     container.closest('[data-testid*="Stories"]') ||
+                     container.closest('[data-testid*="stories"]') ||
+                     // Check parent containers for story indicators
+                     container.closest('[data-pagelet*="feed"]')?.querySelector('[data-pagelet*="story"]') ||
+                     container.closest('[data-pagelet*="timeline"]')?.querySelector('[data-pagelet*="story"]') ||
+                     // Additional story patterns
+                     container.closest('[data-pagelet*="Story"]') ||
+                     container.closest('[aria-label*="Story"]') ||
+                     container.closest('[class*="Story"]') ||
+                     container.closest('[data-visualcompletion*="Story"]') ||
+                     container.getAttribute('data-pagelet')?.includes('Story') ||
+                     container.classList?.contains('Story') ||
+                     container.closest('[role*="Story"]') ||
+                     container.closest('[data-testid*="Story"]');
+
+      const isMyDay = container.closest('[data-pagelet*="myday"]') ||
+                      container.closest('[data-pagelet*="MyDay"]') ||
+                      container.closest('[data-pagelet*="My Day"]') ||
+                      container.closest('[data-pagelet*="my day"]') ||
+                      container.closest('[aria-label*="myday"]') ||
+                      container.closest('[aria-label*="MyDay"]') ||
+                      container.closest('[aria-label*="My Day"]') ||
+                      container.closest('[aria-label*="my day"]') ||
+                      container.closest('.myday') ||
+                      container.closest('.MyDay') ||
+                      container.closest('[class*="myday"]') ||
+                      container.closest('[class*="MyDay"]') ||
+                      container.closest('[class*="my-day"]') ||
+                      container.closest('[data-visualcompletion*="myday"]') ||
+                      container.closest('[data-visualcompletion*="MyDay"]') ||
+                      container.closest('[data-visualcompletion*="My Day"]') ||
+                      container.closest('[data-visualcompletion*="my day"]') ||
+                      container.getAttribute('data-pagelet')?.includes('myday') ||
+                      container.getAttribute('data-pagelet')?.includes('MyDay') ||
+                      container.getAttribute('data-pagelet')?.includes('My Day') ||
+                      container.getAttribute('data-pagelet')?.includes('my day') ||
+                      container.classList?.contains('myday') ||
+                      container.classList?.contains('MyDay') ||
+                      container.classList?.contains('my-day') ||
+                      container.closest('[role*="myday"]') ||
+                      container.closest('[role*="MyDay"]') ||
+                      container.closest('[data-testid*="myday"]') ||
+                      container.closest('[data-testid*="MyDay"]') ||
+                      container.closest('[data-testid*="my-day"]') ||
+                      // Check parent containers for MyDay indicators
+                      container.closest('[data-pagelet*="feed"]')?.querySelector('[data-pagelet*="myday"]') ||
+                      container.closest('[data-pagelet*="timeline"]')?.querySelector('[data-pagelet*="myday"]') ||
+                      // Additional MyDay patterns
+                      container.closest('[data-pagelet*="Myday"]') ||
+                      container.closest('[aria-label*="Myday"]') ||
+                      container.closest('[class*="Myday"]') ||
+                      container.closest('[data-visualcompletion*="Myday"]') ||
+                      container.getAttribute('data-pagelet')?.includes('Myday') ||
+                      container.classList?.contains('Myday') ||
+                      container.closest('[role*="Myday"]') ||
+                      container.closest('[data-testid*="Myday"]');
+
+      // Additional broad exclusions for story-like content
+      const isStoryLike = container.closest('[data-pagelet*="reel"]') ||
+                         container.closest('[data-pagelet*="Reel"]') ||
+                         container.closest('[aria-label*="reel"]') ||
+                         container.closest('[aria-label*="Reel"]') ||
+                         container.closest('.reel') ||
+                         container.closest('[class*="reel"]') ||
+                         container.closest('[data-pagelet*="highlight"]') ||
+                         container.closest('[data-pagelet*="Highlight"]') ||
+                         container.closest('[aria-label*="highlight"]') ||
+                         container.closest('[aria-label*="Highlight"]') ||
+                         container.closest('.highlight') ||
+                         container.closest('[class*="highlight"]');
+
+      if (isStory || isMyDay || isStoryLike) {
+        console.log("Excluding video from button addition:", {
+          isStory,
+          isMyDay,
+          isStoryLike,
+          container: container,
+          dataPagelet: container.getAttribute('data-pagelet'),
+          ariaLabel: container.getAttribute('aria-label'),
+          className: container.className
+        });
+        return;
+      }
+
       if (container.querySelector(".verifeed-verify-btn")) {
         console.log(
           `Verify button already exists in container for video #${index}, skipping`
@@ -91,6 +215,13 @@ class VeriFeedDetector {
 
       const videoElement = post.querySelector("video");
       if (videoElement && !this.analyzedVideos.has(videoElement)) {
+        // Simple exclusion for Facebook stories and MyDay posts
+        const dataPagelet = post.getAttribute('data-pagelet') || '';
+        if (dataPagelet.toLowerCase().includes('story') || dataPagelet.toLowerCase().includes('myday')) {
+          console.log(`Excluding post #${index} - appears to be story or MyDay: ${dataPagelet}`);
+          return;
+        }
+
         console.log(`Found video in post #${index}, adding button`);
         this.addVerifyButton(post, videoElement);
       }
@@ -124,16 +255,107 @@ class VeriFeedDetector {
 
     selectors.forEach((selector) => {
       document.querySelectorAll(selector).forEach((element) => {
-        // Exclude Facebook stories - they have different data attributes
+        // Ultra-comprehensive exclusion logic for Facebook stories and MyDay
         const isStory = element.closest('[data-pagelet*="story"]') ||
+                       element.closest('[data-pagelet*="Stories"]') ||
+                       element.closest('[data-pagelet*="stories"]') ||
                        element.closest('[aria-label*="story"]') ||
+                       element.closest('[aria-label*="Stories"]') ||
+                       element.closest('[aria-label*="stories"]') ||
                        element.closest('.story') ||
+                       element.closest('[class*="story"]') ||
                        element.closest('[data-visualcompletion*="story"]') ||
+                       element.closest('[data-visualcompletion*="Stories"]') ||
+                       element.closest('[data-visualcompletion*="stories"]') ||
                        element.getAttribute('data-pagelet')?.includes('story') ||
-                       element.classList?.contains('story');
+                       element.getAttribute('data-pagelet')?.includes('Stories') ||
+                       element.getAttribute('data-pagelet')?.includes('stories') ||
+                       element.classList?.contains('story') ||
+                       element.classList?.contains('Stories') ||
+                       element.classList?.contains('stories') ||
+                       element.closest('[role*="story"]') ||
+                       element.closest('[data-testid*="story"]') ||
+                       element.closest('[data-testid*="Stories"]') ||
+                       element.closest('[data-testid*="stories"]') ||
+                       // Check parent containers for story indicators
+                       element.closest('[data-pagelet*="feed"]')?.querySelector('[data-pagelet*="story"]') ||
+                       element.closest('[data-pagelet*="timeline"]')?.querySelector('[data-pagelet*="story"]') ||
+                       // Additional story patterns
+                       element.closest('[data-pagelet*="Story"]') ||
+                       element.closest('[aria-label*="Story"]') ||
+                       element.closest('[class*="Story"]') ||
+                       element.closest('[data-visualcompletion*="Story"]') ||
+                       element.getAttribute('data-pagelet')?.includes('Story') ||
+                       element.classList?.contains('Story') ||
+                       element.closest('[role*="Story"]') ||
+                       element.closest('[data-testid*="Story"]');
 
-        if (isStory) {
-          console.log("Excluding story element from video posts scan");
+        const isMyDay = element.closest('[data-pagelet*="myday"]') ||
+                        element.closest('[data-pagelet*="MyDay"]') ||
+                        element.closest('[data-pagelet*="My Day"]') ||
+                        element.closest('[data-pagelet*="my day"]') ||
+                        element.closest('[aria-label*="myday"]') ||
+                        element.closest('[aria-label*="MyDay"]') ||
+                        element.closest('[aria-label*="My Day"]') ||
+                        element.closest('[aria-label*="my day"]') ||
+                        element.closest('.myday') ||
+                        element.closest('.MyDay') ||
+                        element.closest('[class*="myday"]') ||
+                        element.closest('[class*="MyDay"]') ||
+                        element.closest('[class*="my-day"]') ||
+                        element.closest('[data-visualcompletion*="myday"]') ||
+                        element.closest('[data-visualcompletion*="MyDay"]') ||
+                        element.closest('[data-visualcompletion*="My Day"]') ||
+                        element.closest('[data-visualcompletion*="my day"]') ||
+                        element.getAttribute('data-pagelet')?.includes('myday') ||
+                        element.getAttribute('data-pagelet')?.includes('MyDay') ||
+                        element.getAttribute('data-pagelet')?.includes('My Day') ||
+                        element.getAttribute('data-pagelet')?.includes('my day') ||
+                        element.classList?.contains('myday') ||
+                        element.classList?.contains('MyDay') ||
+                        element.classList?.contains('my-day') ||
+                        element.closest('[role*="myday"]') ||
+                        element.closest('[role*="MyDay"]') ||
+                        element.closest('[data-testid*="myday"]') ||
+                        element.closest('[data-testid*="MyDay"]') ||
+                        element.closest('[data-testid*="my-day"]') ||
+                        // Check parent containers for MyDay indicators
+                        element.closest('[data-pagelet*="feed"]')?.querySelector('[data-pagelet*="myday"]') ||
+                        element.closest('[data-pagelet*="timeline"]')?.querySelector('[data-pagelet*="myday"]') ||
+                        // Additional MyDay patterns
+                        element.closest('[data-pagelet*="Myday"]') ||
+                        element.closest('[aria-label*="Myday"]') ||
+                        element.closest('[class*="Myday"]') ||
+                        element.closest('[data-visualcompletion*="Myday"]') ||
+                        element.getAttribute('data-pagelet')?.includes('Myday') ||
+                        element.classList?.contains('Myday') ||
+                        element.closest('[role*="Myday"]') ||
+                        element.closest('[data-testid*="Myday"]');
+
+        // Additional broad exclusions for story-like content
+        const isStoryLike = element.closest('[data-pagelet*="reel"]') ||
+                           element.closest('[data-pagelet*="Reel"]') ||
+                           element.closest('[aria-label*="reel"]') ||
+                           element.closest('[aria-label*="Reel"]') ||
+                           element.closest('.reel') ||
+                           element.closest('[class*="reel"]') ||
+                           element.closest('[data-pagelet*="highlight"]') ||
+                           element.closest('[data-pagelet*="Highlight"]') ||
+                           element.closest('[aria-label*="highlight"]') ||
+                           element.closest('[aria-label*="Highlight"]') ||
+                           element.closest('.highlight') ||
+                           element.closest('[class*="highlight"]');
+
+        if (isStory || isMyDay || isStoryLike) {
+          console.log("Excluding element from video posts scan:", {
+            isStory,
+            isMyDay,
+            isStoryLike,
+            element: element,
+            dataPagelet: element.getAttribute('data-pagelet'),
+            ariaLabel: element.getAttribute('aria-label'),
+            className: element.className
+          });
           return;
         }
 
@@ -159,6 +381,7 @@ class VeriFeedDetector {
     const maxAttempts = 15;
 
     while (element && attempts < maxAttempts) {
+
       const hasVideoContent =
         element.querySelector("video") ||
         element.textContent?.includes("video") ||
@@ -617,7 +840,7 @@ class VeriFeedDetector {
     console.log("result:", result);
     console.log("buttonElement exists:", !!buttonElement);
     console.log("result exists:", !!result);
-    
+
     try {
       console.log("Attempting to remove existing popup");
       this.removeExistingPopup();
@@ -638,6 +861,28 @@ class VeriFeedDetector {
         width: buttonRect.width,
         height: buttonRect.height
       });
+
+      // Create isolated container using Shadow DOM for better CSS isolation
+      console.log("Creating isolated popup container with Shadow DOM");
+      const shadowHost = document.createElement("div");
+      shadowHost.id = "verifeed-popup-shadow-host";
+      shadowHost.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        pointer-events: none !important;
+        z-index: 2147483647 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        background: transparent !important;
+      `;
+
+      // Attach shadow root
+      const shadowRoot = shadowHost.attachShadow({ mode: 'open' });
+      console.log("Shadow root created:", shadowRoot);
 
       console.log("Creating results popup element");
       const resultsPopup = document.createElement("div");
@@ -693,16 +938,15 @@ class VeriFeedDetector {
 
       console.log("Setting popup styles");
       resultsPopup.style.cssText = `
-            all: initial !important;
-            position: fixed !important;
+            position: absolute !important;
             top: ${topPosition}px !important;
             right: ${rightPosition}px !important;
-            z-index: 2147483647 !important;
+            z-index: 1000000 !important;
             width: 280px !important;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             background: white !important;
             border-radius: 8px !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8) !important;        
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8) !important;
             animation: slideDown 0.2s ease-out !important;
             display: block !important;
             visibility: visible !important;
@@ -715,41 +959,81 @@ class VeriFeedDetector {
             mask: none !important;
             isolation: isolate !important;
             min-height: 100px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            font-size: 14px !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+            text-align: left !important;
+            overflow: visible !important;
+            white-space: normal !important;
+            word-wrap: break-word !important;
         `;
       console.log("Popup styles set");
 
-      console.log("Creating style element");
+      console.log("Creating comprehensive style element");
       const style = document.createElement("style");
-      style.id = "verifeed-popup-styles";
       style.textContent = `
             @keyframes slideDown {
-                from { opacity: 0; transform: translateY(-10px); }
-                to { opacity: 1; transform: translateY(0); }
+                from {
+                    opacity: 0 !important;
+                    transform: translateY(-10px) !important;
+                }
+                to {
+                    opacity: 1 !important;
+                    transform: translateY(0) !important;
+                }
             }
+
             .verifeed-results-popup {
                 pointer-events: auto !important;
+                position: absolute !important;
+                z-index: 1000000 !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
             }
+
             .verifeed-popup-content {
                 padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                display: block !important;
+                position: relative !important;
             }
+
             .verifeed-popup-header {
                 display: flex !important;
                 align-items: center !important;
+                justify-content: space-between !important;
                 padding: 12px 16px !important;
                 border-bottom: 1px solid #f3f4f6 !important;
                 background: #fafafa !important;
                 border-radius: 8px 8px 0 0 !important;
+                margin: 0 !important;
+                position: relative !important;
+                z-index: 1 !important;
             }
+
             .verifeed-popup-header .status-icon {
                 font-size: 16px !important;
                 margin-right: 8px !important;
+                display: inline-block !important;
+                flex-shrink: 0 !important;
             }
+
             .verifeed-popup-header .status-text {
                 font-weight: 600 !important;
                 color: #374151 !important;
                 font-size: 14px !important;
                 flex: 1 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                text-align: left !important;
             }
+
             .verifeed-popup-header .close-btn {
                 background: none !important;
                 border: none !important;
@@ -762,23 +1046,36 @@ class VeriFeedDetector {
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
+                flex-shrink: 0 !important;
+                margin-left: auto !important;
+                transition: color 0.2s ease !important;
             }
+
             .verifeed-popup-header .close-btn:hover {
                 color: #6b7280 !important;
             }
+
             .verifeed-popup-body {
                 padding: 16px !important;
+                margin: 0 !important;
+                background: white !important;
+                border-radius: 0 0 8px 8px !important;
             }
+
             .verifeed-popup-body .confidence-section {
                 margin-bottom: 12px !important;
+                display: block !important;
             }
+
             .verifeed-popup-body .confidence-label {
                 font-size: 13px !important;
                 font-weight: 600 !important;
                 color: #374151 !important;
                 display: block !important;
                 margin-bottom: 6px !important;
+                line-height: 1.3 !important;
             }
+
             .verifeed-popup-body .confidence-bar {
                 width: 100% !important;
                 height: 6px !important;
@@ -786,22 +1083,35 @@ class VeriFeedDetector {
                 border-radius: 3px !important;
                 overflow: hidden !important;
                 margin-bottom: 4px !important;
+                position: relative !important;
             }
+
             .verifeed-popup-body .confidence-fill {
                 height: 100% !important;
                 border-radius: 3px !important;
                 transition: width 0.8s ease-out !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
             }
+
             .verifeed-popup-body .confidence-text {
                 font-size: 12px !important;
                 color: #6b7280 !important;
+                display: block !important;
+                margin-top: 4px !important;
+                line-height: 1.3 !important;
             }
+
             .verifeed-popup-body .info-text {
                 font-size: 13px !important;
                 color: #4b5563 !important;
                 line-height: 1.4 !important;
                 margin-bottom: 12px !important;
+                display: block !important;
+                text-align: left !important;
             }
+
             .verifeed-popup-body .disclaimer {
                 font-size: 11px !important;
                 color: #9ca3af !important;
@@ -809,23 +1119,40 @@ class VeriFeedDetector {
                 line-height: 1.3 !important;
                 padding-top: 8px !important;
                 border-top: 1px solid #f3f4f6 !important;
+                margin-top: 8px !important;
+                display: block !important;
+            }
+
+            /* Additional isolation styles */
+            * {
+                box-sizing: border-box !important;
+            }
+
+            button, input, textarea, select {
+                font-family: inherit !important;
+                font-size: inherit !important;
             }
         `;
-      console.log("Style element created and content set");
+      console.log("Comprehensive style element created");
 
-      console.log("Appending style to head");
-      document.head.appendChild(style);
+      console.log("Appending style to shadow root");
+      shadowRoot.appendChild(style);
+      console.log("Style appended to shadow root");
+
+      console.log("Appending popup to shadow root");
+      shadowRoot.appendChild(resultsPopup);
+      console.log("Popup appended to shadow root");
+
+      console.log("Appending shadow host to document body");
+      document.body.appendChild(shadowHost);
+      this.activePopup = shadowHost;
       this.activeStyle = style;
-      console.log("Style appended to head");
-
-      console.log("Appending popup to body");
-      document.body.appendChild(resultsPopup);
-      this.activePopup = resultsPopup;
-      console.log("Popup appended to body");
+      console.log("Shadow host appended to body");
 
       console.log("=== POPUP DOM CHECK ===");
-      console.log("Popup in DOM:", document.body.contains(resultsPopup));
-      console.log("Popup parent:", resultsPopup.parentNode);
+      console.log("Shadow host in DOM:", document.body.contains(shadowHost));
+      console.log("Shadow root exists:", !!shadowRoot);
+      console.log("Popup in shadow root:", shadowRoot.contains(resultsPopup));
       const computedStyle = window.getComputedStyle(resultsPopup);
       console.log("Computed styles:");
       console.log("  display:", computedStyle.display);
@@ -837,15 +1164,14 @@ class VeriFeedDetector {
       console.log("  right:", computedStyle.right);
       console.log("  width:", computedStyle.width);
       console.log("  height:", computedStyle.height);
-      console.log("  background:", computedStyle.background);
 
       console.log("Setting up close button");
       const closeBtn = resultsPopup.querySelector(".close-btn");
       console.log("Close button found:", !!closeBtn);
-      
+
       const closePopup = () => {
         console.log("Closing popup");
-        
+
         if (this.scrollListener) {
           window.removeEventListener("scroll", this.scrollListener);
           this.scrollListener = null;
@@ -854,14 +1180,11 @@ class VeriFeedDetector {
           document.removeEventListener("click", this.clickListener);
           this.clickListener = null;
         }
-        
-        if (resultsPopup.parentNode) {
-          resultsPopup.remove();
+
+        if (shadowHost.parentNode) {
+          shadowHost.remove();
         }
-        if (style.parentNode) {
-          style.remove();
-        }
-        
+
         this.activePopup = null;
         this.activeStyle = null;
       };
@@ -880,7 +1203,7 @@ class VeriFeedDetector {
 
       console.log("Setting up auto-close timer (15s)");
       setTimeout(() => {
-        if (resultsPopup.parentNode) {
+        if (shadowHost.parentNode) {
           console.log("Auto-closing popup after 15s");
           closePopup();
         }
@@ -894,7 +1217,7 @@ class VeriFeedDetector {
         this.clickListener = (e) => {
           console.log("Click detected:", e.target);
           if (
-            !resultsPopup.contains(e.target) &&
+            !shadowHost.contains(e.target) &&
             !buttonElement.contains(e.target)
           ) {
             console.log("Click outside popup, closing");
@@ -908,7 +1231,7 @@ class VeriFeedDetector {
       }, 100);
 
       console.log("=== POPUP SETUP COMPLETE ===");
-      console.log("Popup should be visible now");
+      console.log("Popup should be visible now with Shadow DOM isolation");
     } catch (error) {
       console.error("=== ERROR IN showResultsPopup ===");
       console.error("Error message:", error.message);
@@ -1123,6 +1446,13 @@ function initializeVeriFeed() {
 // Listen for messages from background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("Received message:", request);
+
+  if (request.action === "updateSettings") {
+    if (veriFeedInstance) {
+      veriFeedInstance.updateSettings(request.settings);
+    }
+    sendResponse({ success: true });
+  }
 
   if (request.action === "toggleVeriFeed") {
     if (veriFeedInstance) {
