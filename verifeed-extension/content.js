@@ -852,6 +852,11 @@ class VeriFeedDetector {
       const isAuthentic = prediction === "REAL";
       console.log("Parsed result - prediction:", prediction, "confidence:", confidence, "isAuthentic:", isAuthentic);
 
+      // Apply confidence threshold - if too low, show uncertainty message instead
+      const CONFIDENCE_THRESHOLD = 70;
+      const showUncertainResult = confidence < CONFIDENCE_THRESHOLD;
+      console.log("Confidence threshold check - confidence:", confidence, "threshold:", CONFIDENCE_THRESHOLD, "showUncertain:", showUncertainResult);
+
       console.log("Getting button rect");
       const buttonRect = buttonElement.getBoundingClientRect();
       console.log("Button rect:", {
