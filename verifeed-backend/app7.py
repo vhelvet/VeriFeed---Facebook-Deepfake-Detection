@@ -4,6 +4,8 @@ Handles only inference/prediction for deepfake detection
 """
 
 
+
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import torch
@@ -17,12 +19,18 @@ import os
 import logging
 
 
+
+
 app = Flask(__name__)
 CORS(app)
 
 
+
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
 
 
 # Configuration
@@ -35,8 +43,12 @@ STD = [0.229, 0.224, 0.225]
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+
+
 # Model directory
 MODELS_DIR = 'models'
+
+
 
 
 # Model Architecture
@@ -53,6 +65,8 @@ class DeepfakeDetectionModel(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d(1)
 
 
+
+
     def forward(self, x):
         batch_size, seq_length, c, h, w = x.shape
         x = x.view(batch_size * seq_length, c, h, w)
@@ -66,6 +80,8 @@ class DeepfakeDetectionModel(nn.Module):
         return out
 
 
+
+
 # Transforms
 val_transforms = transforms.Compose([
     transforms.ToPILImage(),
@@ -75,10 +91,14 @@ val_transforms = transforms.Compose([
 ])
 
 
+
+
 # Load model
 inference_model = None
 model_info = {'loaded': False, 'path': None, 'error': None}
-MODEL_FILENAME = 'model_89_acc_20_frames.pt'
+MODEL_FILENAME = 'model_acc_95.00_e8.pt'
+
+
 
 
 def load_model(model_path=None):
@@ -111,8 +131,12 @@ def load_model(model_path=None):
         return False
 
 
+
+
 # Try to load model on startup
 load_model()
+
+
 
 
 def decode_base64_frame(b64_frame):
@@ -129,6 +153,8 @@ def decode_base64_frame(b64_frame):
     except Exception as e:
         logger.error(f"Error decoding frame: {e}")
         return None
+
+
 
 
 def detect_faces_from_frames(frames, max_faces=MAX_FACES):
@@ -198,6 +224,8 @@ def detect_faces_from_frames(frames, max_faces=MAX_FACES):
     return None
 
 
+
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
@@ -209,6 +237,8 @@ def health_check():
         'model_error': model_info['error'],
         'max_faces': MAX_FACES
     })
+
+
 
 
 @app.route('/predict', methods=['POST'])
@@ -284,6 +314,8 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 
+
+
 @app.route('/model/reload', methods=['POST'])
 def reload_model():
     """Reload the model (useful after training)"""
@@ -310,6 +342,8 @@ def reload_model():
         return jsonify({'error': str(e)}), 500
 
 
+
+
 @app.route('/model/info', methods=['GET'])
 def model_info_endpoint():
     """Get model information"""
@@ -322,6 +356,8 @@ def model_info_endpoint():
         'image_size': IM_SIZE,
         'max_faces': MAX_FACES
     })
+
+
 
 
 if __name__ == '__main__':
@@ -351,4 +387,8 @@ if __name__ == '__main__':
         print(f"   Predictions will fail until '{MODEL_FILENAME}' is available.\n")
    
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+
+
+
 
