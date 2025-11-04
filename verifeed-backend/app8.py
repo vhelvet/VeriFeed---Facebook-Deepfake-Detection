@@ -38,7 +38,7 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Model directory
 MODELS_DIR = 'models' # Matched to the training script's output directory
-MODEL_FILENAME = 'model_acc_88.33_e11.pt' # Placeholder for a realistic best model name
+MODEL_FILENAME = 'model_acc_84.17_e8.pt' # Placeholder for a realistic best model name
 
 # --- MODEL ARCHITECTURE (MUST MATCH TRAINING SCRIPT EXACTLY) ---
 class ImprovedDeepfakeDetectionModel(nn.Module):
