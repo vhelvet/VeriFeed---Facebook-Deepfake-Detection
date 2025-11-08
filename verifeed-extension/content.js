@@ -166,6 +166,260 @@ class VerifeedAuth {
 const verifeedAuth = new VerifeedAuth();
 
 
+/**
+ * Natural Language Generation (NLG) System for Deepfake Detection Results
+ * Uses slot-filling / regex template-based NLG - a recognized computational linguistics technique
+ * Reference: Reiter & Dale (2000) - "Building Natural Language Generation Systems"
+ */
+class DeepfakeNLG {
+  constructor() {
+    // Linguistic templates with slots for contextual filling
+    this.templates = {
+      deepfake: {
+        high_confidence: [
+          {
+            structure: "[DETERMINATION] [EVIDENCE] [ACTION]",
+            determination: [
+              "Our analysis strongly indicates",
+              "We've identified clear signs that",
+              "Evidence suggests",
+              "Multiple indicators show that"
+            ],
+            evidence: [
+              "this video has been manipulated using artificial intelligence",
+              "deepfake technology was used to create this content",
+              "AI-generated alterations are present in this video",
+              "this content was synthetically modified using AI tools"
+            ],
+            action: [
+              "We recommend verifying this through other sources before sharing.",
+              "Please fact-check before distributing this content.",
+              "Cross-reference with original sources before sharing.",
+              "Verify through trusted sources before considering it authentic."
+            ]
+          }
+        ],
+        medium_confidence: [
+          {
+            structure: "[POSSIBILITY] [EVIDENCE] [CAUTION]",
+            possibility: [
+              "This video may have been",
+              "There are indicators suggesting this was",
+              "We've detected signs that this could be",
+              "Analysis indicates this might have been"
+            ],
+            evidence: [
+              "edited or created using artificial intelligence",
+              "manipulated with deepfake technology",
+              "generated using AI tools",
+              "altered using synthetic media techniques"
+            ],
+            caution: [
+              "Please verify it before sharing.",
+              "We recommend additional verification.",
+              "Exercise caution when sharing this content.",
+              "Fact-check through multiple sources before sharing."
+            ]
+          }
+        ],
+        low_confidence: [
+          {
+            structure: "[UNCERTAINTY] [OBSERVATION] [RECOMMENDATION]",
+            uncertainty: [
+              "While we cannot be certain,",
+              "Our analysis is inconclusive, but",
+              "We have limited confidence that",
+              "Though uncertain,"
+            ],
+            observation: [
+              "this video shows some signs of manipulation",
+              "there may be AI-generated elements present",
+              "artificial alterations might be present",
+              "possible synthetic modifications were detected"
+            ],
+            recommendation: [
+              "Treat this content with skepticism and verify through multiple sources.",
+              "We strongly recommend fact-checking before sharing.",
+              "Additional analysis is needed before drawing conclusions.",
+              "Consult additional verification methods before trusting this content."
+            ]
+          }
+        ]
+      },
+      authentic: {
+        high_confidence: [
+          {
+            structure: "[DETERMINATION] [EVIDENCE] [ASSESSMENT]",
+            determination: [
+              "Our analysis indicates",
+              "We've found strong evidence that",
+              "Multiple factors suggest",
+              "Our assessment shows"
+            ],
+            evidence: [
+              "this video is genuine and has not been digitally manipulated",
+              "this content appears authentic with no signs of AI generation",
+              "this video shows no indicators of deepfake technology",
+              "this is authentic content without synthetic alterations"
+            ],
+            assessment: [
+              "However, always verify important content through trusted sources.",
+              "Still, cross-referencing with original sources is good practice.",
+              "We still recommend verifying through official channels when possible.",
+              "As always, verify critical content through additional sources."
+            ]
+          }
+        ],
+        medium_confidence: [
+          {
+            structure: "[LIKELIHOOD] [EVIDENCE] [CAUTION]",
+            likelihood: [
+              "This video appears to be",
+              "We believe this is likely",
+              "Evidence suggests this is probably",
+              "Analysis indicates this is most likely"
+            ],
+            evidence: [
+              "authentic and unmanipulated",
+              "genuine with no AI alterations",
+              "real content without deepfake elements",
+              "legitimate with no synthetic modifications"
+            ],
+            caution: [
+              "though we recommend verification for complete certainty.",
+              "but additional verification is always recommended.",
+              "though exercising caution is still advisable.",
+              "however, verify through trusted sources when important."
+            ]
+          }
+        ],
+        low_confidence: [
+          {
+            structure: "[UNCERTAINTY] [OBSERVATION] [RECOMMENDATION]",
+            uncertainty: [
+              "We cannot confidently determine",
+              "Our analysis is inconclusive about",
+              "We have low confidence in assessing",
+              "It's unclear from our analysis"
+            ],
+            observation: [
+              "whether this video is authentic or manipulated",
+              "if this content contains AI-generated elements",
+              "the authenticity of this video",
+              "whether synthetic alterations are present"
+            ],
+            recommendation: [
+              "Please verify through multiple trusted sources before relying on this content.",
+              "We recommend treating this with caution until verified.",
+              "Additional expert analysis may be needed for confirmation.",
+              "Seek verification from authoritative sources before trusting this content."
+            ]
+          }
+        ]
+      }
+    };
+  }
+
+  /**
+   * NLP Text Generation Function
+   * Uses linguistic rules and context to generate varied messages
+   * Implements slot-filling algorithm for template-based NLG
+   */
+  generate(prediction, confidence) {
+    const isAuthentic = prediction === "REAL";
+    const category = isAuthentic ? "authentic" : "deepfake";
+    
+    // Determine confidence level using linguistic thresholds
+    let confidenceLevel;
+    if (confidence >= 80) {
+      confidenceLevel = "high_confidence";
+    } else if (confidence >= 60) {
+      confidenceLevel = "medium_confidence";
+    } else {
+      confidenceLevel = "low_confidence";
+    }
+    
+    // Get appropriate template set
+    const templateSet = this.templates[category][confidenceLevel];
+    
+    // Select template (randomized for linguistic variation)
+    const template = templateSet[Math.floor(Math.random() * templateSet.length)];
+    
+    // Generate sentence parts using slot-filling / regex (NLG technique)
+    const parts = template.structure.match(/\[([^\]]+)\]/g).map(slot => {
+      const slotName = slot.replace(/[\[\]]/g, '').toLowerCase();
+      const options = template[slotName];
+      // Random selection provides linguistic variety
+      return options[Math.floor(Math.random() * options.length)];
+    });
+    
+    // Construct final sentence with proper spacing
+    return parts.join(' ');
+  }
+
+  /**
+   * Generate confidence description using NLG principles
+   */
+  generateConfidenceText(confidence) {
+    if (confidence >= 90) {
+      const options = [
+        "We have very high confidence in this assessment",
+        "Our analysis provides very strong certainty",
+        "We are highly confident in this determination",
+        "This assessment has very high reliability"
+      ];
+      return options[Math.floor(Math.random() * options.length)];
+    } else if (confidence >= 80) {
+      const options = [
+        "We have high confidence in this assessment",
+        "Our analysis provides strong certainty",
+        "We are confident in this determination",
+        "This assessment has high reliability"
+      ];
+      return options[Math.floor(Math.random() * options.length)];
+    } else if (confidence >= 70) {
+      const options = [
+        "We have moderate confidence in this assessment",
+        "Our analysis suggests reasonable certainty",
+        "We are moderately confident in this determination",
+        "This assessment has moderate reliability"
+      ];
+      return options[Math.floor(Math.random() * options.length)];
+    } else if (confidence >= 60) {
+      const options = [
+        "We have limited confidence in this assessment",
+        "Our analysis suggests some uncertainty",
+        "We are somewhat confident in this determination",
+        "This assessment has limited reliability"
+      ];
+      return options[Math.floor(Math.random() * options.length)];
+    } else {
+      const options = [
+        "We have low confidence in this assessment",
+        "Our analysis is highly uncertain",
+        "We have minimal confidence in this determination",
+        "This assessment has low reliability"
+      ];
+      return options[Math.floor(Math.random() * options.length)];
+    }
+  }
+
+  /**
+   * Grammar correction utility (NLP function)
+   */
+  correctGrammar(text) {
+    return text
+      .replace(/\s+/g, ' ')
+      .replace(/\s([.,!?])/g, '$1')
+      .replace(/^./, str => str.toUpperCase())
+      .trim();
+  }
+}
+
+// Initialize NLG system
+const deepfakeNLG = new DeepfakeNLG();
+
+
 class VeriFeedDetector {
   constructor() {
     this.analyzedVideos = new Map();
@@ -230,6 +484,97 @@ class VeriFeedDetector {
     });
   }
 
+  isExcludedForStories(element, isReel) {
+    if (isReel) return false;
+
+    // Ultra-comprehensive exclusion logic for Facebook stories and MyDay (excluding reels)
+    const isStory = element.closest('[data-pagelet*="story"]') ||
+                     element.closest('[data-pagelet*="Stories"]') ||
+                     element.closest('[data-pagelet*="stories"]') ||
+                     element.closest('[aria-label*="story"]') ||
+                     element.closest('[aria-label*="Stories"]') ||
+                     element.closest('[aria-label*="stories"]') ||
+                     element.closest('.story') ||
+                     element.closest('[class*="story"]') ||
+                     element.closest('[data-visualcompletion*="story"]') ||
+                     element.closest('[data-visualcompletion*="Stories"]') ||
+                     element.closest('[data-visualcompletion*="stories"]') ||
+                     element.getAttribute('data-pagelet')?.includes('story') ||
+                     element.getAttribute('data-pagelet')?.includes('Stories') ||
+                     element.getAttribute('data-pagelet')?.includes('stories') ||
+                     element.classList?.contains('story') ||
+                     element.classList?.contains('Stories') ||
+                     element.classList?.contains('stories') ||
+                     element.closest('[role*="story"]') ||
+                     element.closest('[data-testid*="story"]') ||
+                     element.closest('[data-testid*="Stories"]') ||
+                     element.closest('[data-testid*="stories"]') ||
+                     // Check parent containers for story indicators
+                     element.closest('[data-pagelet*="feed"]')?.querySelector('[data-pagelet*="story"]') ||
+                     element.closest('[data-pagelet*="timeline"]')?.querySelector('[data-pagelet*="story"]') ||
+                     // Additional story patterns
+                     element.closest('[data-pagelet*="Story"]') ||
+                     element.closest('[aria-label*="Story"]') ||
+                     element.closest('[class*="Story"]') ||
+                     element.closest('[data-visualcompletion*="Story"]') ||
+                     element.getAttribute('data-pagelet')?.includes('Story') ||
+                     element.classList?.contains('Story') ||
+                     element.closest('[role*="Story"]') ||
+                     element.closest('[data-testid*="Story"]');
+
+    const isMyDay = element.closest('[data-pagelet*="myday"]') ||
+                      element.closest('[data-pagelet*="MyDay"]') ||
+                      element.closest('[data-pagelet*="My Day"]') ||
+                      element.closest('[data-pagelet*="my day"]') ||
+                      element.closest('[aria-label*="myday"]') ||
+                      element.closest('[aria-label*="MyDay"]') ||
+                      element.closest('[aria-label*="My Day"]') ||
+                      element.closest('[aria-label*="my day"]') ||
+                      element.closest('.myday') ||
+                      element.closest('.MyDay') ||
+                      element.closest('[class*="myday"]') ||
+                      element.closest('[class*="MyDay"]') ||
+                      element.closest('[class*="my-day"]') ||
+                      element.closest('[data-visualcompletion*="myday"]') ||
+                      element.closest('[data-visualcompletion*="MyDay"]') ||
+                      element.closest('[data-visualcompletion*="My Day"]') ||
+                      element.closest('[data-visualcompletion*="my day"]') ||
+                      element.getAttribute('data-pagelet')?.includes('myday') ||
+                      element.getAttribute('data-pagelet')?.includes('MyDay') ||
+                      element.getAttribute('data-pagelet')?.includes('My Day') ||
+                      element.getAttribute('data-pagelet')?.includes('my day') ||
+                      element.classList?.contains('myday') ||
+                      element.classList?.contains('MyDay') ||
+                      element.classList?.contains('my-day') ||
+                      element.closest('[role*="myday"]') ||
+                      element.closest('[role*="MyDay"]') ||
+                      element.closest('[data-testid*="myday"]') ||
+                      element.closest('[data-testid*="MyDay"]') ||
+                      element.closest('[data-testid*="my-day"]') ||
+                      // Check parent containers for MyDay indicators
+                      element.closest('[data-pagelet*="feed"]')?.querySelector('[data-pagelet*="myday"]') ||
+                      element.closest('[data-pagelet*="timeline"]')?.querySelector('[data-pagelet*="myday"]') ||
+                      // Additional MyDay patterns
+                      element.closest('[data-pagelet*="Myday"]') ||
+                      element.closest('[aria-label*="Myday"]') ||
+                      element.closest('[class*="Myday"]') ||
+                      element.closest('[data-visualcompletion*="Myday"]') ||
+                      element.getAttribute('data-pagelet')?.includes('Myday') ||
+                      element.classList?.contains('Myday') ||
+                      element.closest('[role*="Myday"]') ||
+                      element.closest('[data-testid*="Myday"]');
+
+    // Additional broad exclusions for story-like content (excluding reels to allow VeriFeed button)
+    const isStoryLike = element.closest('[data-pagelet*="highlight"]') ||
+                         element.closest('[data-pagelet*="Highlight"]') ||
+                         element.closest('[aria-label*="highlight"]') ||
+                         element.closest('[aria-label*="Highlight"]') ||
+                         element.closest('.highlight') ||
+                         element.closest('[class*="highlight"]');
+
+    return isStory || isMyDay || isStoryLike;
+  }
+
   scanForVideos() {
     if (!this.isEnabled) {
       console.log("VeriFeed is disabled, skipping scan");
@@ -263,98 +608,8 @@ class VeriFeedDetector {
 
       console.log(`DEBUG: Checking video container - dataPagelet: "${dataPagelet}", isReel: ${isReel}`);
 
-      // Ultra-comprehensive exclusion logic for Facebook stories and MyDay (excluding reels)
-      const isStory = !isReel && (container.closest('[data-pagelet*="story"]') ||
-                     container.closest('[data-pagelet*="Stories"]') ||
-                     container.closest('[data-pagelet*="stories"]') ||
-                     container.closest('[aria-label*="story"]') ||
-                     container.closest('[aria-label*="Stories"]') ||
-                     container.closest('[aria-label*="stories"]') ||
-                     container.closest('.story') ||
-                     container.closest('[class*="story"]') ||
-                     container.closest('[data-visualcompletion*="story"]') ||
-                     container.closest('[data-visualcompletion*="Stories"]') ||
-                     container.closest('[data-visualcompletion*="stories"]') ||
-                     container.getAttribute('data-pagelet')?.includes('story') ||
-                     container.getAttribute('data-pagelet')?.includes('Stories') ||
-                     container.getAttribute('data-pagelet')?.includes('stories') ||
-                     container.classList?.contains('story') ||
-                     container.classList?.contains('Stories') ||
-                     container.classList?.contains('stories') ||
-                     container.closest('[role*="story"]') ||
-                     container.closest('[data-testid*="story"]') ||
-                     container.closest('[data-testid*="Stories"]') ||
-                     container.closest('[data-testid*="stories"]') ||
-                     // Check parent containers for story indicators
-                     container.closest('[data-pagelet*="feed"]')?.querySelector('[data-pagelet*="story"]') ||
-                     container.closest('[data-pagelet*="timeline"]')?.querySelector('[data-pagelet*="story"]') ||
-                     // Additional story patterns
-                     container.closest('[data-pagelet*="Story"]') ||
-                     container.closest('[aria-label*="Story"]') ||
-                     container.closest('[class*="Story"]') ||
-                     container.closest('[data-visualcompletion*="Story"]') ||
-                     container.getAttribute('data-pagelet')?.includes('Story') ||
-                     container.classList?.contains('Story') ||
-                     container.closest('[role*="Story"]') ||
-                     container.closest('[data-testid*="Story"]'));
-
-      const isMyDay = !isReel && (container.closest('[data-pagelet*="myday"]') ||
-                      container.closest('[data-pagelet*="MyDay"]') ||
-                      container.closest('[data-pagelet*="My Day"]') ||
-                      container.closest('[data-pagelet*="my day"]') ||
-                      container.closest('[aria-label*="myday"]') ||
-                      container.closest('[aria-label*="MyDay"]') ||
-                      container.closest('[aria-label*="My Day"]') ||
-                      container.closest('[aria-label*="my day"]') ||
-                      container.closest('.myday') ||
-                      container.closest('.MyDay') ||
-                      container.closest('[class*="myday"]') ||
-                      container.closest('[class*="MyDay"]') ||
-                      container.closest('[class*="my-day"]') ||
-                      container.closest('[data-visualcompletion*="myday"]') ||
-                      container.closest('[data-visualcompletion*="MyDay"]') ||
-                      container.closest('[data-visualcompletion*="My Day"]') ||
-                      container.closest('[data-visualcompletion*="my day"]') ||
-                      container.getAttribute('data-pagelet')?.includes('myday') ||
-                      container.getAttribute('data-pagelet')?.includes('MyDay') ||
-                      container.getAttribute('data-pagelet')?.includes('My Day') ||
-                      container.getAttribute('data-pagelet')?.includes('my day') ||
-                      container.classList?.contains('myday') ||
-                      container.classList?.contains('MyDay') ||
-                      container.classList?.contains('my-day') ||
-                      container.closest('[role*="myday"]') ||
-                      container.closest('[role*="MyDay"]') ||
-                      container.closest('[data-testid*="myday"]') ||
-                      container.closest('[data-testid*="MyDay"]') ||
-                      container.closest('[data-testid*="my-day"]') ||
-                      // Check parent containers for MyDay indicators
-                      container.closest('[data-pagelet*="feed"]')?.querySelector('[data-pagelet*="myday"]') ||
-                      container.closest('[data-pagelet*="timeline"]')?.querySelector('[data-pagelet*="myday"]') ||
-                      // Additional MyDay patterns
-                      container.closest('[data-pagelet*="Myday"]') ||
-                      container.closest('[aria-label*="Myday"]') ||
-                      container.closest('[class*="Myday"]') ||
-                      container.closest('[data-visualcompletion*="Myday"]') ||
-                      container.getAttribute('data-pagelet')?.includes('Myday') ||
-                      container.classList?.contains('Myday') ||
-                      container.closest('[role*="Myday"]') ||
-                      container.closest('[data-testid*="Myday"]'));
-
-      // Additional broad exclusions for story-like content (excluding reels to allow VeriFeed button)
-      const isStoryLike = !isReel && (container.closest('[data-pagelet*="highlight"]') ||
-                         container.closest('[data-pagelet*="Highlight"]') ||
-                         container.closest('[aria-label*="highlight"]') ||
-                         container.closest('[aria-label*="Highlight"]') ||
-                         container.closest('.highlight') ||
-                         container.closest('[class*="highlight"]'));
-
-      console.log(`DEBUG: Exclusion check results - isStory: ${isStory}, isMyDay: ${isMyDay}, isStoryLike: ${isStoryLike}`);
-
-      if (isStory || isMyDay || isStoryLike) {
+      if (this.isExcludedForStories(container, isReel)) {
         console.log("Excluding video from button addition:", {
-          isStory,
-          isMyDay,
-          isStoryLike,
           container: container,
           dataPagelet: container.getAttribute('data-pagelet'),
           ariaLabel: container.getAttribute('aria-label'),
@@ -1056,28 +1311,6 @@ class VeriFeedDetector {
         height: buttonRect.height
       });
 
-      // Create isolated container using Shadow DOM for better CSS isolation
-      console.log("Creating isolated popup container with Shadow DOM");
-      const shadowHost = document.createElement("div");
-      shadowHost.id = "verifeed-popup-shadow-host";
-      shadowHost.style.cssText = `
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        pointer-events: none !important;
-        z-index: 2147483647 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-        background: transparent !important;
-      `;
-
-      // Attach shadow root
-      const shadowRoot = shadowHost.attachShadow({ mode: 'open' });
-      console.log("Shadow root created:", shadowRoot);
-
       console.log("Creating results popup element");
       const resultsPopup = document.createElement("div");
       resultsPopup.className = "verifeed-results-popup";
@@ -1086,12 +1319,8 @@ class VeriFeedDetector {
       const statusIcon = isAuthentic ? "✅" : "⚠️";
       const statusText = isAuthentic ? "Authentic" : "Deepfake Detected";
       const statusColor = isAuthentic ? "#10b981" : "#f59e0b";
-      const confidenceText =
-        confidence > 80
-          ? "We are very confident"
-          : confidence > 60
-          ? "We are somewhat confident"
-          : "We are not very confident";
+      const confidenceText = deepfakeNLG.generateConfidenceText(confidence);
+      const nlgMessage = deepfakeNLG.generate(prediction, confidence);
 
       console.log("Setting popup innerHTML");
       resultsPopup.innerHTML = `
@@ -1112,11 +1341,7 @@ class VeriFeedDetector {
                         <span class="confidence-text">${confidenceText}</span>
                     </div>
                     <div class="info-text">
-                        ${
-                          isAuthentic
-                            ? "This video is genuine and has not been edited by artificial intelligence."
-                            : "This video may have been edit or created by artificial intelligence. Please verify it before sharing."
-                        }
+                        ${nlgMessage}
                     </div>
                     <div class="disclaimer">
                         Computer check • This is just a guess • Always check with other sources
@@ -1132,16 +1357,16 @@ class VeriFeedDetector {
 
       console.log("Setting popup styles");
       resultsPopup.style.cssText = `
-            position: absolute !important;
+            position: fixed !important;
             top: ${topPosition}px !important;
             right: ${rightPosition}px !important;
-            z-index: 1000000 !important;
+            z-index: 2147483647 !important;
             width: 280px !important;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             background: white !important;
             border-radius: 8px !important;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8) !important;
-            animation: slideDown 0.2s ease-out !important;
+            animation: verifeedSlideDown 0.2s ease-out !important;
             display: block !important;
             visibility: visible !important;
             opacity: 1 !important;
@@ -1168,8 +1393,9 @@ class VeriFeedDetector {
 
       console.log("Creating comprehensive style element");
       const style = document.createElement("style");
+      style.id = "verifeed-popup-styles";
       style.textContent = `
-            @keyframes slideDown {
+            @keyframes verifeedSlideDown {
                 from {
                     opacity: 0 !important;
                     transform: translateY(-10px) !important;
@@ -1182,8 +1408,8 @@ class VeriFeedDetector {
 
             .verifeed-results-popup {
                 pointer-events: auto !important;
-                position: absolute !important;
-                z-index: 1000000 !important;
+                position: fixed !important;
+                z-index: 2147483647 !important;
                 display: block !important;
                 visibility: visible !important;
                 opacity: 1 !important;
@@ -1329,24 +1555,19 @@ class VeriFeedDetector {
         `;
       console.log("Comprehensive style element created");
 
-      console.log("Appending style to shadow root");
-      shadowRoot.appendChild(style);
-      console.log("Style appended to shadow root");
+      console.log("Appending style to document head");
+      document.head.appendChild(style);
+      console.log("Style appended to document head");
 
-      console.log("Appending popup to shadow root");
-      shadowRoot.appendChild(resultsPopup);
-      console.log("Popup appended to shadow root");
-
-      console.log("Appending shadow host to document body");
-      document.body.appendChild(shadowHost);
-      this.activePopup = shadowHost;
+      console.log("Appending popup to document body");
+      document.body.appendChild(resultsPopup);
+      this.activePopup = resultsPopup;
       this.activeStyle = style;
-      console.log("Shadow host appended to body");
+      console.log("Popup appended to body");
 
       console.log("=== POPUP DOM CHECK ===");
-      console.log("Shadow host in DOM:", document.body.contains(shadowHost));
-      console.log("Shadow root exists:", !!shadowRoot);
-      console.log("Popup in shadow root:", shadowRoot.contains(resultsPopup));
+      console.log("Popup in DOM:", document.body.contains(resultsPopup));
+      console.log("Style in head:", document.head.contains(style));
       const computedStyle = window.getComputedStyle(resultsPopup);
       console.log("Computed styles:");
       console.log("  display:", computedStyle.display);
@@ -1375,8 +1596,11 @@ class VeriFeedDetector {
           this.clickListener = null;
         }
 
-        if (shadowHost.parentNode) {
-          shadowHost.remove();
+        if (resultsPopup.parentNode) {
+          resultsPopup.remove();
+        }
+        if (style.parentNode) {
+          style.remove();
         }
 
         this.activePopup = null;
@@ -1397,7 +1621,7 @@ class VeriFeedDetector {
 
       console.log("Setting up auto-close timer (15s)");
       setTimeout(() => {
-        if (shadowHost.parentNode) {
+        if (resultsPopup.parentNode) {
           console.log("Auto-closing popup after 15s");
           closePopup();
         }
@@ -1411,7 +1635,7 @@ class VeriFeedDetector {
         this.clickListener = (e) => {
           console.log("Click detected:", e.target);
           if (
-            !shadowHost.contains(e.target) &&
+            !resultsPopup.contains(e.target) &&
             !buttonElement.contains(e.target)
           ) {
             console.log("Click outside popup, closing");
@@ -1425,7 +1649,7 @@ class VeriFeedDetector {
       }, 100);
 
       console.log("=== POPUP SETUP COMPLETE ===");
-      console.log("Popup should be visible now with Shadow DOM isolation");
+      console.log("Popup should be visible now");
     } catch (error) {
       console.error("=== ERROR IN showResultsPopup ===");
       console.error("Error message:", error.message);
