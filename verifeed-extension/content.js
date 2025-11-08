@@ -1,6 +1,171 @@
 // VeriFeed Content Script - Enhanced Debug Version
 // Added extensive logging to identify popup display issues
 
+// ===== AUTH MODULE (EMBEDDED) =====
+// This replaces the need to import auth.js separately in content scripts
+class VerifeedAuth {
+    constructor() {
+        this.apiUrl = 'http://localhost:5000';
+        this.apiKey = '5hTeoaOm5m-91clhe2iVqKy2jpkiN54JLQ4vNbiDodU';  // ← Use YOUR key from .env!
+        this.token = null;
+        this.tokenExpiry = null;
+        
+        this.loadToken();
+    }
+
+    async loadToken() {
+        try {
+            const result = await chrome.storage.local.get(['auth_token', 'token_expiry']);
+            if (result.auth_token && result.token_expiry) {
+                const expiry = new Date(result.token_expiry);
+                if (expiry > new Date()) {
+                    this.token = result.auth_token;
+                    this.tokenExpiry = expiry;
+                    console.log('✓ Loaded valid token from storage');
+                    return true;
+                } else {
+                    console.log('Token expired, clearing...');
+                    await this.clearToken();
+                }
+            }
+        } catch (error) {
+            console.error('Error loading token:', error);
+        }
+        return false;
+    }
+
+    async saveToken(token, expiresIn) {
+        try {
+            const expiry = new Date();
+            expiry.setSeconds(expiry.getSeconds() + expiresIn);
+            
+            await chrome.storage.local.set({
+                'auth_token': token,
+                'token_expiry': expiry.toISOString()
+            });
+            
+            this.token = token;
+            this.tokenExpiry = expiry;
+            
+            console.log('✓ Token saved to storage');
+        } catch (error) {
+            console.error('Error saving token:', error);
+        }
+    }
+
+    async clearToken() {
+        try {
+            await chrome.storage.local.remove(['auth_token', 'token_expiry']);
+            this.token = null;
+            this.tokenExpiry = null;
+            console.log('✓ Token cleared');
+        } catch (error) {
+            console.error('Error clearing token:', error);
+        }
+    }
+
+    isTokenValid() {
+        if (!this.token || !this.tokenExpiry) {
+            return false;
+        }
+        
+        const now = new Date();
+        const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60000);
+        
+        return this.tokenExpiry > fiveMinutesFromNow;
+    }
+
+    async generateToken() {
+        try {
+            console.log('Generating new JWT token...');
+            
+            const response = await fetch(`${this.apiUrl}/auth/token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    api_key: this.apiKey
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to generate token');
+            }
+
+            const data = await response.json();
+            
+            await this.saveToken(data.token, data.expires_in);
+            
+            console.log('✓ Token generated successfully');
+            return data.token;
+            
+        } catch (error) {
+            console.error('Error generating token:', error);
+            throw error;
+        }
+    }
+
+    async ensureToken() {
+        if (this.isTokenValid()) {
+            return this.token;
+        }
+        
+        return await this.generateToken();
+    }
+
+    async getAuthHeaders() {
+        const token = await this.ensureToken();
+        
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        };
+    }
+
+    async authenticatedFetch(url, options = {}) {
+        try {
+            const headers = await this.getAuthHeaders();
+            
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    ...options.headers,
+                    ...headers
+                }
+            });
+
+            // If 401, try regenerating token
+            if (response.status === 401) {
+                console.log('Token invalid, regenerating...');
+                await this.clearToken();
+                
+                const newHeaders = await this.getAuthHeaders();
+                const retryResponse = await fetch(url, {
+                    ...options,
+                    headers: {
+                        ...options.headers,
+                        ...newHeaders
+                    }
+                });
+                
+                return retryResponse;
+            }
+
+            return response;
+            
+        } catch (error) {
+            console.error('Authenticated fetch error:', error);
+            throw error;
+        }
+    }
+}
+
+// Create global auth instance for this content script
+const verifeedAuth = new VerifeedAuth();
+
+
 class VeriFeedDetector {
   constructor() {
     this.analyzedVideos = new Map();
@@ -622,7 +787,7 @@ class VeriFeedDetector {
       });
       
       const response = await this.makeRequest(
-        `${this.serverUrl}/frame_analyze`,
+        `${this.serverUrl}/predict`,
         "POST",
         requestData
       );
@@ -714,19 +879,42 @@ class VeriFeedDetector {
 
   async makeRequest(url, method = "GET", data = null, retries = 0) {
     try {
-      const options = {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
+      // Check if this is the /predict endpoint (needs auth)
+      const needsAuth = url.includes('/predict') || url.includes('/frame_analyze');
 
-      if (data) {
-        options.body = JSON.stringify(data);
+      if (needsAuth) {
+        console.log('🔐 Making direct authenticated request to:', url);
+
+        // Use direct authenticated fetch for /predict endpoint
+        const fullUrl = `${this.serverUrl}/predict`;
+        const response = await verifeedAuth.authenticatedFetch(fullUrl, {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
+
+        // Convert fetch response to the expected format
+        return {
+          ok: response.ok,
+          status: response.status,
+          json: () => response.json()
+        };
+      } else {
+        // Non-authenticated request (like /health) - use direct fetch
+        console.log('📡 Making direct health check request to:', url);
+
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        return {
+          ok: response.ok,
+          status: response.status,
+          json: () => response.json()
+        };
       }
-
-      const response = await fetch(url, options);
-      return response;
     } catch (error) {
       if (retries < this.maxRetries) {
         console.log(

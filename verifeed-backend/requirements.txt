@@ -1,27 +1,29 @@
-# VeriFeed Backend Requirements - WITH BEST FACE DETECTION
+# VeriFeed Backend Dependencies - Secured Version
+# Install with: pip install -r requirements_secured.txt
 
-# Web Framework
-flask>=3.0.0
-flask-cors>=4.0.0
+# Core Flask
+Flask==3.0.0
+flask-cors==4.0.0
+
+# Authentication & Security
+PyJWT==2.8.0
+python-dotenv==1.0.0
 
 # Deep Learning
-torch>=2.0.0
-torchvision>=0.15.0
+torch==2.1.0
+torchvision==0.16.0
 
 # Computer Vision
-opencv-python>=4.8.0
+opencv-python==4.8.1.78
+face-recognition==1.3.0
+Pillow==10.1.0
 
 # Data Processing
-numpy>=1.24.0
-pillow>=10.0.0
+numpy==1.24.3
 
-# BEST Face Detection (HIGHLY RECOMMENDED)
-facenet-pytorch>=2.5.3
+# Required by face_recognition
+dlib==19.24.2
+cmake==3.27.7
 
-# Alternative Face Detection (OPTIONAL - good fallback)
-# Uncomment if you want face_recognition as backup:
-face-recognition>=1.3.0
-dlib>=19.24.0  # Required for face_recognition
-
-# Testing
-requests>=2.31.0
+# Logging (optional but recommended)
+python-json-logger==2.0.7
