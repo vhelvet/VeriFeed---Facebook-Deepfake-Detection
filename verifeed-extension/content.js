@@ -428,7 +428,11 @@ class VeriFeedDetector {
                 <circle cx="12" cy="12" r="10"/>
             </svg>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             <span>VeriFeed</span>
+=======
+            <span>Verifeed</span>
+>>>>>>> Stashed changes
 =======
             <span>Verifeed</span>
 >>>>>>> Stashed changes
