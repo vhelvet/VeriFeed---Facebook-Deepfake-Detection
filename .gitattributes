@@ -1,3 +1,5 @@
 *.json filter=lfs diff=lfs merge=lfs -text
 *.pt filter=lfs diff=lfs merge=lfs -text
 verifeed-extension/manifest.json filter=lfs diff=lfs merge=lfs -text
+*.your_file_extension filter=lfs diff=lfs merge=lfs -text
+metadata.json filter=lfs diff=lfs merge=lfs -text
