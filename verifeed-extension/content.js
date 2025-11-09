@@ -180,22 +180,22 @@ class DeepfakeNLG {
           {
             structure: "[DETERMINATION] [EVIDENCE] [ACTION]",
             determination: [
-              "Our analysis strongly indicates",
-              "We've identified clear signs that",
+              "The analysis strongly indicates",
+              "VeriFeed has identified clear signs that",
               "Evidence suggests",
               "Multiple indicators show that"
             ],
             evidence: [
-              "this video has been manipulated using artificial intelligence",
-              "deepfake technology was used to create this content",
-              "AI-generated alterations are present in this video",
-              "this content was synthetically modified using AI tools"
+              "this video has been manipulated using artificial intelligence.",
+              "deepfake technology was used to create this content.",
+              "AI-generated alterations are present in this video.",
+              "this content was synthetically modified using AI tools."
             ],
             action: [
-              "We recommend verifying this through other sources before sharing.",
-              "Please fact-check before distributing this content.",
-              "Cross-reference with original sources before sharing.",
-              "Verify through trusted sources before considering it authentic."
+              "Users should verify this through other sources before sharing.",
+              "Fact-checking is recommended before distributing this content.",
+              "Cross-referencing with original sources is advised before sharing.",
+              "Verification through trusted sources is recommended before considering it authentic."
             ]
           }
         ],
@@ -205,20 +205,20 @@ class DeepfakeNLG {
             possibility: [
               "This video may have been",
               "There are indicators suggesting this was",
-              "We've detected signs that this could be",
+              "The system has detected signs that this could be",
               "Analysis indicates this might have been"
             ],
             evidence: [
-              "edited or created using artificial intelligence",
-              "manipulated with deepfake technology",
-              "generated using AI tools",
-              "altered using synthetic media techniques"
+              "edited or created using artificial intelligence.",
+              "manipulated with deepfake technology.",
+              "generated using AI tools.",
+              "altered using synthetic media techniques."
             ],
             caution: [
-              "Please verify it before sharing.",
-              "We recommend additional verification.",
-              "Exercise caution when sharing this content.",
-              "Fact-check through multiple sources before sharing."
+              "Verification is recommended before sharing.",
+              "Additional verification is advised.",
+              "Caution should be exercised when sharing this content.",
+              "Fact-checking through multiple sources is recommended before sharing."
             ]
           }
         ],
@@ -226,22 +226,22 @@ class DeepfakeNLG {
           {
             structure: "[UNCERTAINTY] [OBSERVATION] [RECOMMENDATION]",
             uncertainty: [
-              "While we cannot be certain,",
-              "Our analysis is inconclusive, but",
-              "We have limited confidence that",
+              "While certainty is limited,",
+              "The analysis is inconclusive, but",
+              "VeriFeed has limited confidence that",
               "Though uncertain,"
             ],
             observation: [
-              "this video shows some signs of manipulation",
-              "there may be AI-generated elements present",
-              "artificial alterations might be present",
-              "possible synthetic modifications were detected"
+              "this video shows some signs of manipulation.",
+              "there may be AI-generated elements present.",
+              "artificial alterations might be present.",
+              "possible synthetic modifications were detected."
             ],
             recommendation: [
-              "Treat this content with skepticism and verify through multiple sources.",
-              "We strongly recommend fact-checking before sharing.",
+              "This content should be treated with skepticism and verified through multiple sources.",
+              "Fact-checking is strongly recommended before sharing.",
               "Additional analysis is needed before drawing conclusions.",
-              "Consult additional verification methods before trusting this content."
+              "Additional verification methods should be consulted before trusting this content."
             ]
           }
         ]
@@ -251,22 +251,22 @@ class DeepfakeNLG {
           {
             structure: "[DETERMINATION] [EVIDENCE] [ASSESSMENT]",
             determination: [
-              "Our analysis indicates",
-              "We've found strong evidence that",
+              "The analysis indicates",
+              "VeriFeed has found strong evidence that",
               "Multiple factors suggest",
-              "Our assessment shows"
+              "The assessment shows"
             ],
             evidence: [
-              "this video is genuine and has not been digitally manipulated",
-              "this content appears authentic with no signs of AI generation",
-              "this video shows no indicators of deepfake technology",
-              "this is authentic content without synthetic alterations"
+              "this video is genuine and has not been digitally manipulated.",
+              "this content appears authentic with no signs of AI generation.",
+              "this video shows no indicators of deepfake technology.",
+              "this is authentic content without synthetic alterations."
             ],
             assessment: [
-              "However, always verify important content through trusted sources.",
+              "However, important content should always be verified through trusted sources.",
               "Still, cross-referencing with original sources is good practice.",
-              "We still recommend verifying through official channels when possible.",
-              "As always, verify critical content through additional sources."
+              "Verification through official channels is still recommended when possible.",
+              "As always, critical content should be verified through additional sources."
             ]
           }
         ],
@@ -275,21 +275,21 @@ class DeepfakeNLG {
             structure: "[LIKELIHOOD] [EVIDENCE] [CAUTION]",
             likelihood: [
               "This video appears to be",
-              "We believe this is likely",
+              "VeriFeed believes this is likely",
               "Evidence suggests this is probably",
               "Analysis indicates this is most likely"
             ],
             evidence: [
-              "authentic and unmanipulated",
-              "genuine with no AI alterations",
-              "real content without deepfake elements",
-              "legitimate with no synthetic modifications"
+              "authentic and unmanipulated.",
+              "genuine with no AI alterations.",
+              "real content without deepfake elements.",
+              "legitimate with no synthetic modifications."
             ],
             caution: [
-              "though we recommend verification for complete certainty.",
+              "though verification is recommended for complete certainty.",
               "but additional verification is always recommended.",
               "though exercising caution is still advisable.",
-              "however, verify through trusted sources when important."
+              "however, verification through trusted sources is advised when important."
             ]
           }
         ],
@@ -297,22 +297,22 @@ class DeepfakeNLG {
           {
             structure: "[UNCERTAINTY] [OBSERVATION] [RECOMMENDATION]",
             uncertainty: [
-              "We cannot confidently determine",
-              "Our analysis is inconclusive about",
-              "We have low confidence in assessing",
-              "It's unclear from our analysis"
+              "The system cannot confidently determine",
+              "The analysis is inconclusive about",
+              "VeriFeed has low confidence in assessing",
+              "It's unclear from the analysis"
             ],
             observation: [
-              "whether this video is authentic or manipulated",
-              "if this content contains AI-generated elements",
-              "the authenticity of this video",
-              "whether synthetic alterations are present"
+              "whether this video is authentic or manipulated.",
+              "if this content contains AI-generated elements.",
+              "the authenticity of this video.",
+              "whether synthetic alterations are present."
             ],
             recommendation: [
-              "Please verify through multiple trusted sources before relying on this content.",
-              "We recommend treating this with caution until verified.",
+              "Verification through multiple trusted sources is recommended before relying on this content.",
+              "This should be treated with caution until verified.",
               "Additional expert analysis may be needed for confirmation.",
-              "Seek verification from authoritative sources before trusting this content."
+              "Verification from authoritative sources is advised before trusting this content."
             ]
           }
         ]
@@ -363,41 +363,41 @@ class DeepfakeNLG {
   generateConfidenceText(confidence) {
     if (confidence >= 90) {
       const options = [
-        "We have very high confidence in this assessment",
-        "Our analysis provides very strong certainty",
-        "We are highly confident in this determination",
+        "VeriFeed has very high confidence in this assessment",
+        "The analysis provides very strong certainty",
+        "The system is highly confident in this determination",
         "This assessment has very high reliability"
       ];
       return options[Math.floor(Math.random() * options.length)];
     } else if (confidence >= 80) {
       const options = [
-        "We have high confidence in this assessment",
-        "Our analysis provides strong certainty",
-        "We are confident in this determination",
+        "VeriFeed has high confidence in this assessment",
+        "The analysis provides strong certainty",
+        "The system is confident in this determination",
         "This assessment has high reliability"
       ];
       return options[Math.floor(Math.random() * options.length)];
     } else if (confidence >= 70) {
       const options = [
-        "We have moderate confidence in this assessment",
-        "Our analysis suggests reasonable certainty",
-        "We are moderately confident in this determination",
+        "VeriFeed has moderate confidence in this assessment",
+        "The analysis suggests reasonable certainty",
+        "The system is moderately confident in this determination",
         "This assessment has moderate reliability"
       ];
       return options[Math.floor(Math.random() * options.length)];
     } else if (confidence >= 60) {
       const options = [
-        "We have limited confidence in this assessment",
-        "Our analysis suggests some uncertainty",
-        "We are somewhat confident in this determination",
+        "VeriFeed has limited confidence in this assessment",
+        "The analysis suggests some uncertainty",
+        "The system is somewhat confident in this determination",
         "This assessment has limited reliability"
       ];
       return options[Math.floor(Math.random() * options.length)];
     } else {
       const options = [
-        "We have low confidence in this assessment",
-        "Our analysis is highly uncertain",
-        "We have minimal confidence in this determination",
+        "VeriFeed has low confidence in this assessment",
+        "The analysis is highly uncertain",
+        "The system has minimal confidence in this determination",
         "This assessment has low reliability"
       ];
       return options[Math.floor(Math.random() * options.length)];
@@ -1278,581 +1278,1006 @@ class VeriFeedDetector {
   }
 
   showResultsPopup(buttonElement, result) {
-    console.log("=== SHOW RESULTS POPUP CALLED ===");
-    console.log("Function entry point reached");
-    console.log("buttonElement:", buttonElement);
-    console.log("result:", result);
-    console.log("buttonElement exists:", !!buttonElement);
-    console.log("result exists:", !!result);
+        this.removeExistingPopup();
 
-    try {
-      console.log("Attempting to remove existing popup");
-      this.removeExistingPopup();
-      console.log("Existing popup removed");
 
-      const prediction = result.prediction;
-      const confidence = result.confidence || 0;
-      const isAuthentic = prediction === "REAL";
-      console.log("Parsed result - prediction:", prediction, "confidence:", confidence, "isAuthentic:", isAuthentic);
+        const prediction = result.prediction;
+        const confidence = result.confidence || 0;
+        const realProb = result.real_probability || 0;
+        const fakeProb = result.fake_probability || 0;
+        const isAuthentic = prediction === "REAL";
 
-      // Apply confidence threshold - if too low, show uncertainty message instead
-      const CONFIDENCE_THRESHOLD = 70;
-      const showUncertainResult = confidence < CONFIDENCE_THRESHOLD;
-      console.log("Confidence threshold check - confidence:", confidence, "threshold:", CONFIDENCE_THRESHOLD, "showUncertain:", showUncertainResult);
 
-      console.log("Getting button rect");
-      const buttonRect = buttonElement.getBoundingClientRect();
-      console.log("Button rect:", {
-        top: buttonRect.top,
-        right: buttonRect.right,
-        bottom: buttonRect.bottom,
-        left: buttonRect.left,
-        width: buttonRect.width,
-        height: buttonRect.height
-      });
+        const buttonRect = buttonElement.getBoundingClientRect();
+        const resultsPopup = document.createElement("div");
+        resultsPopup.className = "verifeed-results-popup";
 
-      console.log("Creating results popup element");
-      const resultsPopup = document.createElement("div");
-      resultsPopup.className = "verifeed-results-popup";
-      console.log("Popup element created:", resultsPopup);
+        // Generate NLG messages
+        const nlgMessage = deepfakeNLG.generate(prediction, confidence);
+        const nlgConfidenceText = deepfakeNLG.generateConfidenceText(confidence);
 
-      const statusIcon = isAuthentic ? "✅" : "⚠️";
-      const statusText = isAuthentic ? "Authentic" : "Deepfake Detected";
-      const statusColor = isAuthentic ? "#10b981" : "#f59e0b";
-      const confidenceText = deepfakeNLG.generateConfidenceText(confidence);
-      const nlgMessage = deepfakeNLG.generate(prediction, confidence);
+        const statusIcon = isAuthentic ? "✅" : "⚠️";
+        const statusText = isAuthentic ? "Authentic Video" : "Deepfake Detected";
+        const statusColor = isAuthentic ? "#10b981" : "#ef4444";
+        const bgGradient = isAuthentic
+            ? "linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)"
+            : "linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)";
 
-      console.log("Setting popup innerHTML");
-      resultsPopup.innerHTML = `
+
+        const processingInfo = result.processing_time
+            ? `<div class="processing-time">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span>Analyzed in ${result.processing_time.total}s</span>
+               </div>`
+            : "";
+
+
+        resultsPopup.innerHTML = `
             <div class="verifeed-popup-content">
-                <div class="verifeed-popup-header">
-                    <span class="status-icon">${statusIcon}</span>
-                    <span class="status-text">${statusText}</span>
-                    <button class="close-btn">×</button>
+                <div class="verifeed-popup-header" style="background: ${bgGradient};">
+                    <div class="status-indicator">
+                        <span class="status-icon-animated">${statusIcon}</span>
+                        <div class="status-info">
+                            <span class="status-text" style="color: ${statusColor};">${statusText}</span>
+                            <span class="status-subtitle">AI Analysis Complete</span>
+                        </div>
+                    </div>
+                    <button class="close-btn" title="Close">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
                 </div>
                 <div class="verifeed-popup-body">
                     <div class="confidence-section">
-                        <span class="confidence-label">How sure we are: ${confidence.toFixed(
-                          1
-                        )}%</span>
-                        <div class="confidence-bar">
-                            <div class="confidence-fill" style="width: ${confidence}%; background: ${statusColor};"></div>
+                        <div class="confidence-header">
+                            <span class="confidence-label">Overall Confidence</span>
+                            <span class="confidence-value" style="color: ${statusColor};">${confidence.toFixed(1)}%</span>
                         </div>
-                        <span class="confidence-text">${confidenceText}</span>
+                        <p class="confidence-description">${nlgConfidenceText}</p>
+                        <div class="confidence-bar-container">
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 0%; background: ${statusColor};" data-width="${confidence}"></div>
+                            </div>
+                            <div class="confidence-markers">
+                                <span>0%</span>
+                                <span>50%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="info-text">
-                        ${nlgMessage}
+                   
+                    <div class="probability-section">
+                        <div class="section-title">Detailed Analysis</div>
+                        <div class="prob-grid">
+                            <div class="prob-card prob-real">
+                                <div class="prob-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                </div>
+                                <div class="prob-content">
+                                    <div class="prob-label">Authentic</div>
+                                    <div class="prob-value">${realProb.toFixed(1)}%</div>
+                                    <div class="prob-bar">
+                                        <div class="prob-fill prob-fill-real" style="width: 0%;" data-width="${realProb}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="prob-card prob-fake">
+                                <div class="prob-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="15" y1="9" x2="9" y2="15"/>
+                                        <line x1="9" y1="9" x2="15" y2="15"/>
+                                    </svg>
+                                </div>
+                                <div class="prob-content">
+                                    <div class="prob-label">Manipulated</div>
+                                    <div class="prob-value">${fakeProb.toFixed(1)}%</div>
+                                    <div class="prob-bar">
+                                        <div class="prob-fill prob-fill-fake" style="width: 0%;" data-width="${fakeProb}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="disclaimer">
-                        Computer check • This is just a guess • Always check with other sources
+                   
+                    <div class="info-card" style="border-left-color: ${statusColor};">
+                        <div class="info-icon">${isAuthentic ? '📋' : '⚠️'}</div>
+                        <div class="info-content">
+                            <div class="info-title">${isAuthentic ? 'Summary' : 'Warning'}</div>
+                            <div class="info-description">
+                                ${nlgMessage}
+                            </div>
+                        </div>
+                    </div>
+                   
+                    <div class="metadata-section">
+                        <div class="metadata-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                            </svg>
+                            <span>Frames: ${result.frames_processed || "N/A"}</span>
+                        </div>
+                        ${processingInfo}
                     </div>
                 </div>
             </div>
         `;
-      console.log("Popup innerHTML set with confidence:", confidence.toFixed(1));
 
-      const topPosition = buttonRect.bottom + 8;
-      const rightPosition = window.innerWidth - buttonRect.right;
-      console.log("Calculated positions - top:", topPosition, "right:", rightPosition);
 
-      console.log("Setting popup styles");
-      resultsPopup.style.cssText = `
-            position: fixed !important;
-            top: ${topPosition}px !important;
-            right: ${rightPosition}px !important;
-            z-index: 2147483647 !important;
-            width: 280px !important;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            background: white !important;
-            border-radius: 8px !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8) !important;
-            animation: verifeedSlideDown 0.2s ease-out !important;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            pointer-events: auto !important;
-            transform: none !important;
-            filter: none !important;
-            clip: auto !important;
-            clip-path: none !important;
-            mask: none !important;
-            isolation: isolate !important;
-            min-height: 100px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            border: 1px solid rgba(0, 0, 0, 0.1) !important;
-            font-size: 14px !important;
-            line-height: 1.4 !important;
-            color: #333 !important;
-            text-align: left !important;
-            overflow: visible !important;
-            white-space: normal !important;
-            word-wrap: break-word !important;
-        `;
-      console.log("Popup styles set");
-
-      console.log("Creating comprehensive style element");
-      const style = document.createElement("style");
-      style.id = "verifeed-popup-styles";
-      style.textContent = `
-            @keyframes verifeedSlideDown {
-                from {
-                    opacity: 0 !important;
-                    transform: translateY(-10px) !important;
-                }
-                to {
-                    opacity: 1 !important;
-                    transform: translateY(0) !important;
-                }
-            }
-
-            .verifeed-results-popup {
-                pointer-events: auto !important;
-                position: fixed !important;
-                z-index: 2147483647 !important;
-                display: block !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-            }
-
-            .verifeed-popup-content {
-                padding: 0 !important;
-                margin: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-                display: block !important;
-                position: relative !important;
-            }
-
-            .verifeed-popup-header {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: space-between !important;
-                padding: 12px 16px !important;
-                border-bottom: 1px solid #f3f4f6 !important;
-                background: #fafafa !important;
-                border-radius: 8px 8px 0 0 !important;
-                margin: 0 !important;
-                position: relative !important;
-                z-index: 1 !important;
-            }
-
-            .verifeed-popup-header .status-icon {
-                font-size: 16px !important;
-                margin-right: 8px !important;
-                display: inline-block !important;
-                flex-shrink: 0 !important;
-            }
-
-            .verifeed-popup-header .status-text {
-                font-weight: 600 !important;
-                color: #374151 !important;
-                font-size: 14px !important;
-                flex: 1 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                text-align: left !important;
-            }
-
-            .verifeed-popup-header .close-btn {
-                background: none !important;
-                border: none !important;
-                color: #9ca3af !important;
-                font-size: 18px !important;
-                cursor: pointer !important;
-                padding: 0 !important;
-                width: 20px !important;
-                height: 20px !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                flex-shrink: 0 !important;
-                margin-left: auto !important;
-                transition: color 0.2s ease !important;
-            }
-
-            .verifeed-popup-header .close-btn:hover {
-                color: #6b7280 !important;
-            }
-
-            .verifeed-popup-body {
-                padding: 16px !important;
-                margin: 0 !important;
-                background: white !important;
-                border-radius: 0 0 8px 8px !important;
-            }
-
-            .verifeed-popup-body .confidence-section {
-                margin-bottom: 12px !important;
-                display: block !important;
-            }
-
-            .verifeed-popup-body .confidence-label {
-                font-size: 13px !important;
-                font-weight: 600 !important;
-                color: #374151 !important;
-                display: block !important;
-                margin-bottom: 6px !important;
-                line-height: 1.3 !important;
-            }
-
-            .verifeed-popup-body .confidence-bar {
-                width: 100% !important;
-                height: 6px !important;
-                background: #e5e7eb !important;
-                border-radius: 3px !important;
-                overflow: hidden !important;
-                margin-bottom: 4px !important;
-                position: relative !important;
-            }
-
-            .verifeed-popup-body .confidence-fill {
-                height: 100% !important;
-                border-radius: 3px !important;
-                transition: width 0.8s ease-out !important;
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-            }
-
-            .verifeed-popup-body .confidence-text {
-                font-size: 12px !important;
-                color: #6b7280 !important;
-                display: block !important;
-                margin-top: 4px !important;
-                line-height: 1.3 !important;
-            }
-
-            .verifeed-popup-body .info-text {
-                font-size: 13px !important;
-                color: #4b5563 !important;
-                line-height: 1.4 !important;
-                margin-bottom: 12px !important;
-                display: block !important;
-                text-align: left !important;
-            }
-
-            .verifeed-popup-body .disclaimer {
-                font-size: 11px !important;
-                color: #9ca3af !important;
-                text-align: center !important;
-                line-height: 1.3 !important;
-                padding-top: 8px !important;
-                border-top: 1px solid #f3f4f6 !important;
-                margin-top: 8px !important;
-                display: block !important;
-            }
-
-            /* Additional isolation styles */
-            * {
-                box-sizing: border-box !important;
-            }
-
-            button, input, textarea, select {
-                font-family: inherit !important;
-                font-size: inherit !important;
-            }
-        `;
-      console.log("Comprehensive style element created");
-
-      console.log("Appending style to document head");
-      document.head.appendChild(style);
-      console.log("Style appended to document head");
-
-      console.log("Appending popup to document body");
-      document.body.appendChild(resultsPopup);
-      this.activePopup = resultsPopup;
-      this.activeStyle = style;
-      console.log("Popup appended to body");
-
-      console.log("=== POPUP DOM CHECK ===");
-      console.log("Popup in DOM:", document.body.contains(resultsPopup));
-      console.log("Style in head:", document.head.contains(style));
-      const computedStyle = window.getComputedStyle(resultsPopup);
-      console.log("Computed styles:");
-      console.log("  display:", computedStyle.display);
-      console.log("  visibility:", computedStyle.visibility);
-      console.log("  opacity:", computedStyle.opacity);
-      console.log("  z-index:", computedStyle.zIndex);
-      console.log("  position:", computedStyle.position);
-      console.log("  top:", computedStyle.top);
-      console.log("  right:", computedStyle.right);
-      console.log("  width:", computedStyle.width);
-      console.log("  height:", computedStyle.height);
-
-      console.log("Setting up close button");
-      const closeBtn = resultsPopup.querySelector(".close-btn");
-      console.log("Close button found:", !!closeBtn);
-
-      const closePopup = () => {
-        console.log("Closing popup");
-
-        if (this.scrollListener) {
-          window.removeEventListener("scroll", this.scrollListener);
-          this.scrollListener = null;
-        }
-        if (this.clickListener) {
-          document.removeEventListener("click", this.clickListener);
-          this.clickListener = null;
-        }
-
-        if (resultsPopup.parentNode) {
-          resultsPopup.remove();
-        }
-        if (style.parentNode) {
-          style.remove();
-        }
-
-        this.activePopup = null;
-        this.activeStyle = null;
-      };
-
-      this.scrollListener = () => {
-        console.log("Scroll detected, closing popup");
-        closePopup();
-      };
-
-      closeBtn.addEventListener("click", (e) => {
-        console.log("Close button clicked");
-        e.stopPropagation();
-        e.preventDefault();
-        closePopup();
-      });
-
-      console.log("Setting up auto-close timer (15s)");
-      setTimeout(() => {
-        if (resultsPopup.parentNode) {
-          console.log("Auto-closing popup after 15s");
-          closePopup();
-        }
-      }, 15000);
-
-      console.log("Adding scroll listener");
-      window.addEventListener("scroll", this.scrollListener, { passive: true });
-
-      console.log("Setting up click-outside listener");
-      setTimeout(() => {
-        this.clickListener = (e) => {
-          console.log("Click detected:", e.target);
-          if (
-            !resultsPopup.contains(e.target) &&
-            !buttonElement.contains(e.target)
-          ) {
-            console.log("Click outside popup, closing");
-            closePopup();
-          } else {
-            console.log("Click inside popup or button, keeping open");
-          }
-        };
-        document.addEventListener("click", this.clickListener);
-        console.log("Click-outside listener added");
-      }, 100);
-
-      console.log("=== POPUP SETUP COMPLETE ===");
-      console.log("Popup should be visible now");
-    } catch (error) {
-      console.error("=== ERROR IN showResultsPopup ===");
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-      console.error("Full error:", error);
-    }
-  }
-
-  showErrorPopup(buttonElement, message) {
-    console.log("=== SHOWING ERROR POPUP ===");
-    console.log("Message:", message);
-    console.log("Button element:", buttonElement);
-    
-    this.removeExistingPopup();
-
-    const buttonRect = buttonElement.getBoundingClientRect();
-    console.log("Button rect:", buttonRect);
-
-    const errorPopup = document.createElement("div");
-    errorPopup.className = "verifeed-error-popup";
-    errorPopup.innerHTML = `
-            <div class="error-content">
-                <div class="error-header">
-                    <span>⚠️ Cannot check video</span>
-                    <button class="close-btn">×</button>
-                </div>
-                <div class="error-body">
-                    <p>${message}</p>
-                    <button class="retry-btn">OK</button>
-                </div>
-            </div>
-        `;
-
-    errorPopup.style.cssText = `
+        resultsPopup.style.cssText = `
             position: fixed !important;
             top: ${buttonRect.bottom + 8}px !important;
             right: ${window.innerWidth - buttonRect.right}px !important;
             z-index: 2147483647 !important;
-            width: 280px !important;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            width: 360px !important;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
             background: white !important;
-            border-radius: 8px !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
-            border: 1px solid #fecaca !important;
-            animation: slideDown 0.2s ease-out !important;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+            animation: popupEntrance 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            overflow: hidden !important;
         `;
 
-    const errorStyle = document.createElement("style");
-    errorStyle.id = "verifeed-error-styles";
-    errorStyle.textContent = `
-            .verifeed-error-popup {
-                pointer-events: auto !important;
+
+        const style = document.createElement("style");
+        style.id = "verifeed-popup-styles";
+        style.textContent = `
+            @keyframes popupEntrance {
+                0% { opacity: 0; transform: translateY(-20px) scale(0.9); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
             }
-            .verifeed-error-popup .error-content {
-                padding: 0 !important;
+           
+            @keyframes iconPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
             }
-            .verifeed-error-popup .error-header {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: space-between !important;
-                padding: 12px 16px !important;
-                background: #fef2f2 !important;
-                border-radius: 8px 8px 0 0 !important;
-                font-weight: 600 !important;
-                color: #b91c1c !important;
-                font-size: 14px !important;
+           
+            @keyframes shimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
             }
-            .verifeed-error-popup .error-header .close-btn {
-                background: none !important;
-                border: none !important;
-                color: #9ca3af !important;
-                font-size: 18px !important;
-                cursor: pointer !important;
-                padding: 0 !important;
-                width: 20px !important;
-                height: 20px !important;
+           
+            .verifeed-popup-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 20px;
+                border-radius: 12px 12px 0 0;
+                position: relative;
+                overflow: hidden;
             }
-            .verifeed-error-popup .error-header .close-btn:hover {
-                color: #6b7280 !important;
+           
+            .verifeed-popup-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -200%;
+                width: 200%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                animation: shimmer 3s infinite;
             }
-            .verifeed-error-popup .error-body {
-                padding: 16px !important;
+           
+            .status-indicator {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                position: relative;
+                z-index: 1;
             }
-            .verifeed-error-popup .error-body p {
-                margin: 0 0 12px 0 !important;
-                font-size: 13px !important;
-                color: #6b7280 !important;
-                line-height: 1.4 !important;
+           
+            .status-icon-animated {
+                font-size: 28px;
+                animation: iconPulse 2s ease-in-out infinite;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
-            .verifeed-error-popup .retry-btn {
-                background: #1877f2 !important;
-                color: white !important;
-                border: none !important;
-                padding: 6px 12px !important;
-                border-radius: 4px !important;
-                font-size: 12px !important;
-                cursor: pointer !important;
-                font-weight: 500 !important;
+           
+            .status-info {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
             }
-            .verifeed-error-popup .retry-btn:hover {
-                background: #166fe5 !important;
+           
+            .status-text {
+                font-weight: 900;
+                font-size: 48px;
+                letter-spacing: -0.01em;
+            }
+           
+            .status-subtitle {
+                font-size: 11px;
+                color: #6b7280;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+           
+            .close-btn {
+                background: rgba(255, 255, 255, 0.9);
+                border: none;
+                color: #6b7280;
+                cursor: pointer;
+                width: 28px;
+                height: 28px;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+                position: relative;
+                z-index: 1;
+            }
+           
+            .close-btn:hover {
+                background: white;
+                color: #374151;
+                transform: rotate(90deg);
+            }
+           
+            .verifeed-popup-body {
+                padding: 24px;
+                background: white;
+            }
+           
+            .confidence-section {
+                margin-bottom: 24px;
+            }
+           
+            .confidence-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+           
+            .confidence-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: #6b7280;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+           
+            .confidence-value {
+                font-size: 24px;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+            }
+           
+            .confidence-bar-container {
+                position: relative;
+            }
+           
+            .confidence-bar {
+                width: 100%;
+                height: 12px;
+                background: #f3f4f6;
+                border-radius: 6px;
+                overflow: hidden;
+                position: relative;
+                box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+            }
+           
+            .confidence-fill {
+                height: 100%;
+                border-radius: 6px;
+                transition: width 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+                position: relative;
+                overflow: hidden;
+            }
+           
+            .confidence-fill::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                animation: shimmer 2s infinite;
+            }
+           
+            .confidence-markers {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 6px;
+                font-size: 10px;
+                color: #9ca3af;
+                font-weight: 500;
+            }
+           
+            .section-title {
+                font-size: 13px;
+                font-weight: 600;
+                color: #6b7280;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 12px;
+            }
+           
+            .prob-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+           
+            .prob-card {
+                background: #f9fafb;
+                border-radius: 8px;
+                padding: 14px;
+                border: 1px solid #e5e7eb;
+                transition: all 0.3s ease;
+            }
+           
+            .prob-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            }
+           
+            .prob-icon {
+                margin-bottom: 8px;
+            }
+           
+            .prob-content {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+           
+            .prob-label {
+                font-size: 11px;
+                color: #6b7280;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+           
+            .prob-value {
+                font-size: 20px;
+                font-weight: 700;
+                color: #1f2937;
+                letter-spacing: -0.02em;
+            }
+           
+            .prob-bar {
+                width: 100%;
+                height: 6px;
+                background: #e5e7eb;
+                border-radius: 3px;
+                overflow: hidden;
+            }
+           
+            .prob-fill {
+                height: 100%;
+                border-radius: 3px;
+                transition: width 1s cubic-bezier(0.65, 0, 0.35, 1) 0.2s;
+            }
+           
+            .prob-fill-real {
+                background: linear-gradient(90deg, #10b981, #059669);
+            }
+           
+            .prob-fill-fake {
+                background: linear-gradient(90deg, #ef4444, #dc2626);
+            }
+           
+            .info-card {
+                background: #f9fafb;
+                border-radius: 8px;
+                padding: 16px;
+                border-left: 4px solid;
+                display: flex;
+                gap: 12px;
+                margin-bottom: 20px;
+                animation: slideInLeft 0.5s ease-out 0.3s both;
+            }
+           
+            @keyframes slideInLeft {
+                from { opacity: 0; transform: translateX(-10px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+           
+            .info-icon {
+                font-size: 24px;
+                flex-shrink: 0;
+            }
+           
+            .info-content {
+                flex: 1;
+            }
+           
+            .info-title {
+                font-size: 13px;
+                font-weight: 700;
+                color: #374151;
+                margin-bottom: 6px;
+            }
+           
+            .info-description {
+                font-size: 13px;
+                color: #6b7280;
+                line-height: 1.6;
+            }
+           
+            .metadata-section {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 16px;
+                border-top: 1px solid #e5e7eb;
+            }
+           
+            .metadata-item, .processing-time {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 11px;
+                color: #6b7280;
+                font-weight: 500;
+            }
+           
+            .processing-time svg {
+                color: #10b981;
+            }
+           
+            .metadata-item svg {
+                opacity: 0.6;
             }
         `;
-    document.head.appendChild(errorStyle);
-    this.activeStyle = errorStyle;
-    console.log("Error style added to head");
 
-    document.body.appendChild(errorPopup);
-    this.activePopup = errorPopup;
-    console.log("Error popup appended to body");
-    console.log("Error popup in DOM:", document.body.contains(errorPopup));
 
-    const closeBtn = errorPopup.querySelector(".close-btn");
-    const retryBtn = errorPopup.querySelector(".retry-btn");
+        document.head.appendChild(style);
+        document.body.appendChild(resultsPopup);
+        this.activePopup = resultsPopup;
+        this.activeStyle = style;
 
-    const closeErrorPopup = () => {
-      console.log("Closing error popup");
-      if (errorPopup.parentNode) {
-        errorPopup.remove();
-      }
-      if (errorStyle.parentNode) {
-        errorStyle.remove();
-      }
-      this.activePopup = null;
-      this.activeStyle = null;
-    };
 
-    closeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      closeErrorPopup();
-    });
+        setTimeout(() => {
+            const confidenceFill = resultsPopup.querySelector('.confidence-fill');
+            const probFills = resultsPopup.querySelectorAll('.prob-fill');
+           
+            if (confidenceFill) {
+                confidenceFill.style.width = confidenceFill.dataset.width + '%';
+            }
+           
+            probFills.forEach(fill => {
+                fill.style.width = fill.dataset.width + '%';
+            });
+        }, 100);
 
-    retryBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      closeErrorPopup();
-    });
 
-    setTimeout(() => {
-      if (errorPopup.parentNode) {
-        closeErrorPopup();
-      }
-    }, 8000);
-  }
+        const closeBtn = resultsPopup.querySelector(".close-btn");
+        const closePopup = () => {
+            resultsPopup.style.animation = 'popupExit 0.3s ease-out forwards';
+           
+            const exitKeyframes = `
+                @keyframes popupExit {
+                    0% { opacity: 1; transform: translateY(0) scale(1); }
+                    100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
+                }
+            `;
+           
+            if (!document.getElementById('verifeed-exit-animation')) {
+                const exitStyle = document.createElement('style');
+                exitStyle.id = 'verifeed-exit-animation';
+                exitStyle.textContent = exitKeyframes;
+                document.head.appendChild(exitStyle);
+            }
+           
+            setTimeout(() => {
+                if (resultsPopup.parentNode) resultsPopup.remove();
+                if (style.parentNode) style.remove();
+                this.activePopup = null;
+                this.activeStyle = null;
+                window.removeEventListener('scroll', this.scrollCloseHandler);
+                this.scrollCloseHandler = null;
+            }, 300);
+        };
 
-  removeExistingPopup() {
-    console.log("=== REMOVING EXISTING POPUP ===");
-    
-    if (this.scrollListener) {
-      console.log("Removing scroll listener");
-      window.removeEventListener("scroll", this.scrollListener);
-      this.scrollListener = null;
+
+        closeBtn.addEventListener("click", closePopup);
+        this.setupScrollCloseListener();
+
+
+        setTimeout(() => {
+            if (resultsPopup.parentNode) closePopup();
+        }, 20000);
     }
-    if (this.clickListener) {
-      console.log("Removing click listener");
-      document.removeEventListener("click", this.clickListener);
-      this.clickListener = null;
+
+
+    showErrorPopup(buttonElement, message) {
+        this.removeExistingPopup();
+
+
+        const buttonRect = buttonElement.getBoundingClientRect();
+        const errorPopup = document.createElement("div");
+        errorPopup.className = "verifeed-error-popup";
+
+
+        errorPopup.innerHTML = `
+            <div class="error-content">
+                <div class="error-header">
+                    <div class="error-indicator">
+                        <div class="error-icon-wrapper">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                        </div>
+                        <div class="error-info">
+                            <span class="error-title">ANALYSIS FAILED</span>
+                            <span class="error-subtitle">Unable to process video</span>
+                        </div>
+                    </div>
+                    <button class="close-btn" title="Close">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="error-body">
+                    <div class="error-message">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <p>${message}</p>
+                    </div>
+                    <button class="retry-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"/>
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                        </svg>
+                        <span>Got it</span>
+                    </button>
+                </div>
+            </div>
+        `;
+
+
+        errorPopup.style.cssText = `
+            position: fixed !important;
+            top: ${buttonRect.bottom + 8}px !important;
+            right: ${window.innerWidth - buttonRect.right}px !important;
+            z-index: 2147483647 !important;
+            width: 340px !important;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+            background: white !important;
+            border-radius: 12px !important;
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.15), 0 0 0 1px rgba(239, 68, 68, 0.1) !important;
+            animation: errorShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important;
+            overflow: hidden !important;
+        `;
+
+
+        const style = document.createElement("style");
+        style.id = "verifeed-popup-styles";
+        style.textContent = `
+            @keyframes popupEntrance {
+                0% { opacity: 0; transform: translateY(-20px) scale(0.9); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+            }
+           
+            @keyframes iconPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+           
+            @keyframes shimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+            }
+           
+            .verifeed-popup-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 20px;
+                border-radius: 12px 12px 0 0;
+                position: relative;
+                overflow: hidden;
+            }
+           
+            .verifeed-popup-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -200%;
+                width: 200%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                animation: shimmer 3s infinite;
+            }
+           
+            .status-indicator {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                position: relative;
+                z-index: 1;
+            }
+           
+            .status-icon-animated {
+                font-size: 28px;
+                animation: iconPulse 2s ease-in-out infinite;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+           
+            .status-info {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+           
+            .status-text {
+                font-weight: 700;
+                font-size: 16px;
+                letter-spacing: -0.01em;
+            }
+           
+            .status-subtitle {
+                font-size: 11px;
+                color: #6b7280;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+           
+            .close-btn {
+                background: rgba(255, 255, 255, 0.9);
+                border: none;
+                color: #6b7280;
+                cursor: pointer;
+                width: 28px;
+                height: 28px;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+                position: relative;
+                z-index: 1;
+            }
+           
+            .close-btn:hover {
+                background: white;
+                color: #374151;
+                transform: rotate(90deg);
+            }
+           
+            .verifeed-popup-body {
+                padding: 24px;
+                background: white;
+            }
+           
+            .confidence-section {
+                margin-bottom: 24px;
+            }
+           
+            .confidence-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+           
+            .confidence-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: #6b7280;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+           
+            .confidence-value {
+                font-size: 24px;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+            }
+           
+            .confidence-bar-container {
+                position: relative;
+            }
+           
+            .confidence-bar {
+                width: 100%;
+                height: 12px;
+                background: #f3f4f6;
+                border-radius: 6px;
+                overflow: hidden;
+                position: relative;
+                box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+            }
+           
+            .confidence-fill {
+                height: 100%;
+                border-radius: 6px;
+                transition: width 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+                position: relative;
+                overflow: hidden;
+            }
+           
+            .confidence-fill::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                animation: shimmer 2s infinite;
+            }
+           
+            .confidence-markers {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 6px;
+                font-size: 10px;
+                color: #9ca3af;
+                font-weight: 500;
+            }
+           
+            .section-title {
+                font-size: 13px;
+                font-weight: 600;
+                color: #6b7280;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 12px;
+            }
+           
+            .prob-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+           
+            .prob-card {
+                background: #f9fafb;
+                border-radius: 8px;
+                padding: 14px;
+                border: 1px solid #e5e7eb;
+                transition: all 0.3s ease;
+            }
+           
+            .prob-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            }
+           
+            .prob-icon {
+                margin-bottom: 8px;
+            }
+           
+            .prob-content {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+           
+            .prob-label {
+                font-size: 11px;
+                color: #6b7280;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+           
+            .prob-value {
+                font-size: 20px;
+                font-weight: 700;
+                color: #1f2937;
+                letter-spacing: -0.02em;
+            }
+           
+            .prob-bar {
+                width: 100%;
+                height: 6px;
+                background: #e5e7eb;
+                border-radius: 3px;
+                overflow: hidden;
+            }
+           
+            .prob-fill {
+                height: 100%;
+                border-radius: 3px;
+                transition: width 1s cubic-bezier(0.65, 0, 0.35, 1) 0.2s;
+            }
+           
+            .prob-fill-real {
+                background: linear-gradient(90deg, #10b981, #059669);
+            }
+           
+            .prob-fill-fake {
+                background: linear-gradient(90deg, #ef4444, #dc2626);
+            }
+           
+            .info-card {
+                background: #f9fafb;
+                border-radius: 8px;
+                padding: 16px;
+                border-left: 4px solid;
+                display: flex;
+                gap: 12px;
+                margin-bottom: 20px;
+                animation: slideInLeft 0.5s ease-out 0.3s both;
+            }
+           
+            @keyframes slideInLeft {
+                from { opacity: 0; transform: translateX(-10px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+           
+            .info-icon {
+                font-size: 24px;
+                flex-shrink: 0;
+            }
+           
+            .info-content {
+                flex: 1;
+            }
+           
+            .info-title {
+                font-size: 13px;
+                font-weight: 700;
+                color: #374151;
+                margin-bottom: 6px;
+            }
+           
+            .info-description {
+                font-size: 13px;
+                color: #6b7280;
+                line-height: 1.6;
+            }
+           
+            .metadata-section {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 16px;
+                border-top: 1px solid #e5e7eb;
+            }
+           
+            .metadata-item, .processing-time {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 11px;
+                color: #6b7280;
+                font-weight: 500;
+            }
+           
+            .processing-time svg {
+                color: #10b981;
+            }
+           
+            .metadata-item svg {
+                opacity: 0.6;
+            }
+        `;
+
+
+        document.head.appendChild(style);
+        document.body.appendChild(resultsPopup);
+        this.activePopup = resultsPopup;
+        this.activeStyle = style;
+
+
+        setTimeout(() => {
+            const confidenceFill = resultsPopup.querySelector('.confidence-fill');
+            const probFills = resultsPopup.querySelectorAll('.prob-fill');
+           
+            if (confidenceFill) {
+                confidenceFill.style.width = confidenceFill.dataset.width + '%';
+            }
+           
+            probFills.forEach(fill => {
+                fill.style.width = fill.dataset.width + '%';
+            });
+        }, 100);
+
+
+        const closeBtn = resultsPopup.querySelector(".close-btn");
+        const closePopup = () => {
+            resultsPopup.style.animation = 'popupExit 0.3s ease-out forwards';
+           
+            const exitKeyframes = `
+                @keyframes popupExit {
+                    0% { opacity: 1; transform: translateY(0) scale(1); }
+                    100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
+                }
+            `;
+           
+            if (!document.getElementById('verifeed-exit-animation')) {
+                const exitStyle = document.createElement('style');
+                exitStyle.id = 'verifeed-exit-animation';
+                exitStyle.textContent = exitKeyframes;
+                document.head.appendChild(exitStyle);
+            }
+           
+            setTimeout(() => {
+                if (resultsPopup.parentNode) resultsPopup.remove();
+                if (style.parentNode) style.remove();
+                this.activePopup = null;
+                this.activeStyle = null;
+                window.removeEventListener('scroll', this.scrollCloseHandler);
+                this.scrollCloseHandler = null;
+            }, 300);
+        };
+
+
+        closeBtn.addEventListener("click", closePopup);
+        this.setupScrollCloseListener();
+
+
+        setTimeout(() => {
+            if (resultsPopup.parentNode) closePopup();
+        }, 20000);
     }
 
-    const existingPopups = document.querySelectorAll(
-      ".verifeed-results-popup, .verifeed-error-popup"
-    );
-    console.log("Found existing popups:", existingPopups.length);
-    existingPopups.forEach((popup, index) => {
-      console.log(`Removing popup ${index + 1}`);
-      if (popup.parentNode) {
-        popup.remove();
-      }
-    });
+    removeExistingPopup() {
+        const existingPopups = document.querySelectorAll(
+            ".verifeed-results-popup, .verifeed-error-popup"
+        );
+        existingPopups.forEach((popup) => {
+            if (popup.parentNode) popup.remove();
+        });
 
-    const existingStyles = document.querySelectorAll(
-      "#verifeed-popup-styles, #verifeed-error-styles"
-    );
-    console.log("Found existing styles:", existingStyles.length);
-    existingStyles.forEach((style, index) => {
-      console.log(`Removing style ${index + 1}`);
-      if (style.parentNode) {
-        style.remove();
-      }
-    });
 
-    this.activePopup = null;
-    this.activeStyle = null;
-    console.log("Existing popup removal complete");
-  }
+        const existingStyles = document.querySelectorAll(
+            "#verifeed-popup-styles, #verifeed-error-styles"
+        );
+        existingStyles.forEach((style) => {
+            if (style.parentNode) style.remove();
+        });
+       
+        if (this.scrollCloseHandler) {
+            window.removeEventListener('scroll', this.scrollCloseHandler);
+            this.scrollCloseHandler = null;
+            this.scrollCloseQueued = false;
+        }
 
-  destroy() {
-    console.log("Destroying VeriFeed detector");
-    if (this.observer) {
-      this.observer.disconnect();
+
+        if (this.activePopup && this.activePopup.parentNode) {
+            this.activePopup.remove();
+        }
+        if (this.activeStyle && this.activeStyle.parentNode) {
+            this.activeStyle.remove();
+        }
+
+
+        this.activePopup = null;
+        this.activeStyle = null;
     }
-    this.removeExistingPopup();
-    this.analyzedVideos.clear();
-    console.log("VeriFeed detector destroyed");
-  }
+
+
+    destroy() {
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+        this.removeExistingPopup();
+        this.analyzedVideos.clear();
+    }
 }
 
-// Initialize VeriFeed when page loads
-let veriFeedInstance = null;
+let veriFeedInstance = null;  
 
 function initializeVeriFeed() {
   if (window.location.hostname.includes("facebook.com") && !veriFeedInstance) {
