@@ -87,12 +87,9 @@ def decode_base64_frame(base64_string):
         image_data = base64.b64decode(base64_string)
         nparr = np.frombuffer(image_data, np.uint8)
         image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        if image is not None and image.size > 0:
+        if image is not None:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            return image
-        else:
-            logger.warning("Decoded image is empty or invalid")
-            return None
+        return image
     except Exception as e:
         logger.error(f"Error decoding base64 frame: {e}")
         return None
@@ -109,11 +106,7 @@ def process_frames(base64_frames, sequence_length):
         if frame is None:
             continue
 
-        try:
-            small_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
-        except cv2.error as e:
-            logger.warning(f"Resize failed for frame {i}: {e}, skipping frame")
-            continue
+        small_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
         try:
             face_locations = face_recognition.face_locations(small_frame, model="hog")
             if len(face_locations) > 0:

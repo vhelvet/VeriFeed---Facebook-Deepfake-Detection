@@ -96,7 +96,7 @@ val_transforms = transforms.Compose([
 # Load model
 inference_model = None
 model_info = {'loaded': False, 'path': None, 'error': None}
-MODEL_FILENAME = 'model_acc_95.00_e8.pt'
+MODEL_FILENAME = 'model_acc_86.67_epoch14_20251103_182225.pt'
 
 
 

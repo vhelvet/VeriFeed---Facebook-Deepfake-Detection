@@ -1,20 +1,20 @@
-# VeriFeed Chrome Extension - Tunai-Style Deepfake Detection
+# VeriFeed Browser Extension 
 
-A Chrome extension that embeds directly on Facebook posts to detect deepfake videos using AI-powered analysis, similar to the Tunai fact-checking tool.
+A Browser extension that embeds directly on Facebook posts to detect deepfake videos using AI-powered analysis.
 
 ## Features
 
-- 🔍 **Verify Button**: Adds a "Verify" button overlay on Facebook video posts
+- 🔍 **Verify Button**: Adds a "VeriFeed" button overlay on Facebook video posts
 - 🤖 **AI Analysis**: Uses deep learning model to detect deepfake content
 - 📊 **Confidence Meter**: Shows analysis results with confidence percentage
-- 🎨 **Tunai-Style UI**: Clean, professional popup interface
+- 🎨 **User-friendly UI**: Clean, professional popup interface
 - ⚡ **Real-time**: Works directly on Facebook without page reloads
 
 ## Installation
 
 ### Prerequisites
 1. Python 3.8+ for the backend server
-2. Chrome browser
+2. Browser
 
 ### Backend Setup
 ```bash
@@ -37,13 +37,13 @@ The backend server will start on `http://localhost:5000`
 
 1. **Start Backend**: Make sure the Python server is running on port 5000
 2. **Open Facebook**: Navigate to any Facebook page with videos
-3. **Verify Videos**: Click the "Verify" button that appears on video posts
+3. **Verify Videos**: Click the "VeriFeed" button that appears on video posts
 4. **View Results**: See the analysis results in the popup overlay
 
 ## How It Works
 
-1. **Content Script**: Injects "Verify" buttons on Facebook video posts
-2. **User Interaction**: User clicks "Verify" to initiate analysis
+1. **Content Script**: Injects "VeriFeed" buttons on Facebook video posts
+2. **User Interaction**: User clicks "VeriFeed" to initiate analysis
 3. **Backend API**: Sends video URL to the deep learning model
 4. **Analysis**: Model processes video frames for deepfake detection
 5. **Results**: Displays confidence score and analysis in popup
@@ -52,7 +52,7 @@ The backend server will start on `http://localhost:5000`
 
 ```
 verifeed-extension/
-├── manifest.json          # Chrome extension configuration
+├── manifest.json          # Browser extension configuration
 ├── content.js            # Main content script for Facebook
 ├── background.js         # Background service worker
 ├── popup.html           # Extension popup UI
@@ -78,7 +78,7 @@ open verifeed-extension/test-extension.html
 
 ## Troubleshooting
 
-1. **Extension not loading**: Check Chrome developer console for errors
+1. **Extension not loading**: Check browser developer console for errors
 2. **Backend connection failed**: Ensure Python server is running on port 5000
 3. **Buttons not appearing**: Check Facebook URL matches `https://*.facebook.com/*`
 4. **Analysis fails**: Verify video URLs are accessible
