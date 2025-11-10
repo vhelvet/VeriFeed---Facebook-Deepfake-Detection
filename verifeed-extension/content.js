@@ -464,15 +464,30 @@ class VeriFeedPredictor {
   getLoader(statusText) {
     return `
         <div class="verifeed-loader-container">
-            <div class="verifeed-hologram">
-                <div class="verifeed-core"></div>
-                <div class="verifeed-ring verifeed-ring-1"></div>
-                <div class="verifeed-ring verifeed-ring-2"></div>
-                <div class="verifeed-ring verifeed-ring-3"></div>
-                <div class="verifeed-particles">
-                    <span></span><span></span><span></span><span></span>
-                    <span></span><span></span><span></span><span></span>
+            <div class="verifeed-scanner">
+                <div class="scanner-core">
+                    <div class="core-ring core-ring-1"></div>
+                    <div class="core-ring core-ring-2"></div>
+                    <div class="core-ring core-ring-3"></div>
+                    <div class="core-center">
+                        <div class="center-pulse"></div>
+                        <div class="center-dot"></div>
+                    </div>
                 </div>
+                <div class="scanner-rays">
+                    <div class="ray ray-1"></div>
+                    <div class="ray ray-2"></div>
+                    <div class="ray ray-3"></div>
+                    <div class="ray ray-4"></div>
+                </div>
+                <div class="scanner-particles">
+                    <div class="particle particle-1"></div>
+                    <div class="particle particle-2"></div>
+                    <div class="particle particle-3"></div>
+                    <div class="particle particle-4"></div>
+                    <div class="particle particle-5"></div>
+                </div>
+                <div class="scanner-wave"></div>
             </div>
             <span class="verifeed-status-text">${statusText}</span>           
         </div>
@@ -480,170 +495,236 @@ class VeriFeedPredictor {
             .verifeed-loader-container {
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 6px;
                 position: relative;
             }
             
-            .verifeed-hologram {
+            .verifeed-scanner {
                 position: relative;
-                width: 24px;
-                height: 24px;
+                width: 18px;
+                height: 18px;
                 transform-style: preserve-3d;
-                animation: hologramFloat 3s ease-in-out infinite;
+                animation: scannerFloat 3s ease-in-out infinite;
             }
             
-            @keyframes hologramFloat {
-                0%, 100% { transform: translateY(0) rotateY(0deg); }
-                50% { transform: translateY(-3px) rotateY(180deg); }
+            @keyframes scannerFloat {
+                0%, 100% { transform: translateY(0px) rotate(0deg); }
+                50% { transform: translateY(-2px) rotate(180deg); }
             }
             
-            .verifeed-core {
+            .scanner-core {
                 position: absolute;
                 top: 50%;
                 left: 50%;
-                width: 8px;
-                height: 8px;
-                background: radial-gradient(circle, #fff, #667eea);
-                border-radius: 50%;
+                width: 100%;
+                height: 100%;
                 transform: translate(-50%, -50%);
-                box-shadow: 0 0 20px #667eea, 0 0 40px #764ba2, inset 0 0 10px #fff;
-                animation: corePulse 1.5s ease-in-out infinite;
             }
             
-            @keyframes corePulse {
-                0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-                50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.8; }
-            }
-            
-            .verifeed-ring {
+            .core-ring {
                 position: absolute;
                 top: 50%;
                 left: 50%;
-                border: 2px solid transparent;
+                border: 1.5px solid transparent;
                 border-radius: 50%;
                 transform: translate(-50%, -50%);
-                animation: ringExpand 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                animation: ringExpand 2s ease-in-out infinite;
             }
             
-            .verifeed-ring-1 {
-                width: 16px;
-                height: 16px;
-                border-top-color: rgba(102, 126, 234, 0.8);
-                border-right-color: rgba(102, 126, 234, 0.6);
+            .core-ring-1 {
+                width: 100%;
+                height: 100%;
+                border-color: #a8a9ad;
                 animation-delay: 0s;
             }
             
-            .verifeed-ring-2 {
-                width: 20px;
-                height: 20px;
-                border-top-color: rgba(118, 75, 162, 0.6);
-                border-left-color: rgba(118, 75, 162, 0.4);
-                animation-delay: 0.4s;
+            .core-ring-2 {
+                width: 75%;
+                height: 75%;
+                border-color: #c0c0c0;
+                animation-delay: 0.5s;
             }
             
-            .verifeed-ring-3 {
-                width: 24px;
-                height: 24px;
-                border-top-color: rgba(255, 255, 255, 0.4);
-                border-bottom-color: rgba(255, 255, 255, 0.2);
-                animation-delay: 0.8s;
+            .core-ring-3 {
+                width: 50%;
+                height: 50%;
+                border-color: #d4d4d4;
+                animation-delay: 1s;
             }
             
             @keyframes ringExpand {
-                0% {
-                    transform: translate(-50%, -50%) rotate(0deg) scale(0.5);
-                    opacity: 0;
+                0% { 
+                    transform: translate(-50%, -50%) scale(0.8); 
+                    opacity: 1; 
                 }
-                50% {
-                    opacity: 1;
+                50% { 
+                    transform: translate(-50%, -50%) scale(1.2); 
+                    opacity: 0.7; 
                 }
-                100% {
-                    transform: translate(-50%, -50%) rotate(360deg) scale(1.2);
-                    opacity: 0;
+                100% { 
+                    transform: translate(-50%, -50%) scale(0.8); 
+                    opacity: 1; 
                 }
             }
             
-            .verifeed-particles {
+            .core-center {
                 position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 40%;
+                height: 40%;
+                transform: translate(-50%, -50%);
+            }
+            
+            .center-pulse {
+                position: absolute;
+                top: 50%;
+                left: 50%;
                 width: 100%;
                 height: 100%;
+                background: radial-gradient(circle, rgba(192, 192, 192, 0.6) 0%, transparent 70%);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                animation: pulseGlow 1.5s ease-in-out infinite;
+            }
+            
+            @keyframes pulseGlow {
+                0%, 100% { 
+                    transform: translate(-50%, -50%) scale(1); 
+                    opacity: 0.8; 
+                }
+                50% { 
+                    transform: translate(-50%, -50%) scale(1.3); 
+                    opacity: 0.4; 
+                }
+            }
+            
+            .center-dot {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 25%;
+                height: 25%;
+                background: linear-gradient(135deg, #c0c0c0, #c0c0c0);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                box-shadow: 0 0 6px rgba(192, 192, 192, 0.8);
+                animation: dotRotate 2s linear infinite;
+            }
+            
+            @keyframes dotRotate {
+                0% { transform: translate(-50%, -50%) rotate(0deg); }
+                100% { transform: translate(-50%, -50%) rotate(360deg); }
+            }
+            
+            .scanner-rays {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 100%;
+                height: 100%;
+                transform: translate(-50%, -50%);
+            }
+            
+            .ray {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 1.5px;
+                height: 9px;
+                background: linear-gradient(to bottom, transparent, #c0c0c0, transparent);
+                transform-origin: center bottom;
+                animation: raySweep 3s ease-in-out infinite;
+            }
+            
+            .ray-1 { transform: translate(-50%, -50%) rotate(0deg); animation-delay: 0s; }
+            .ray-2 { transform: translate(-50%, -50%) rotate(90deg); animation-delay: 0.75s; }
+            .ray-3 { transform: translate(-50%, -50%) rotate(180deg); animation-delay: 1.5s; }
+            .ray-4 { transform: translate(-50%, -50%) rotate(270deg); animation-delay: 2.25s; }
+            
+            @keyframes raySweep {
+                0%, 100% { 
+                    opacity: 0.3; 
+                    transform: translate(-50%, -50%) scaleY(0.5); 
+                }
+                50% { 
+                    opacity: 1; 
+                    transform: translate(-50%, -50%) scaleY(1.2); 
+                }
+            }
+            
+            .scanner-particles {
+                position: absolute;
                 top: 0;
                 left: 0;
+                width: 100%;
+                height: 100%;
             }
             
-            .verifeed-particles span {
+            .particle {
                 position: absolute;
-                width: 3px;
-                height: 3px;
-                background: linear-gradient(45deg, #667eea, #764ba2);
+                width: 2px;
+                height: 2px;
+                background: #c0c0c0;
                 border-radius: 50%;
-                box-shadow: 0 0 10px currentColor;
-                animation: particleOrbit 3s linear infinite;
+                animation: particleOrbit 4s linear infinite;
             }
             
-            .verifeed-particles span:nth-child(1) { animation-delay: 0s; }
-            .verifeed-particles span:nth-child(2) { animation-delay: 0.375s; }
-            .verifeed-particles span:nth-child(3) { animation-delay: 0.75s; }
-            .verifeed-particles span:nth-child(4) { animation-delay: 1.125s; }
-            .verifeed-particles span:nth-child(5) { animation-delay: 1.5s; }
-            .verifeed-particles span:nth-child(6) { animation-delay: 1.875s; }
-            .verifeed-particles span:nth-child(7) { animation-delay: 2.25s; }
-            .verifeed-particles span:nth-child(8) { animation-delay: 2.625s; }
+            .particle-1 { top: 10%; left: 50%; animation-delay: 0s; }
+            .particle-2 { top: 50%; right: 10%; animation-delay: 1s; }
+            .particle-3 { bottom: 10%; left: 50%; animation-delay: 2s; }
+            .particle-4 { top: 50%; left: 10%; animation-delay: 3s; }
+            .particle-5 { top: 20%; right: 20%; animation-delay: 0.5s; }
             
             @keyframes particleOrbit {
-                0% {
-                    transform: rotate(0deg) translateX(15px) scale(0);
-                    opacity: 0;
+                0% { 
+                    transform: rotate(0deg) translateX(6px) rotate(0deg); 
+                    opacity: 1; 
                 }
-                10% {
-                    opacity: 1;
-                    transform: rotate(36deg) translateX(15px) scale(1);
+                100% { 
+                    transform: rotate(360deg) translateX(6px) rotate(-360deg); 
+                    opacity: 0; 
                 }
-                90% {
-                    opacity: 1;
-                    transform: rotate(324deg) translateX(15px) scale(1);
+            }
+            
+            .scanner-wave {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 120%;
+                height: 120%;
+                border: 1px solid rgba(192, 192, 192, 0.3);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                animation: waveRipple 2.5s ease-out infinite;
+            }
+            
+            @keyframes waveRipple {
+                0% { 
+                    transform: translate(-50%, -50%) scale(0.8); 
+                    opacity: 1; 
                 }
-                100% {
-                    transform: rotate(360deg) translateX(15px) scale(0);
-                    opacity: 0;
+                100% { 
+                    transform: translate(-50%, -50%) scale(1.5); 
+                    opacity: 0; 
                 }
             }
             
             .verifeed-status-text {
                 font-weight: 600;
-                font-size: 12px;
-                background: linear-gradient(90deg, #fff 0%, #667eea 50%, #fff 100%);
+                font-size: 11px;
+                background: linear-gradient(90deg, #ffffffff 0%, #d3d3d3ff 50%, #b4b3b3ff 100%);
                 background-size: 200% 100%;
                 -webkit-background-clip: text;
                 background-clip: text;
                 -webkit-text-fill-color: transparent;
-                animation: shimmerText 2s linear infinite;
-                letter-spacing: 0.5px;
+                animation: textShimmer 2s linear infinite;
+                letter-spacing: 0.3px;
             }
             
-            @keyframes shimmerText {
-                0% { background-position: 200% 0; }
-                100% { background-position: -200% 0; }
-            }
-            
-            .verifeed-dots {
-                display: flex;
-                gap: 2px;
-            }
-            
-            .verifeed-dots span {
-                color: white;
-                font-weight: bold;
-                animation: dotBounce 1.4s ease-in-out infinite;
-            }
-            
-            .verifeed-dots span:nth-child(1) { animation-delay: 0s; }
-            .verifeed-dots span:nth-child(2) { animation-delay: 0.2s; }
-            .verifeed-dots span:nth-child(3) { animation-delay: 0.4s; }
-            
-            @keyframes dotBounce {
-                0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-                30% { transform: translateY(-8px); opacity: 1; }
+            @keyframes textShimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
             }
         </style>
     `;
