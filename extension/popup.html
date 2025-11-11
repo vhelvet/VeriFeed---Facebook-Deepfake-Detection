@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeriFeed - Deepfake Detector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 400px;
+            min-height: 500px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: url('VeriFeed-Background.png') no-repeat center center;
+            background-size: cover;
+            color: white;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        body.compact-mode {
+            width: 80px;
+            min-height: 80px;
+        }
+
+        .container {
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        body.compact-mode .container {
+            padding: 10px;
+        }
+
+        /* Compact mode - hide everything except header */
+        body.compact-mode .logo-text,
+        body.compact-mode .subtitle,
+        body.compact-mode .status-card,
+        body.compact-mode .video-section,
+        body.compact-mode .results-section,
+        body.compact-mode .settings-section,
+        body.compact-mode .footer {
+            display: none !important;
+        }
+
+        body.compact-mode .header {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+            justify-content: space-between;
+        }
+
+        body.compact-mode .header-right {
+            display: flex !important;
+        }
+
+        body.compact-mode .logo-img {
+            height: 40px;
+        }
+
+        body.compact-mode .minimize-btn,
+        body.compact-mode .refresh-btn,
+        body.compact-mode .close-btn {
+            display: block;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo-img {
+            width: auto;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .close-btn, .refresh-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+
+        .close-btn:hover, .refresh-btn:hover, .minimize-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .minimize-btn {
+            background: rgba(102, 126, 234, 0.3);
+            border: 1px solid rgba(102, 126, 234, 0.5);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            line-height: 1;
+            font-weight: bold;
+        }
+
+        .minimize-btn:hover {
+            background: rgba(102, 126, 234, 0.5);
+            border-color: rgba(102, 126, 234, 0.8);
+        }
+
+        .minimize-btn .minimize-icon {
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        body.compact-mode .minimize-btn .minimize-icon {
+            transform: rotate(180deg);
+        }
+
+        .logo-text {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffffff, #3b82f6, #8b5cf6, #ec4899, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 15px;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .status-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-dot.online {
+            background: #28a745;
+            box-shadow: 0 0 8px rgba(40, 167, 69, 0.6);
+        }
+
+        .status-dot.offline {
+            background: #dc3545;
+            box-shadow: 0 0 8px rgba(220, 53, 69, 0.6);
+        }
+
+        .status-info {
+            font-size: 12px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        /* Video Detection Section */
+        .video-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .video-info {
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .video-info.no-video {
+            color: #fbbf24;
+        }
+
+        .video-info.video-found {
+            color: #10b981;
+        }
+
+        /* Verify Button - FIXED */
+        .verify-btn {
+            width: 100%;
+            min-height: 44px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .verify-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .verify-btn svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        #verifyBtnText {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Loading Spinner */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            flex-shrink: 0;
+        }
+
+        /* Results Section */
+        .results-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .result-icon {
+            font-size: 32px;
+            animation: iconPulse 2s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .result-status {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .result-status.authentic {
+            color: #10b981;
+        }
+
+        .result-status.fake {
+            color: #ef4444;
+        }
+
+        .confidence-section {
+            margin-bottom: 15px;
+        }
+
+        .confidence-label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .confidence-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .confidence-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .confidence-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .confidence-bar.authentic {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .confidence-bar.fake {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .confidence-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255,255,255,0.2) 25%,
+                rgba(255,255,255,0.8) 50%,
+                rgba(255,255,255,0.2) 75%,
+                transparent 100%
+            );
+            animation: shimmer 2s ease-in-out infinite;
+            filter: blur(1px);
+        }
+
+        @keyframes shimmer {
+            0% { 
+                transform: translateX(-100%);
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% { 
+                transform: translateX(200%);
+                opacity: 0.6;
+            }
+        }
+
+        .probability-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .prob-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .prob-label {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-bottom: 6px;
+        }
+
+        .prob-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .prob-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .prob-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 1s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .prob-fill.real {
+            background: #10b981;
+        }
+
+        .prob-fill.fake {
+            background: #ef4444;
+        }
+
+        .result-description {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .metadata {
+            display: flex;
+            justify-content: space-around;
+            font-size: 11px;
+            opacity: 0.8;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metadata-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .settings-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .setting-label {
+            font-size: 13px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.3);
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #28a745;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            font-size: 11px;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .footer-link:hover {
+            opacity: 0.8;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Status text shimmer animation styles */
+        .verifeed-status-text {
+            font-weight: 700;
+            font-size: 12px;
+            background: linear-gradient(90deg, #ffffff, #5a4cb1ff, #ffffff);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textShimmer 3s linear infinite;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+        
+        @keyframes textShimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="VeriFeed-Logo.png" alt="VeriFeed Logo" class="logo-img">
+            <div class="header-right">
+                <button class="minimize-btn" id="btnMinimize" title="Minimize">
+                    <span class="minimize-icon">▼</span>
+                </button>
+                <button class="refresh-btn" id="btnRefresh" title="Refresh">↻</button>
+                <button class="close-btn" id="btnClose" title="Close">×</button>
+            </div>
+        </div>
+        <div class="logo-text">VeriFeed</div>
+        <div class="subtitle">AI-Powered Deepfake Detection</div>
+
+        <!-- Server Status -->
+        <div class="status-card">
+            <div class="status-header">
+                <div class="status-title">Server Status</div>
+                <div class="status-indicator">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Checking...</span>
+                </div>
+            </div>
+            <div class="status-info" id="statusInfo">
+                Connecting to analysis server...
+            </div>
+        </div>
+
+        <!-- Video Detection & Verify Button -->
+        <div class="video-section">
+            <div class="section-title">Video Detection</div>
+            <div class="video-info no-video" id="videoInfo">
+                No video detected on current page
+            </div>
+            <button class="verify-btn" id="verifyBtn" disabled>               
+                <span id="verifyBtnText">Verify Video</span>
+            </button>
+        </div>
+
+        <!-- Results Section (Hidden by default) -->
+        <div class="results-section" id="resultsSection">
+            <div class="result-header">
+                <span class="result-icon" id="resultIcon">✅</span>
+                <span class="result-status" id="resultStatus">Authentic Video</span>
+            </div>
+
+            <div class="confidence-section">
+                <div class="confidence-label">
+                    <span>Overall Confidence</span>
+                    <span class="confidence-value" id="confidenceValue">0%</span>
+                </div>
+                <div class="confidence-bar-container">
+                    <div class="confidence-bar" id="confidenceBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="probability-grid">
+                <div class="prob-card">
+                    <div class="prob-label">Authentic</div>
+                    <div class="prob-value" id="realProb">0%</div>
+                    <div class="prob-bar">
+                        <div class="prob-fill real" id="realBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="prob-card">
+                    <div class="prob-label">Manipulated</div>
+                    <div class="prob-value" id="fakeProb">0%</div>
+                    <div class="prob-bar">
+                        <div class="prob-fill fake" id="fakeBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-description" id="resultDescription">
+                Analysis complete. View details above.
+            </div>
+
+            <div class="metadata">
+                <div class="metadata-item">
+                    <span>📊 Frames</span>
+                    <span id="framesProcessed">0</span>
+                </div>
+                <div class="metadata-item">
+                    <span>⏱️ Time</span>
+                    <span id="processingTime">0s</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="settings-section">
+            <div class="section-title">Settings</div>
+            <div class="setting-item">
+                <span class="setting-label">Enable VeriFeed</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleEnabled" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-links">
+                <a href="mailto:verifeedofficial@gmail.com" class="footer-link">
+                    ✉ verifeedofficial@gmail.com
+                </a>
+                <a href="http://localhost:5173/" target="_blank" class="footer-link">
+                    🌐 VeriFeed Official Website
+                </a>
+            </div>
+            VeriFeed v1.0.0 • Powered by AI
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>
