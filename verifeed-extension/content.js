@@ -467,7 +467,7 @@ class VeriFeedPredictor {
         <style>
             .verifeed-status-text {
                 font-weight: 700;
-                font-size: 12px;
+                font-size: 16px;
                 background: linear-gradient(90deg, #ffffff, #5a4cb1ff, #ffffff);
                 background-size: 200% 100%;
                 -webkit-background-clip: text;
@@ -484,13 +484,7 @@ class VeriFeedPredictor {
             }
         </style>
     `;
-}
-
-
-
-
-
-
+  }
 
   setupScrollCloseListener() {
     this.scrollCloseHandler = () => {
@@ -888,7 +882,6 @@ class VeriFeedPredictor {
         `Sending ${frames.length} frames for prediction (AUTHENTICATED)`
       );
 
-      // OPTIMIZATION: Use authenticated fetch
       const response = await verifeedAuth.authenticatedFetch(
         `${this.serverUrl}/predict`,
         {
@@ -911,11 +904,26 @@ class VeriFeedPredictor {
         throw new Error(errorMsg);
       }
 
+      // FIX: Ensure probabilities are percentages (0-100)
+      // Convert from 0-1 range to 0-100 if necessary
+      let realProb = predictionData.real_probability || 0;
+      let fakeProb = predictionData.fake_probability || 0;
+
+      // If values are between 0-1, convert to percentages
+      if (realProb <= 1 && fakeProb <= 1) {
+        realProb = realProb * 100;
+        fakeProb = fakeProb * 100;
+      }
+
+      // Update predictionData with percentage values
+      predictionData.real_probability = realProb;
+      predictionData.fake_probability = fakeProb;
+
       console.log("=== PREDICTION SUCCESS ===");
       console.log("Prediction:", predictionData.prediction);
       console.log("Confidence:", predictionData.confidence);
-      console.log("Real probability:", predictionData.real_probability);
-      console.log("Fake probability:", predictionData.fake_probability);
+      console.log("Real probability:", predictionData.real_probability + "%");
+      console.log("Fake probability:", predictionData.fake_probability + "%");
 
       if (predictionData.processing_time) {
         console.log("Processing time:", predictionData.processing_time);
@@ -1017,7 +1025,7 @@ class VeriFeedPredictor {
                                       1
                                     )}%</div>
                                     <div class="prob-bar">
-                                        <div class="prob-fill prob-fill-real" style="width: 0%;" data-width="${realProb}"></div>
+                                        <div class="prob-fill real" style="width: 0%;" data-width="${realProb}"></div>
                                     </div>
                                 </div>
                             </div>
@@ -1035,7 +1043,7 @@ class VeriFeedPredictor {
                                       1
                                     )}%</div>
                                     <div class="prob-bar">
-                                        <div class="prob-fill prob-fill-fake" style="width: 0%;" data-width="${fakeProb}"></div>
+                                        <div class="prob-fill fake" style="width: 0%;" data-width="${fakeProb}"></div>
                                     </div>
                                 </div>
                             </div>
@@ -1321,14 +1329,14 @@ class VeriFeedPredictor {
             .prob-fill {
                 height: 100%;
                 border-radius: 3px;
-                transition: width 1s cubic-bezier(0.65, 0, 0.35, 1) 0.2s;
+                transition: width 1.5s cubic-bezier(0.4, 0.0, 0.2, 1);
             }
            
-            .prob-fill-real {
+            .prob-fill.real {
                 background: linear-gradient(90deg, #10b981, #059669);
             }
            
-            .prob-fill-fake {
+            .prob-fill.fake {
                 background: linear-gradient(90deg, #ef4444, #dc2626);
             }
            
