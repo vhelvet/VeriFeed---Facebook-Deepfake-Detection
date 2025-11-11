@@ -463,263 +463,19 @@ class VeriFeedPredictor {
 
   getLoader(statusText) {
     return `
-        <div class="verifeed-loader-container">
-            <div class="verifeed-scanner">
-                <div class="scanner-core">
-                    <div class="core-ring core-ring-1"></div>
-                    <div class="core-ring core-ring-2"></div>
-                    <div class="core-ring core-ring-3"></div>
-                    <div class="core-center">
-                        <div class="center-pulse"></div>
-                        <div class="center-dot"></div>
-                    </div>
-                </div>
-                <div class="scanner-rays">
-                    <div class="ray ray-1"></div>
-                    <div class="ray ray-2"></div>
-                    <div class="ray ray-3"></div>
-                    <div class="ray ray-4"></div>
-                </div>
-                <div class="scanner-particles">
-                    <div class="particle particle-1"></div>
-                    <div class="particle particle-2"></div>
-                    <div class="particle particle-3"></div>
-                    <div class="particle particle-4"></div>
-                    <div class="particle particle-5"></div>
-                </div>
-                <div class="scanner-wave"></div>
-            </div>
-            <span class="verifeed-status-text">${statusText}</span>           
-        </div>
+        <span class="verifeed-status-text">${statusText}</span>
         <style>
-            .verifeed-loader-container {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                position: relative;
-            }
-            
-            .verifeed-scanner {
-                position: relative;
-                width: 18px;
-                height: 18px;
-                transform-style: preserve-3d;
-                animation: scannerFloat 3s ease-in-out infinite;
-            }
-            
-            @keyframes scannerFloat {
-                0%, 100% { transform: translateY(0px) rotate(0deg); }
-                50% { transform: translateY(-2px) rotate(180deg); }
-            }
-            
-            .scanner-core {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 100%;
-                height: 100%;
-                transform: translate(-50%, -50%);
-            }
-            
-            .core-ring {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                border: 1.5px solid transparent;
-                border-radius: 50%;
-                transform: translate(-50%, -50%);
-                animation: ringExpand 2s ease-in-out infinite;
-            }
-            
-            .core-ring-1 {
-                width: 100%;
-                height: 100%;
-                border-color: #a8a9ad;
-                animation-delay: 0s;
-            }
-            
-            .core-ring-2 {
-                width: 75%;
-                height: 75%;
-                border-color: #c0c0c0;
-                animation-delay: 0.5s;
-            }
-            
-            .core-ring-3 {
-                width: 50%;
-                height: 50%;
-                border-color: #d4d4d4;
-                animation-delay: 1s;
-            }
-            
-            @keyframes ringExpand {
-                0% { 
-                    transform: translate(-50%, -50%) scale(0.8); 
-                    opacity: 1; 
-                }
-                50% { 
-                    transform: translate(-50%, -50%) scale(1.2); 
-                    opacity: 0.7; 
-                }
-                100% { 
-                    transform: translate(-50%, -50%) scale(0.8); 
-                    opacity: 1; 
-                }
-            }
-            
-            .core-center {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 40%;
-                height: 40%;
-                transform: translate(-50%, -50%);
-            }
-            
-            .center-pulse {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 100%;
-                height: 100%;
-                background: radial-gradient(circle, rgba(192, 192, 192, 0.6) 0%, transparent 70%);
-                border-radius: 50%;
-                transform: translate(-50%, -50%);
-                animation: pulseGlow 1.5s ease-in-out infinite;
-            }
-            
-            @keyframes pulseGlow {
-                0%, 100% { 
-                    transform: translate(-50%, -50%) scale(1); 
-                    opacity: 0.8; 
-                }
-                50% { 
-                    transform: translate(-50%, -50%) scale(1.3); 
-                    opacity: 0.4; 
-                }
-            }
-            
-            .center-dot {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 25%;
-                height: 25%;
-                background: linear-gradient(135deg, #c0c0c0, #c0c0c0);
-                border-radius: 50%;
-                transform: translate(-50%, -50%);
-                box-shadow: 0 0 6px rgba(192, 192, 192, 0.8);
-                animation: dotRotate 2s linear infinite;
-            }
-            
-            @keyframes dotRotate {
-                0% { transform: translate(-50%, -50%) rotate(0deg); }
-                100% { transform: translate(-50%, -50%) rotate(360deg); }
-            }
-            
-            .scanner-rays {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 100%;
-                height: 100%;
-                transform: translate(-50%, -50%);
-            }
-            
-            .ray {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 1.5px;
-                height: 9px;
-                background: linear-gradient(to bottom, transparent, #c0c0c0, transparent);
-                transform-origin: center bottom;
-                animation: raySweep 3s ease-in-out infinite;
-            }
-            
-            .ray-1 { transform: translate(-50%, -50%) rotate(0deg); animation-delay: 0s; }
-            .ray-2 { transform: translate(-50%, -50%) rotate(90deg); animation-delay: 0.75s; }
-            .ray-3 { transform: translate(-50%, -50%) rotate(180deg); animation-delay: 1.5s; }
-            .ray-4 { transform: translate(-50%, -50%) rotate(270deg); animation-delay: 2.25s; }
-            
-            @keyframes raySweep {
-                0%, 100% { 
-                    opacity: 0.3; 
-                    transform: translate(-50%, -50%) scaleY(0.5); 
-                }
-                50% { 
-                    opacity: 1; 
-                    transform: translate(-50%, -50%) scaleY(1.2); 
-                }
-            }
-            
-            .scanner-particles {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-            }
-            
-            .particle {
-                position: absolute;
-                width: 2px;
-                height: 2px;
-                background: #c0c0c0;
-                border-radius: 50%;
-                animation: particleOrbit 4s linear infinite;
-            }
-            
-            .particle-1 { top: 10%; left: 50%; animation-delay: 0s; }
-            .particle-2 { top: 50%; right: 10%; animation-delay: 1s; }
-            .particle-3 { bottom: 10%; left: 50%; animation-delay: 2s; }
-            .particle-4 { top: 50%; left: 10%; animation-delay: 3s; }
-            .particle-5 { top: 20%; right: 20%; animation-delay: 0.5s; }
-            
-            @keyframes particleOrbit {
-                0% { 
-                    transform: rotate(0deg) translateX(6px) rotate(0deg); 
-                    opacity: 1; 
-                }
-                100% { 
-                    transform: rotate(360deg) translateX(6px) rotate(-360deg); 
-                    opacity: 0; 
-                }
-            }
-            
-            .scanner-wave {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 120%;
-                height: 120%;
-                border: 1px solid rgba(192, 192, 192, 0.3);
-                border-radius: 50%;
-                transform: translate(-50%, -50%);
-                animation: waveRipple 2.5s ease-out infinite;
-            }
-            
-            @keyframes waveRipple {
-                0% { 
-                    transform: translate(-50%, -50%) scale(0.8); 
-                    opacity: 1; 
-                }
-                100% { 
-                    transform: translate(-50%, -50%) scale(1.5); 
-                    opacity: 0; 
-                }
-            }
-            
             .verifeed-status-text {
-                font-weight: 600;
-                font-size: 11px;
-                background: linear-gradient(90deg, #ffffffff 0%, #d3d3d3ff 50%, #b4b3b3ff 100%);
+                font-weight: 700;
+                font-size: 12px;
+                background: linear-gradient(90deg, #ffffff, #5a4cb1ff, #ffffff);
                 background-size: 200% 100%;
                 -webkit-background-clip: text;
                 background-clip: text;
                 -webkit-text-fill-color: transparent;
-                animation: textShimmer 2s linear infinite;
-                letter-spacing: 0.3px;
+                animation: textShimmer 3s linear infinite;
+                letter-spacing: 0.5px;
+                display: inline-block;
             }
             
             @keyframes textShimmer {
@@ -728,7 +484,13 @@ class VeriFeedPredictor {
             }
         </style>
     `;
-  }
+}
+
+
+
+
+
+
 
   setupScrollCloseListener() {
     this.scrollCloseHandler = () => {
