@@ -1,4 +1,4 @@
-// VeriFeed Popup Script - Enhanced with Better Error Handling and UX
+// VeriFeed Popup Script - Enhanced with NLP Integration
 class VeriFeedPopup {
   constructor() {
     this.serverUrl = "http://localhost:5000";
@@ -82,7 +82,7 @@ class VeriFeedPopup {
         console.log("[VeriFeed Popup] Video changed:", request);
         this.handleVideoChange(request.hasVideo, request.videoInfo);
         sendResponse({ received: true });
-        return true; // Keep channel open for async response
+        return true;
       }
     });
   }
@@ -128,14 +128,31 @@ class VeriFeedPopup {
   }
 
   resetResultsUI() {
-    // Reset all UI elements to default state
     const confidenceBar = document.getElementById("confidenceBar");
     const realBar = document.getElementById("realBar");
     const fakeBar = document.getElementById("fakeBar");
+    const confidenceValue = document.getElementById("confidenceValue");
+    const realProb = document.getElementById("realProb");
+    const fakeProb = document.getElementById("fakeProb");
 
-    if (confidenceBar) confidenceBar.style.width = "0%";
-    if (realBar) realBar.style.width = "0%";
-    if (fakeBar) fakeBar.style.width = "0%";
+    // Reset bars to 0 width
+    if (confidenceBar) {
+      confidenceBar.style.width = "0%";
+      confidenceBar.classList.remove('animate');
+    }
+    if (realBar) {
+      realBar.style.width = "0%";
+      realBar.classList.remove('animate');
+    }
+    if (fakeBar) {
+      fakeBar.style.width = "0%";
+      fakeBar.classList.remove('animate');
+    }
+    
+    // Reset text values
+    if (confidenceValue) confidenceValue.textContent = "0%";
+    if (realProb) realProb.textContent = "0%";
+    if (fakeProb) fakeProb.textContent = "0%";
   }
 
   setupEventListeners() {
@@ -165,7 +182,7 @@ class VeriFeedPopup {
       btnMinimize.addEventListener("click", () => this.toggleCompactMode());
     }
 
-    // Refresh button with debouncing
+    // Refresh button
     const btnRefresh = document.getElementById("btnRefresh");
     if (btnRefresh) {
       let refreshTimeout;
@@ -240,7 +257,6 @@ class VeriFeedPopup {
       statusText.textContent = "Checking...";
       statusDot.className = "status-dot";
 
-      // Cancel previous request if exists
       if (this.abortController) {
         this.abortController.abort();
       }
@@ -324,7 +340,6 @@ class VeriFeedPopup {
         return;
       }
 
-      // Check with content script
       const response = await this.sendMessageToTab(tab.id, { action: "checkVideo" });
       this.handleVideoChange(response.hasVideo, response.videoInfo);
       
@@ -397,7 +412,7 @@ class VeriFeedPopup {
         this.lastVerifiedVideoSrc = this.currentVideo.src;
       }
 
-      // Display results
+      // Display results with NLP
       this.displayResults(result);
       
     } catch (error) {
@@ -415,7 +430,6 @@ class VeriFeedPopup {
     try {
       console.log(`[VeriFeed Popup] Analyzing ${frames.length} frames...`);
 
-      // Check if verifeedAuth is available
       if (typeof verifeedAuth === 'undefined' || !verifeedAuth.predict) {
         throw new Error("Authentication module not loaded");
       }
@@ -439,7 +453,7 @@ class VeriFeedPopup {
     const realProbability = Math.min(100, Math.max(0, result.real_probability || 0));
     const fakeProbability = Math.min(100, Math.max(0, result.fake_probability || 0));
 
-    // Apply styling to results section
+    // Apply styling
     this.applyResultStyling(resultsSection, isAuthentic);
 
     // Update icon and status
@@ -451,8 +465,8 @@ class VeriFeedPopup {
     // Update probabilities
     this.updateProbabilities(realProbability, fakeProbability);
     
-    // Update description
-    this.updateDescription(result.prediction, confidence);
+    // *** NLP INTEGRATION: Use DeepfakeNLG for description ***
+    this.updateDescriptionWithNLP(result.prediction, confidence);
     
     // Update metadata
     this.updateMetadata(result);
@@ -462,10 +476,8 @@ class VeriFeedPopup {
   }
 
   applyResultStyling(resultsSection, isAuthentic) {
-    // Remove any existing styling classes
     resultsSection.classList.remove('result-authentic', 'result-fake');
     
-    // Apply new styling based on result
     if (isAuthentic) {
       resultsSection.classList.add('result-authentic');
     } else {
@@ -478,13 +490,12 @@ class VeriFeedPopup {
     const resultStatus = document.getElementById("resultStatus");
 
     if (resultIcon && resultStatus) {
-      // Style the icon as a circle with background
       resultIcon.style.cssText = `
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 48px;
-        height: 48px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         font-size: 24px;
         font-weight: bold;
@@ -510,12 +521,17 @@ class VeriFeedPopup {
     const confidenceBar = document.getElementById("confidenceBar");
 
     if (confidenceValue && confidenceBar) {
-      confidenceValue.textContent = `${confidence.toFixed(1)}%`;
-      confidenceBar.className = isAuthentic ? "confidence-bar authentic" : "confidence-bar fake";
+      // Animate the confidence value from 0 to target
+      this.animateValue(confidenceValue, 0, confidence, 1500, '%');
       
-      requestAnimationFrame(() => {
+      // Set bar color and reset width to 0
+      confidenceBar.className = isAuthentic ? "confidence-bar authentic" : "confidence-bar fake";
+      confidenceBar.style.width = "0%";
+      
+      // Trigger animation after a brief delay
+      setTimeout(() => {
         confidenceBar.style.width = `${confidence}%`;
-      });
+      }, 100);
     }
   }
 
@@ -526,37 +542,62 @@ class VeriFeedPopup {
     const fakeBar = document.getElementById("fakeBar");
 
     if (realProb && fakeProb && realBar && fakeBar) {
-      realProb.textContent = `${realProbability.toFixed(1)}%`;
-      fakeProb.textContent = `${fakeProbability.toFixed(1)}%`;
+      // Animate probability values from 0 to target
+      this.animateValue(realProb, 0, realProbability, 1500, '%');
+      this.animateValue(fakeProb, 0, fakeProbability, 1500, '%');
       
-      requestAnimationFrame(() => {
+      // Reset bars to 0 width
+      realBar.style.width = "0%";
+      fakeBar.style.width = "0%";
+      
+      // Trigger animations with slight delay for visual effect
+      setTimeout(() => {
+        realBar.classList.add('animate');
         realBar.style.width = `${realProbability}%`;
+      }, 200);
+      
+      setTimeout(() => {
+        fakeBar.classList.add('animate');
         fakeBar.style.width = `${fakeProbability}%`;
-      });
+      }, 300);
     }
   }
 
-  updateDescription(prediction, confidence) {
+  /**
+   * *** NLP INTEGRATION ***
+   * Uses DeepfakeNLG to generate natural language descriptions
+   */
+  updateDescriptionWithNLP(prediction, confidence) {
     const resultDescription = document.getElementById("resultDescription");
-    if (resultDescription) {
-      resultDescription.textContent = this.generateDescription(prediction, confidence);
+    if (!resultDescription) return;
+
+    // Check if NLG module is loaded
+    if (typeof deepfakeNLG === 'undefined') {
+      console.warn("[VeriFeed Popup] NLG module not loaded, using fallback");
+      resultDescription.textContent = this.generateDescriptionFallback(prediction, confidence);
+      return;
+    }
+
+    try {
+      // Generate NLP-powered description
+      const nlgMessage = deepfakeNLG.generate(prediction, confidence);
+      const nlgConfidenceText = deepfakeNLG.generateConfidenceText(confidence);
+
+      // Apply grammar correction
+      const finalMessage = deepfakeNLG.correctGrammar(`${nlgMessage} ${nlgConfidenceText}.`);
+
+      resultDescription.textContent = finalMessage;
+      console.log("[VeriFeed Popup] NLP description generated:", finalMessage);
+    } catch (error) {
+      console.error("[VeriFeed Popup] NLP generation error:", error);
+      resultDescription.textContent = this.generateDescriptionFallback(prediction, confidence);
     }
   }
 
-  updateMetadata(result) {
-    const framesProcessed = document.getElementById("framesProcessed");
-    const processingTime = document.getElementById("processingTime");
-
-    if (framesProcessed) {
-      framesProcessed.textContent = result.frames_processed || "N/A";
-    }
-    if (processingTime) {
-      const time = result.processing_time ? `${result.processing_time}s` : "N/A";
-      processingTime.textContent = time;
-    }
-  }
-
-  generateDescription(prediction, confidence) {
+  /**
+   * Fallback description generator (if NLP module fails to load)
+   */
+  generateDescriptionFallback(prediction, confidence) {
     const isAuthentic = prediction === "REAL";
 
     if (isAuthentic) {
@@ -575,6 +616,53 @@ class VeriFeedPopup {
       } else {
         return "While we cannot be certain, this video shows some signs of manipulation. Treat with skepticism and verify through multiple sources.";
       }
+    }
+  }
+
+  /**
+   * Animates a numeric value from start to end
+   * @param {HTMLElement} element - The element to update
+   * @param {number} start - Starting value
+   * @param {number} end - Ending value
+   * @param {number} duration - Animation duration in ms
+   * @param {string} suffix - Suffix to append (e.g., '%')
+   */
+  animateValue(element, start, end, duration, suffix = '') {
+    if (!element) return;
+    
+    const startTime = performance.now();
+    const range = end - start;
+    
+    const updateValue = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function for smooth animation
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      const current = start + (range * easeOutQuart);
+      
+      element.textContent = `${current.toFixed(1)}${suffix}`;
+      
+      if (progress < 1) {
+        requestAnimationFrame(updateValue);
+      } else {
+        element.textContent = `${end.toFixed(1)}${suffix}`;
+      }
+    };
+    
+    requestAnimationFrame(updateValue);
+  }
+
+  updateMetadata(result) {
+    const framesProcessed = document.getElementById("framesProcessed");
+    const processingTime = document.getElementById("processingTime");
+
+    if (framesProcessed) {
+      framesProcessed.textContent = result.frames_processed || "N/A";
+    }
+    if (processingTime) {
+      const time = result.processing_time ? `${result.processing_time}s` : "N/A";
+      processingTime.textContent = time;
     }
   }
 
@@ -616,13 +704,10 @@ class VeriFeedPopup {
 
   showInitializationError(error) {
     console.error("[VeriFeed Popup] Initialization failed:", error);
-    // Could show an error banner in the UI
   }
 
   showToast(message, duration = 2000) {
-    // Simple toast notification (requires CSS styling)
     console.log(`[VeriFeed Toast] ${message}`);
-    // Implementation depends on your HTML structure
   }
 }
 
