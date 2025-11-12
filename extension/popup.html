@@ -12,6 +12,7 @@
             box-sizing: border-box;
         }
 
+
         body {
             width: 400px;
             min-height: 500px;
@@ -23,19 +24,23 @@
             transition: all 0.3s ease;
         }
 
+
         body.compact-mode {
             width: 80px;
             min-height: 80px;
         }
+
 
         .container {
             padding: 20px;
             transition: all 0.3s ease;
         }
 
+
         body.compact-mode .container {
             padding: 10px;
         }
+
 
         body.compact-mode .logo-text,
         body.compact-mode .subtitle,
@@ -47,6 +52,7 @@
             display: none !important;
         }
 
+
         body.compact-mode .header {
             margin-bottom: 0;
             padding-bottom: 0;
@@ -54,13 +60,16 @@
             justify-content: space-between;
         }
 
+
         body.compact-mode .header-right {
             display: flex !important;
         }
 
+
         body.compact-mode .logo-img {
             height: 40px;
         }
+
 
         .header {
             display: flex;
@@ -71,17 +80,20 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+
         .logo-img {
             width: auto;
             height: 32px;
             object-fit: contain;
         }
 
+
         .header-right {
             display: flex;
             align-items: center;
             gap: 5px;
         }
+
 
         .close-btn, .refresh-btn {
             background: none;
@@ -95,9 +107,11 @@
             flex-shrink: 0;
         }
 
+
         .close-btn:hover, .refresh-btn:hover, .minimize-btn:hover {
             background: rgba(255, 255, 255, 0.2);
         }
+
 
         .minimize-btn {
             background: rgba(102, 126, 234, 0.3);
@@ -113,19 +127,23 @@
             font-weight: bold;
         }
 
+
         .minimize-btn:hover {
             background: rgba(102, 126, 234, 0.5);
             border-color: rgba(102, 126, 234, 0.8);
         }
+
 
         .minimize-btn .minimize-icon {
             display: inline-block;
             transition: transform 0.3s;
         }
 
+
         body.compact-mode .minimize-btn .minimize-icon {
             transform: rotate(180deg);
         }
+
 
         .logo-text {
             text-align: center;
@@ -137,6 +155,7 @@
             margin-bottom: 5px;
         }
 
+
         .subtitle {
             text-align: center;
             font-size: 12px;
@@ -145,6 +164,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             padding-bottom: 15px;
         }
+
 
         .status-card {
             background: rgba(255, 255, 255, 0.1);
@@ -155,6 +175,7 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+
         .status-header {
             display: flex;
             align-items: center;
@@ -162,10 +183,12 @@
             margin-bottom: 10px;
         }
 
+
         .status-title {
             font-weight: 600;
             font-size: 14px;
         }
+
 
         .status-indicator {
             display: flex;
@@ -175,6 +198,7 @@
             flex-shrink: 0;
         }
 
+
         .status-dot {
             width: 8px;
             height: 8px;
@@ -182,21 +206,25 @@
             flex-shrink: 0;
         }
 
+
         .status-dot.online {
             background: #28a745;
             box-shadow: 0 0 8px rgba(40, 167, 69, 0.6);
         }
+
 
         .status-dot.offline {
             background: #dc3545;
             box-shadow: 0 0 8px rgba(220, 53, 69, 0.6);
         }
 
+
         .status-info {
             font-size: 12px;
             opacity: 0.9;
             line-height: 1.4;
         }
+
 
         .video-section {
             background: rgba(255, 255, 255, 0.1);
@@ -207,12 +235,14 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+
         .section-title {
             font-weight: 600;
             font-size: 14px;
             margin-bottom: 12px;
             text-align: center;
         }
+
 
         .video-info {
             text-align: center;
@@ -223,13 +253,16 @@
             border-radius: 8px;
         }
 
+
         .video-info.no-video {
             color: #fbbf24;
         }
 
+
         .video-info.video-found {
             color: #10b981;
         }
+
 
         .verify-btn {
             width: 100%;
@@ -252,11 +285,13 @@
             white-space: nowrap;
         }
 
+
         .verify-btn:hover:not(:disabled) {
             background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
         }
+
 
         .verify-btn:disabled {
             opacity: 0.6;
@@ -264,11 +299,13 @@
             transform: none;
         }
 
+
         .verify-btn svg {
             width: 18px;
             height: 18px;
             flex-shrink: 0;
         }
+
 
         #verifyBtnText {
             display: inline-flex;
@@ -277,10 +314,12 @@
             gap: 8px;
         }
 
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
 
         .spinner {
             width: 16px;
@@ -292,6 +331,7 @@
             flex-shrink: 0;
         }
 
+
         .results-section {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
@@ -302,10 +342,12 @@
             display: none;
         }
 
+
         .results-section.show {
             display: block;
             animation: slideIn 0.4s ease-out;
         }
+
 
         @keyframes slideIn {
             from {
@@ -318,6 +360,7 @@
             }
         }
 
+
         .result-header {
             display: flex;
             align-items: center;
@@ -328,33 +371,40 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+
         .result-icon {
             font-size: 32px;
             animation: iconPulse 2s ease-in-out infinite;
             flex-shrink: 0;
         }
 
+
         @keyframes iconPulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
         }
+
 
         .result-status {
             font-size: 18px;
             font-weight: 700;
         }
 
+
         .result-status.authentic {
             color: #10b981;
         }
+
 
         .result-status.fake {
             color: #ef4444;
         }
 
+
         .confidence-section {
             margin-bottom: 15px;
         }
+
 
         .confidence-label {
             font-size: 12px;
@@ -365,10 +415,12 @@
             align-items: center;
         }
 
+
         .confidence-value {
             font-size: 20px;
             font-weight: 700;
         }
+
 
         .confidence-bar-container {
             width: 100%;
@@ -379,6 +431,7 @@
             margin-bottom: 6px;
         }
 
+
         .confidence-bar {
             height: 100%;
             border-radius: 4px;
@@ -388,13 +441,16 @@
             overflow: hidden;
         }
 
+
         .confidence-bar.authentic {
             background: linear-gradient(90deg, #10b981, #059669);
         }
 
+
         .confidence-bar.fake {
             background: linear-gradient(90deg, #ef4444, #dc2626);
         }
+
 
         .confidence-bar::after {
             content: '';
@@ -403,8 +459,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
+            background: linear-gradient(90deg,
+                transparent 0%,
                 rgba(255,255,255,0.2) 25%,
                 rgba(255,255,255,0.8) 50%,
                 rgba(255,255,255,0.2) 75%,
@@ -414,19 +470,21 @@
             filter: blur(1px);
         }
 
+
         @keyframes shimmer {
-            0% { 
+            0% {
                 transform: translateX(-100%);
                 opacity: 0.6;
             }
             50% {
                 opacity: 1;
             }
-            100% { 
+            100% {
                 transform: translateX(200%);
                 opacity: 0.6;
             }
         }
+
 
         .probability-grid {
             display: grid;
@@ -435,6 +493,7 @@
             margin-bottom: 15px;
         }
 
+
         .prob-card {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
@@ -442,16 +501,19 @@
             text-align: center;
         }
 
+
         .prob-label {
             font-size: 11px;
             opacity: 0.8;
             margin-bottom: 6px;
         }
 
+
         .prob-value {
             font-size: 18px;
             font-weight: 700;
         }
+
 
         .prob-bar {
             width: 100%;
@@ -462,25 +524,58 @@
             margin-top: 8px;
         }
 
+
+        .prob-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+
         .prob-fill {
             height: 100%;
-            border-radius: 2px;
-            width: 0% !important; /* Start at 0 */
-            transition: width 1.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+            border-radius: 4px;
+            width: 0%;
+            position: relative;
+            overflow: hidden;
         }
+
 
         .prob-fill.real {
-            background: #10b981;
+            background: linear-gradient(90deg, #10b981, #059669) !important;
         }
 
+
         .prob-fill.fake {
-            background: #ef4444;
+            background: linear-gradient(90deg, #ef4444, #dc2626) !important;
         }
-        
+       
+        .prob-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255,255,255,0.2) 25%,
+                rgba(255,255,255,0.8) 50%,
+                rgba(255,255,255,0.2) 75%,
+                transparent 100%
+            );
+            animation: shimmer 2s ease-in-out infinite;
+            filter: blur(1px);
+        }
+       
         /* Animated state */
         .prob-fill.animate {
             transition: width 1.5s cubic-bezier(0.4, 0.0, 0.2, 1);
         }
+
 
         .result-description {
             background: rgba(255, 255, 255, 0.05);
@@ -491,6 +586,7 @@
             margin-bottom: 12px;
         }
 
+
         .metadata {
             display: flex;
             justify-content: space-around;
@@ -500,12 +596,14 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+
         .metadata-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
         }
+
 
         .settings-section {
             background: rgba(255, 255, 255, 0.1);
@@ -516,6 +614,7 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+
         .setting-item {
             display: flex;
             align-items: center;
@@ -523,9 +622,11 @@
             padding: 8px 0;
         }
 
+
         .setting-label {
             font-size: 13px;
         }
+
 
         .toggle-switch {
             position: relative;
@@ -535,11 +636,13 @@
             flex-shrink: 0;
         }
 
+
         .toggle-switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
+
 
         .slider {
             position: absolute;
@@ -553,6 +656,7 @@
             border-radius: 20px;
         }
 
+
         .slider:before {
             position: absolute;
             content: "";
@@ -565,13 +669,16 @@
             border-radius: 50%;
         }
 
+
         input:checked + .slider {
             background-color: #28a745;
         }
 
+
         input:checked + .slider:before {
             transform: translateX(20px);
         }
+
 
         .footer {
             text-align: center;
@@ -582,6 +689,7 @@
             opacity: 0.7;
         }
 
+
         .footer-links {
             display: flex;
             flex-direction: column;
@@ -589,6 +697,7 @@
             gap: 8px;
             margin-bottom: 10px;
         }
+
 
         .footer-link {
             color: white;
@@ -600,17 +709,20 @@
             gap: 5px;
         }
 
+
         .footer-link:hover {
             opacity: 0.8;
         }
+
 
         .hidden {
             display: none !important;
         }
 
+
         .verifeed-status-text {
             font-weight: 700;
-            font-size: 12px;
+            font-size: 14px;
             background: linear-gradient(90deg, #ffffff, #5a4cb1ff, #ffffff);
             background-size: 200% 100%;
             -webkit-background-clip: text;
@@ -620,7 +732,7 @@
             letter-spacing: 0.5px;
             display: inline-block;
         }
-        
+       
         @keyframes textShimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
@@ -642,6 +754,7 @@
         <div class="logo-text">VeriFeed</div>
         <div class="subtitle">AI-Powered Deepfake Detection</div>
 
+
         <div class="status-card">
             <div class="status-header">
                 <div class="status-title">Server Status</div>
@@ -655,21 +768,24 @@
             </div>
         </div>
 
+
         <div class="video-section">
             <div class="section-title">Video Detection</div>
             <div class="video-info no-video" id="videoInfo">
                 No video detected on current page
             </div>
-            <button class="verify-btn" id="verifyBtn" disabled>               
+            <button class="verify-btn" id="verifyBtn" disabled>              
                 <span id="verifyBtnText">Verify Video</span>
             </button>
         </div>
+
 
         <div class="results-section" id="resultsSection">
             <div class="result-header">
                 <span class="result-icon" id="resultIcon">✅</span>
                 <span class="result-status" id="resultStatus">Authentic Video</span>
             </div>
+
 
             <div class="confidence-section">
                 <div class="confidence-label">
@@ -680,6 +796,7 @@
                     <div class="confidence-bar" id="confidenceBar" style="width: 0%"></div>
                 </div>
             </div>
+
 
             <div class="probability-grid">
                 <div class="prob-card">
@@ -698,9 +815,11 @@
                 </div>
             </div>
 
+
             <div class="result-description" id="resultDescription">
                 Analysis complete. View details above.
             </div>
+
 
             <div class="metadata">
                 <div class="metadata-item">
@@ -714,6 +833,7 @@
             </div>
         </div>
 
+
         <div class="settings-section">
             <div class="section-title">Settings</div>
             <div class="setting-item">
@@ -724,6 +844,7 @@
                 </label>
             </div>
         </div>
+
 
         <div class="footer">
             <div class="footer-links">
@@ -738,11 +859,13 @@
         </div>
     </div>
 
+
     <!-- *** LOAD NLP MODULE FIRST *** -->
     <script src="nlg.js"></script>
-    
+   
     <!-- Then load auth and popup -->
     <script src="auth.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>
+
