@@ -373,4 +373,5 @@ setInterval(() => {
   videoDetector.detectVideos();
 }, 3000);
 
+
 console.log("[VeriFeed] Content script ready (Silent Mode - No UI)");

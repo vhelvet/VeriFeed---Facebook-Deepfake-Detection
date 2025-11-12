@@ -244,7 +244,7 @@ if MODELS_DIR is None:
     MODELS_DIR = os.path.join(SCRIPT_DIR, 'models')
     logger.warning(f"Models directory not found, will use: {MODELS_DIR}")
 
-MODEL_FILENAME = 'model_acc_88.89_epoch25_20251108_095329.pt'
+MODEL_FILENAME = 'model_acc_83.33_epoch8_20251103_181323.pt'
 
 # --- MODEL ARCHITECTURE ---
 class ImprovedDeepfakeDetectionModel(nn.Module):

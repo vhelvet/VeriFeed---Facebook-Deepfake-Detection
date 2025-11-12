@@ -22,11 +22,11 @@ chrome.runtime.onInstalled.addListener((details) => {
       showNotifications: true,
       minConfidence: 70
     });
-    
+
     // Show welcome notification
     chrome.notifications.create({
       type: 'basic',
-      iconUrl: 'icons/icon48.png',
+      iconUrl: 'VeriFeed-Logo.png',
       title: 'VeriFeed Installed',
       message: 'Deepfake detection is now active on Facebook videos!'
     });
@@ -151,7 +151,7 @@ function handleAnalysisComplete(request, sender) {
       
       chrome.notifications.create({
         type: 'basic',
-        iconUrl: 'icons/icon48.png',
+        iconUrl: 'VeriFeed-Logo.png',
         title: '⚠️ Potential Deepfake Detected',
         message: `Confidence: ${result.confidence.toFixed(1)}%`,
         priority: 2
@@ -190,7 +190,7 @@ function handleAnalysisError(request, sender) {
   if (request.error.includes('server') || request.error.includes('connection')) {
     chrome.notifications.create({
       type: 'basic',
-      iconUrl: 'icons/icon48.png',
+      iconUrl: 'VeriFeed-Logo.png',
       title: 'VeriFeed Error',
       message: 'Cannot connect to analysis server. Make sure it\'s running.',
       priority: 1
@@ -249,7 +249,7 @@ chrome.action.onClicked.addListener((tab) => {
   // Show quick stats notification
   chrome.notifications.create({
     type: 'basic',
-    iconUrl: 'icons/icon48.png',
+    iconUrl: 'VeriFeed-Logo.png',
     title: 'VeriFeed Statistics',
     message: `Analyzed: ${stats.totalAnalyses} | Fakes: ${stats.fakesDetected} | Avg Time: ${stats.averageProcessingTime.toFixed(1)}s`
   });
