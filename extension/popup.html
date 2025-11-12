@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VeriFeed - Deepfake Detector</title>
     <style>
-        /* [Keep your existing CSS exactly as is] */
         * {
             margin: 0;
             padding: 0;
@@ -108,8 +107,17 @@
         }
 
 
-        .close-btn:hover, .refresh-btn:hover, .minimize-btn:hover {
+        .close-btn:hover, .refresh-btn:hover {
             background: rgba(255, 255, 255, 0.2);
+        }
+
+        .minimize-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
 
@@ -315,7 +323,7 @@
         }
 
 
-        @keyframes spin {
+        @keyframes spinBtn {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
@@ -327,7 +335,7 @@
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-top: 2px solid white;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spinBtn 1s linear infinite;
             flex-shrink: 0;
         }
 
@@ -342,6 +350,11 @@
             display: none;
         }
 
+        .results-section.result-error {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
+        }
 
         .results-section.show {
             display: block;
@@ -398,7 +411,7 @@
 
         .result-status.fake {
             color: #ef4444;
-        }
+        }      
 
 
         .confidence-section {
@@ -553,23 +566,6 @@
             background: linear-gradient(90deg, #ef4444, #dc2626) !important;
         }
        
-        .prob-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg,
-                transparent 0%,
-                rgba(255,255,255,0.2) 25%,
-                rgba(255,255,255,0.8) 50%,
-                rgba(255,255,255,0.2) 75%,
-                transparent 100%
-            );
-            animation: shimmer 2s ease-in-out infinite;
-            filter: blur(1px);
-        }
        
         /* Animated state */
         .prob-fill.animate {
@@ -584,6 +580,15 @@
             font-size: 12px;
             line-height: 1.6;
             margin-bottom: 12px;
+        }
+
+        .result-description code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #60a5fa;
         }
 
 
@@ -737,6 +742,8 @@
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
+
+        
     </style>
 </head>
 <body>
@@ -868,4 +875,3 @@
     <script src="popup.js"></script>
 </body>
 </html>
-
