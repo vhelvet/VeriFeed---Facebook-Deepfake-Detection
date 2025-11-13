@@ -45,6 +45,7 @@ class VeriFeedVideoDetector {
 
   detectVideos() {
     const videos = document.querySelectorAll("video");
+    let foundValidVideo = false;
     let foundNewVideo = false;
 
     if (videos.length > 0) {
@@ -61,8 +62,10 @@ class VeriFeedVideoDetector {
 
         const isVisible = rect.width > 0 && rect.height > 0;
 
-        if (isVisible && isInViewport && video.readyState >= 2) {
-          const videoSrc = video.currentSrc || video.src;
+        // More lenient check - accept videos that are loaded or loading
+        if (isVisible && isInViewport && video.readyState >= 1) {
+          foundValidVideo = true;
+          const videoSrc = video.currentSrc || video.src || "unknown";
 
           // Check if this is a different video than before
           if (videoSrc !== this.lastVideoSrc) {
@@ -70,9 +73,10 @@ class VeriFeedVideoDetector {
             this.lastVideoSrc = videoSrc;
             console.log("[VeriFeed] NEW video detected:", {
               src: videoSrc,
-              width: video.videoWidth,
-              height: video.videoHeight,
-              duration: video.duration,
+              width: video.videoWidth || "loading",
+              height: video.videoHeight || "loading",
+              duration: video.duration || "loading",
+              readyState: video.readyState,
             });
           }
 
@@ -80,9 +84,13 @@ class VeriFeedVideoDetector {
           break;
         }
       }
-    } else {
+    }
+
+    // If no valid video was found in viewport, clear current video
+    if (!foundValidVideo) {
       if (this.currentVideo !== null) {
         foundNewVideo = true;
+        console.log("[VeriFeed] Video left viewport or page");
       }
       this.currentVideo = null;
       this.lastVideoSrc = null;
@@ -372,6 +380,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 setInterval(() => {
   videoDetector.detectVideos();
 }, 3000);
-
 
 console.log("[VeriFeed] Content script ready (Silent Mode - No UI)");
