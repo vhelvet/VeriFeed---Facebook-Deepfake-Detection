@@ -19,7 +19,7 @@ torchvision==0.24.0+cpu
 
 # Image Processing & Utilities
 numpy==1.26.4
-opencv-python-headless==4.10.0.84
+opencv-python==4.10.0.84
 Pillow==10.4.0
 
 # Environment & Authentication
