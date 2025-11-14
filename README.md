@@ -1,6 +1,6 @@
-# VeriFeed
-
 <div align="center">
+
+# VeriFeed
 
 ![VeriFeed Logo](extension/assets/VeriFeed-Logo.png)
 
