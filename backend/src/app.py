@@ -244,7 +244,7 @@ if MODELS_DIR is None:
     MODELS_DIR = os.path.join(SCRIPT_DIR, 'models')
     logger.warning(f"Models directory not found, will use: {MODELS_DIR}")
 
-MODEL_FILENAME = 'model_acc_89.05_epoch21_20251110_213016.pt'
+MODEL_FILENAME = 'model_acc_91.43_epoch12_20251110_204221.pt'
 
 # --- MODEL ARCHITECTURE ---
 class ImprovedDeepfakeDetectionModel(nn.Module):
@@ -401,18 +401,21 @@ def smart_frame_sampling(total_frames, target_frames=MAX_FRAMES_TO_PROCESS):
     return indices.tolist()
 
 def batch_decode_frames(frames_b64):
-    """Decode frames in optimized batch"""
+    """Decode frames in optimized batch, return frames and failure count"""
     if len(frames_b64) > MAX_FRAMES_TO_PROCESS:
         sample_indices = smart_frame_sampling(len(frames_b64))
         frames_b64 = [frames_b64[i] for i in sample_indices]
     
     frames = []
+    failed_count = 0
     for b64_frame in frames_b64:
         frame = decode_base64_frame(b64_frame)
         if frame is not None:
             frames.append(frame)
+        else:
+            failed_count += 1
     
-    return frames
+    return frames, failed_count
 
 def detect_faces_optimized(frames, max_faces=MAX_FACES):
     """
@@ -495,11 +498,11 @@ def process_prediction(frames_b64):
     """Optimized prediction logic with comprehensive error handling"""
     try:
         if not model_info['loaded']:
-            return {
+            return ({
                 'error': 'Model not loaded',
-                'details': 'Service temporarily unavailable' if not app.config['DEBUG'] else model_info['error']
-            }, 503
-
+                'details': 'Service temporarily unavailable' if not app.config['DEBUG'] else 'Debug mode: model not loaded'
+            }, 503)
+            
         # SECURITY: Validate input
         is_valid, error_msg = validate_frames_input(frames_b64)
         if not is_valid:
@@ -508,7 +511,15 @@ def process_prediction(frames_b64):
         logger.info(f"Received {len(frames_b64)} frames for prediction from {request.remote_addr}")
         
         # OPTIMIZATION: Batch decode with smart sampling
-        frames = batch_decode_frames(frames_b64)
+        frames, failed_count = batch_decode_frames(frames_b64)
+        
+        # Check for poor connection: if more than 50% of frames failed to decode
+        total_input_frames = len(frames_b64)
+        if failed_count > total_input_frames * 0.5:
+            logger.warning(f"Poor connection detected: {failed_count}/{total_input_frames} frames failed to decode from {request.remote_addr}")
+            return {
+                'error': 'VeriFeed could not effectively detect the video due to a low or unstable internet connection. Please check your connection and try again.'
+            }, 400
         
         if len(frames) < SEQUENCE_LENGTH:
             return {

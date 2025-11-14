@@ -16,7 +16,7 @@
             width: 400px;
             min-height: 500px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: url('VeriFeed-Background.png') no-repeat center center;
+            background: url('assets/VeriFeed-Background.png') no-repeat center center;
             background-size: cover;
             color: white;
             padding: 0;
@@ -405,12 +405,12 @@
 
 
         .result-status.authentic {
-            color: #10b981;
+            color: #10b981 !important;
         }
 
 
         .result-status.fake {
-            color: #ef4444;
+            color: #ef4444 !important;
         }      
 
 
@@ -749,7 +749,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="VeriFeed-Logo.png" alt="VeriFeed Logo" class="logo-img">
+            <img src="assets/VeriFeed-Logo.png" alt="VeriFeed Logo" class="logo-img">
             <div class="header-right">
                 <button class="minimize-btn" id="btnMinimize" title="Minimize">
                     <span class="minimize-icon">▼</span>
@@ -868,10 +868,10 @@
 
 
     <!-- *** LOAD NLP MODULE FIRST *** -->
-    <script src="nlg.js"></script>
+    <script src="scripts/nlg.js"></script>
    
     <!-- Then load auth and popup -->
-    <script src="auth.js"></script>
-    <script src="popup.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/popup.js"></script>
 </body>
 </html>
