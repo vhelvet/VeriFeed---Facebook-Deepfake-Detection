@@ -809,11 +809,11 @@ if __name__ == '__main__':
         print("🚀 Starting Waitress WSGI Server...")
         print(f"📍 Listening on http://0.0.0.0:5000")
         print("✓ Press CTRL+C to stop\n")
-        
+        port = int(os.environ.get("PORT", 5000))
         serve(
             app,
             host='0.0.0.0',
-            port=5000,
+            port=port,
             threads=4,  # Thread pool size
             channel_timeout=REQUEST_TIMEOUT,
             cleanup_interval=30,
@@ -823,4 +823,5 @@ if __name__ == '__main__':
     except ImportError:
         print("⚠️  Waitress not installed. Install with: pip install waitress")
         print("⚠️  Falling back to Flask development server (NOT FOR PRODUCTION)")
-        app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
+        port = int(os.environ.get("PORT", 5000))
+        app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
