@@ -45,6 +45,7 @@ class VeriFeedVideoDetector {
 
   detectVideos() {
     const videos = document.querySelectorAll("video");
+    let foundValidVideo = false;
     let foundNewVideo = false;
 
     if (videos.length > 0) {
@@ -61,8 +62,10 @@ class VeriFeedVideoDetector {
 
         const isVisible = rect.width > 0 && rect.height > 0;
 
-        if (isVisible && isInViewport && video.readyState >= 2) {
-          const videoSrc = video.currentSrc || video.src;
+        // More lenient check - accept videos that are loaded or loading
+        if (isVisible && isInViewport && video.readyState >= 1) {
+          foundValidVideo = true;
+          const videoSrc = video.currentSrc || video.src || "unknown";
 
           // Check if this is a different video than before
           if (videoSrc !== this.lastVideoSrc) {
@@ -70,9 +73,10 @@ class VeriFeedVideoDetector {
             this.lastVideoSrc = videoSrc;
             console.log("[VeriFeed] NEW video detected:", {
               src: videoSrc,
-              width: video.videoWidth,
-              height: video.videoHeight,
-              duration: video.duration,
+              width: video.videoWidth || "loading",
+              height: video.videoHeight || "loading",
+              duration: video.duration || "loading",
+              readyState: video.readyState,
             });
           }
 
@@ -80,9 +84,13 @@ class VeriFeedVideoDetector {
           break;
         }
       }
-    } else {
+    }
+
+    // If no valid video was found in viewport, clear current video
+    if (!foundValidVideo) {
       if (this.currentVideo !== null) {
         foundNewVideo = true;
+        console.log("[VeriFeed] Video left viewport or page");
       }
       this.currentVideo = null;
       this.lastVideoSrc = null;
@@ -112,7 +120,6 @@ class VeriFeedVideoDetector {
   }
 
   // OPTIMIZED: Fast frame extraction using seek-based method
-  // OPTIMIZED: Fast frame extraction using seek-based method
   async extractFrames() {
     if (!this.currentVideo) {
       throw new Error("No video available");
@@ -123,6 +130,7 @@ class VeriFeedVideoDetector {
     return new Promise(async (resolve, reject) => {
       let hasResolved = false;
       let timeoutId = null;
+      let enforceMute = null; // Store the function reference for cleanup
 
       try {
         if (videoElement.readyState < 2) {
@@ -164,12 +172,26 @@ class VeriFeedVideoDetector {
           volume: videoElement.volume,
         };
 
-        // Prepare video for extraction - mute and pause
+        // IMMEDIATELY mute and pause video
         videoElement.muted = true;
         videoElement.volume = 0;
         videoElement.pause();
 
-        console.log("[VeriFeed] 🔇 Video muted for analysis");
+        // Create mute enforcement function
+        enforceMute = () => {
+          if (!videoElement.muted || videoElement.volume > 0) {
+            videoElement.muted = true;
+            videoElement.volume = 0;
+            console.log("[VeriFeed] 🔇 Re-enforcing mute during extraction");
+          }
+        };
+        
+        // Add listeners to prevent unmuting
+        videoElement.addEventListener('volumechange', enforceMute);
+        videoElement.addEventListener('play', enforceMute);
+        videoElement.addEventListener('playing', enforceMute);
+        
+        console.log("[VeriFeed] 🔇 Video muted and locked for analysis");
 
         const frames = [];
         let startTime = Date.now();
@@ -183,10 +205,20 @@ class VeriFeedVideoDetector {
           targetTimes.push(time);
         }
 
+        // Helper function to remove all listeners
+        const cleanupListeners = () => {
+          if (enforceMute) {
+            videoElement.removeEventListener('volumechange', enforceMute);
+            videoElement.removeEventListener('play', enforceMute);
+            videoElement.removeEventListener('playing', enforceMute);
+          }
+          videoElement.removeEventListener("error", handleError);
+        };
+
         timeoutId = setTimeout(() => {
           if (!hasResolved) {
             hasResolved = true;
-            videoElement.removeEventListener("error", handleError);
+            cleanupListeners();
             console.warn(
               `[VeriFeed] ⏱️ Timeout - captured ${frames.length} frames`
             );
@@ -199,6 +231,7 @@ class VeriFeedVideoDetector {
           if (hasResolved) return;
           console.error("[VeriFeed] Video element error during seek:", e);
           clearTimeout(timeoutId);
+          cleanupListeners();
           this.restoreVideoState(videoElement, originalState);
           reject(new Error("Video Error during extraction."));
         };
@@ -229,7 +262,6 @@ class VeriFeedVideoDetector {
         }
 
         clearTimeout(timeoutId);
-        videoElement.removeEventListener("error", handleError);
         hasResolved = true;
 
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -237,6 +269,9 @@ class VeriFeedVideoDetector {
         console.log(
           `[VeriFeed] ✅ Captured ${frames.length} frames in ${elapsed}s (Target: <5s)`
         );
+
+        // Clean up all listeners
+        cleanupListeners();
 
         // Restore video state
         this.restoreVideoState(videoElement, originalState);
@@ -246,11 +281,20 @@ class VeriFeedVideoDetector {
         if (!hasResolved) {
           if (timeoutId) clearTimeout(timeoutId);
           console.error("[VeriFeed] === EXTRACTION ERROR (FATAL) ===");
+          
+          // Clean up listeners on error
+          if (enforceMute) {
+            videoElement.removeEventListener('volumechange', enforceMute);
+            videoElement.removeEventListener('play', enforceMute);
+            videoElement.removeEventListener('playing', enforceMute);
+          }
+          
           if (videoElement) {
             this.restoreVideoState(videoElement, {
               paused: videoElement.paused,
               currentTime: videoElement.currentTime,
               muted: videoElement.muted,
+              volume: videoElement.volume,
             });
           }
           reject(err);
@@ -261,8 +305,10 @@ class VeriFeedVideoDetector {
 
   restoreVideoState(video, originalState) {
     try {
+      console.log("[VeriFeed] 🔊 Restoring video state");
       video.currentTime = originalState.currentTime;
       video.muted = originalState.muted;
+      video.volume = originalState.volume;
       if (!originalState.paused) {
         video.play().catch(() => {});
       }
@@ -293,7 +339,6 @@ class VeriFeedVideoDetector {
 const videoDetector = new VeriFeedVideoDetector();
 
 // Listen for messages from popup
-// Improved refresh handler in content.js
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("[VeriFeed] Received message:", request.action);
 
