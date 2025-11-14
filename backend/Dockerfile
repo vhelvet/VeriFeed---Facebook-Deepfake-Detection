@@ -1,20 +1,14 @@
-# ============================================================
-# VeriFeed Backend Dockerfile
-# Compatible with face_recognition + dlib
-# Python 3.11 (Stable for all dependencies)
-# ============================================================
-
 FROM python:3.11-slim
 
 # ------------------------------------------------------------
-# Install system dependencies required by dlib and face_recognition
+# Install dependencies required by dlib & face_recognition
 # ------------------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     libopenblas-dev \
+    libblas-dev \
     liblapack-dev \
-    libatlas-base-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
     libx11-dev \
@@ -27,27 +21,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # ------------------------------------------------------------
-# Copy requirements first for optimized layer caching
+# Copy requirements first
 # ------------------------------------------------------------
 COPY requirements.txt .
 
-# ------------------------------------------------------------
-# Install Python packages
-# ------------------------------------------------------------
 RUN pip install --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir -r requirements.txt
 
 # ------------------------------------------------------------
-# Copy project files
+# Copy application files
 # ------------------------------------------------------------
 COPY . .
 
 # ------------------------------------------------------------
-# Expose the port your Flask backend uses
+# Expose port
 # ------------------------------------------------------------
 EXPOSE 5000
 
 # ------------------------------------------------------------
-# Start the Flask backend using Waitress (production server)
+# Run app with Waitress
 # ------------------------------------------------------------
 CMD ["waitress-serve", "--host=0.0.0.0", "--port=5000", "src.app:app"]
