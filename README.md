@@ -2,7 +2,7 @@
 
 # VeriFeed
 
-![VeriFeed Logo](extension/assets/VeriFeed-Logo.png)
+<img src="extension/assets/VeriFeed-Logo.png" alt="VeriFeed Logo" width="250px">
 
 **AI-Powered Deepfake Video Detection for Facebook**
 
