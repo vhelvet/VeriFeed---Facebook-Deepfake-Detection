@@ -43,6 +43,96 @@ class VeriFeedVideoDetector {
     );
   }
 
+  // Check if video is from Stories or My Day (MUST BE EXCLUDED)
+  // REELS MUST BE ALLOWED - Only block actual Stories/My Day
+  isStoryOrMyDayVideo(video) {
+    // FIRST: Check if it's a REEL (MUST ALLOW REELS)
+    const currentUrl = window.location.href;
+    if (
+      currentUrl.includes("/reel/") ||
+      currentUrl.includes("/reels/") ||
+      currentUrl.includes("watch/reel")
+    ) {
+      console.log("[VeriFeed] ✅ REEL detected - ALLOWING");
+      return false; // NOT a story, it's a reel - allow it!
+    }
+
+    // Check parent elements for reel containers
+    let element = video;
+    for (let i = 0; i < 10; i++) {
+      if (!element) break;
+      
+      const classList = element.className || "";
+      const ariaLabel = element.getAttribute("aria-label") || "";
+      
+      // If we find "reel" in the structure, it's a REEL - ALLOW IT
+      if (
+        classList.toLowerCase().includes("reel") ||
+        ariaLabel.toLowerCase().includes("reel")
+      ) {
+        console.log("[VeriFeed] ✅ REEL detected in DOM - ALLOWING");
+        return false; // NOT a story, it's a reel - allow it!
+      }
+      
+      element = element.parentElement;
+    }
+
+    // NOW check for Stories/My Day (BLOCK THESE)
+    // Method 1: Check URL path for story indicators
+    if (
+      currentUrl.includes("/stories/") ||
+      currentUrl.includes("/story/") ||
+      currentUrl.includes("story_fbid") ||
+      currentUrl.includes("stories_tab")
+    ) {
+      console.log("[VeriFeed] ⛔ URL indicates STORY - BLOCKING");
+      return true;
+    }
+
+    // Method 2: Check parent elements for story/my day containers
+    element = video;
+    for (let i = 0; i < 10; i++) {
+      if (!element) break;
+      
+      const classList = element.className || "";
+      const ariaLabel = element.getAttribute("aria-label") || "";
+      
+      // Facebook Stories identifiers (but NOT reels)
+      if (
+        classList.includes("story") ||
+        classList.includes("Story") ||
+        classList.includes("stories") ||
+        classList.includes("Stories") ||
+        ariaLabel.toLowerCase().includes("story") ||
+        ariaLabel.toLowerCase().includes("stories") ||
+        ariaLabel.toLowerCase().includes("my day") ||
+        ariaLabel.toLowerCase().includes("myday")
+      ) {
+        console.log("[VeriFeed] ⛔ DOM indicates STORY - BLOCKING");
+        return true;
+      }
+      
+      element = element.parentElement;
+    }
+    
+    // Method 3: Check for story-specific UI elements nearby
+    const container = video.closest('[role="dialog"]') || video.closest('[role="complementary"]');
+    if (container) {
+      const containerText = container.innerText || "";
+      if (
+        containerText.includes("Story") ||
+        containerText.includes("My Day") ||
+        (containerText.includes("stories") && !containerText.toLowerCase().includes("reel"))
+      ) {
+        console.log("[VeriFeed] ⛔ Container indicates STORY - BLOCKING");
+        return true;
+      }
+    }
+    
+    // If we got here, it's NOT a story - allow it (could be reel, regular video, etc.)
+    return false;
+  }
+
   detectVideos() {
     const videos = document.querySelectorAll("video");
     let foundValidVideo = false;
@@ -64,6 +154,12 @@ class VeriFeedVideoDetector {
 
         // More lenient check - accept videos that are loaded or loading
         if (isVisible && isInViewport && video.readyState >= 1) {
+          // CRITICAL: Check if this is a Story or My Day video - SKIP IT
+          if (this.isStoryOrMyDayVideo(video)) {
+            console.log("[VeriFeed] ⛔ SKIPPING Story/My Day video");
+            continue; // Skip this video, check next one
+          }
+
           foundValidVideo = true;
           const videoSrc = video.currentSrc || video.src || "unknown";
 
