@@ -22,6 +22,8 @@
 
 VeriFeed is an AI-powered browser extension and backend service designed to detect deepfake videos on Facebook. The system uses advanced machine learning models to analyze video content and provide users with authenticity assessments.
 
+---
+
 ## Features
 
 ### Core Functionality
@@ -40,6 +42,8 @@ VeriFeed is an AI-powered browser extension and backend service designed to dete
 - **Extension Popup**: Clean, responsive interface with status indicators
 - **Visual Results**: Animated confidence bars and detailed probability displays
 - **Compact Mode**: Minimizable interface for reduced screen space usage
+
+---
 
 ## Architecture
 
@@ -63,6 +67,8 @@ VeriFeed is an AI-powered browser extension and backend service designed to dete
 3. **Feature Extraction**: ResNeXt50 backbone for feature vectors
 4. **Sequence Analysis**: Bidirectional LSTM for temporal processing
 5. **Classification**: Binary classification with confidence scoring
+
+---
 
 ## Installation
 
@@ -94,6 +100,8 @@ python backend/src/app.py
 3. Load unpacked extension from the `extension/` directory
 4. VeriFeed will be available in the browser toolbar
 
+---
+
 ## Usage
 
 1. Navigate to Facebook and locate a video
@@ -101,6 +109,8 @@ python backend/src/app.py
 3. The extension will detect available videos and enable analysis
 4. Click "Verify Video" to initiate analysis
 5. View results with confidence scores and detailed probabilities
+
+---
 
 ## API Reference
 
@@ -147,6 +157,8 @@ Main prediction endpoint requiring authentication.
 }
 ```
 
+---
+
 ## Performance
 
 ### Model Metrics
@@ -159,6 +171,8 @@ Main prediction endpoint requiring authentication.
 - **Processing Time**: < 3 seconds for 60-frame videos
 - **Memory Usage**: < 2GB peak during inference
 - **Concurrent Users**: Supports 1000+ with rate limiting
+
+---
 
 ## Security
 
@@ -176,6 +190,8 @@ Main prediction endpoint requiring authentication.
 - Rate limiting (configurable per minute/hour/day)
 - CORS restrictions to allowed origins
 - Comprehensive logging and audit trails
+
+---
 
 ## Development
 
@@ -215,6 +231,8 @@ python -m pytest
 python -m pytest --cov=backend
 ```
 
+---
+
 ## Configuration
 
 ### Environment Variables
@@ -225,15 +243,21 @@ python -m pytest --cov=backend
 - `RATE_LIMIT_PER_MINUTE`: Rate limiting configuration
 - `MODELS_DIR`: Path to model files
 
+---
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## Contact
 
 - **Email**: verifeedofficial@gmail.com
 - **Website**: http://localhost:5173/
 - **Issues**: [GitHub Issues](https://github.com/verifeed/verifeed/issues)
+
+---
 
 ## Acknowledgments
 
