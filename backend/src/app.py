@@ -30,6 +30,11 @@ import threading
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
+import requests # NEW: For robust downloading
+import tempfile # NEW: For safe file storage
+import shutil # NEW: For moving files
+import re # NEW: For parsing
+from urllib.parse import urlparse # NEW: For URL parsing
 
 load_dotenv()
 
@@ -45,18 +50,19 @@ app.config['MAX_CONTENT_LENGTH'] = int(os.environ.get('MAX_CONTENT_MB', '100')) 
 SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
 API_KEY = os.environ.get('API_KEY')
 ADMIN_API_KEY = os.environ.get('ADMIN_API_KEY')
+MODEL_URL = os.environ.get('MODEL_URL') # NEW: External model download URL
 
 # Generate defaults ONLY in development mode
 if app.config['DEBUG']:
     if not SECRET_KEY:
         SECRET_KEY = secrets.token_hex(32)
-        print("⚠️  DEV: Using generated JWT_SECRET_KEY")
+        print("⚠️  DEV: Using generated JWT_SECRET_KEY")
     if not API_KEY:
         API_KEY = secrets.token_hex(32)
-        print("⚠️  DEV: Using generated API_KEY")
+        print("⚠️  DEV: Using generated API_KEY")
     if not ADMIN_API_KEY:
         ADMIN_API_KEY = secrets.token_hex(32)
-        print("⚠️  DEV: Using generated ADMIN_API_KEY")
+        print("⚠️  DEV: Using generated ADMIN_API_KEY")
 else:
     # Production mode - keys are REQUIRED
     if not SECRET_KEY or not API_KEY or not ADMIN_API_KEY:
@@ -77,7 +83,7 @@ RATE_LIMIT_PER_DAY = os.environ.get('RATE_LIMIT_PER_DAY', '1000')
 ALLOW_MODEL_RELOAD = os.environ.get('ALLOW_MODEL_RELOAD', 'false').lower() == 'true'
 
 # FIXED: Never log API keys, even partially
-print(f"🛡️  Production Mode: {not app.config['DEBUG']}")
+print(f"🛡️  Production Mode: {not app.config['DEBUG']}")
 print(f"🚦 Rate Limiting: {RATE_LIMIT_ENABLED}")
 print(f"📦 Max Content Size: {app.config['MAX_CONTENT_LENGTH'] / (1024*1024):.0f}MB")
 print(f"🔑 API Keys: {'✓ Configured' if API_KEY else '✗ Missing'}")
@@ -242,8 +248,16 @@ MAX_WORKERS = min(4, multiprocessing.cpu_count())
 # Model directory
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# --- MODEL DIRECTORY CONFIGURATION (Adjusted for cloud/download) ---
+# For cloud deployment with downloads, use a writeable temporary directory.
+# This ensures the model is saved to a location the app can write to.
+MODELS_DIR_DOWNLOAD = '/tmp/models' 
+os.makedirs(MODELS_DIR_DOWNLOAD, exist_ok=True) 
+
+# Search paths for local model loading (if no download is specified/fails)
 possible_model_dirs = [
     os.path.join(SCRIPT_DIR, 'models'),
+    MODELS_DIR_DOWNLOAD, # Check the download location
     'verifeed-backend/models',
     'models'
 ]
@@ -260,6 +274,8 @@ if MODELS_DIR is None:
     logger.warning(f"Models directory not found, will use: {MODELS_DIR}")
 
 MODEL_FILENAME = 'model_acc_91.43_epoch12_20251110_204221.pt'
+# ----------------------------------------------------------------------
+
 
 # --- MODEL ARCHITECTURE ---
 class ImprovedDeepfakeDetectionModel(nn.Module):
@@ -320,6 +336,79 @@ inference_model = None
 model_info = {'loaded': False, 'path': None, 'error': None}
 model_lock = threading.Lock()
 
+def download_model_from_url_robust():
+    """Download model from Google Drive, handling large file confirmation."""
+    global model_info
+    
+    if not MODEL_URL:
+        model_info['error'] = "MODEL_URL environment variable is not set."
+        return None
+        
+    # 1. Extract File ID
+    parsed_url = urlparse(MODEL_URL)
+    # Extract 'id' from query parameters (e.g., id=1ABC123XYZ...)
+    file_id = dict(re.findall(r"([^=]+)=([^&]*)", parsed_url.query)).get('id')
+    
+    if not file_id:
+        model_info['error'] = f"Could not extract file ID from MODEL_URL: {MODEL_URL}"
+        logger.error(model_info['error'])
+        return None
+
+    temp_path = os.path.join(tempfile.gettempdir(), MODEL_FILENAME)
+    
+    # URL for file download request
+    DOWNLOAD_URL = "https://drive.google.com/uc?id=18LRYNIJ7ul9j94RG4Dk9yQbWWFiXkK5c&export=download"
+    session = requests.Session()
+    
+    try:
+        logger.info(f"Downloading model (ID: {file_id})...")
+        
+        # 2. First Request to get Token (Handles large file warning)
+        response = session.get(DOWNLOAD_URL, params={'id': file_id}, stream=True, timeout=REQUEST_TIMEOUT)
+        
+        # Check for confirmation token in cookies (for files > ~100MB)
+        token = None
+        for key, value in response.cookies.items():
+            if key.startswith('download_warning'):
+                token = value
+                break
+        
+        # 3. Second Request with Token (If necessary)
+        if token:
+            logger.info("Handling large file warning with confirmation token...")
+            params = {'id': file_id, 'confirm': token}
+            response = session.get(DOWNLOAD_URL, params=params, stream=True, timeout=REQUEST_TIMEOUT)
+            
+        # 4. Final Download & Save
+        response.raise_for_status()
+        
+        # Stream the file content to disk
+        with open(temp_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk: 
+                    f.write(chunk)
+        
+        # Verify download
+        size = os.path.getsize(temp_path)
+        logger.info(f"Downloaded model: {size / (1024*1024):.2f} MB")
+        
+        # Move to models directory
+        final_path = os.path.join(MODELS_DIR_DOWNLOAD, MODEL_FILENAME) # Use the writeable temp path
+        shutil.move(temp_path, final_path)
+        logger.info(f"Model saved to: {final_path}")
+        
+        return final_path
+        
+    except requests.exceptions.RequestException as e:
+        model_info['error'] = f"Model download failed (HTTP/Network error): {e}"
+        logger.error(model_info['error'])
+        return None
+    except Exception as e:
+        model_info['error'] = f"Model download or file operation failed: {e}"
+        logger.error(model_info['error'])
+        return None
+
+
 def load_model(model_path=None):
     """
     FIXED: Load model with PyTorch 2.6+ compatibility
@@ -328,11 +417,20 @@ def load_model(model_path=None):
     
     with model_lock:
         if model_path is None:
+            # Fallback to default path if not supplied (e.g., from download)
             model_path = os.path.join(MODELS_DIR, MODEL_FILENAME)
         
         # SECURITY: Prevent path traversal
-        if '..' in str(model_path) or not str(model_path).startswith(MODELS_DIR):
-            model_info['error'] = "Invalid model path (path traversal detected)"
+        # We check if the path starts with ANY known root directory for security
+        valid_root_dirs = [MODELS_DIR, MODELS_DIR_DOWNLOAD, SCRIPT_DIR, os.path.join(SCRIPT_DIR, 'models')]
+        is_safe = False
+        for root in valid_root_dirs:
+             if str(model_path).startswith(root):
+                is_safe = True
+                break
+        
+        if '..' in str(model_path) or not is_safe:
+            model_info['error'] = "Invalid model path (path traversal detected or not in a safe location)"
             logger.error(model_info['error'])
             return False
         
@@ -357,7 +455,7 @@ def load_model(model_path=None):
                 state_dict = torch.load(
                     model_path, 
                     map_location=DEVICE,
-                    weights_only=False  # Required for custom nn.Module
+                    weights_only=False 
                 )
             except TypeError:
                 # Fallback for older PyTorch versions
@@ -381,9 +479,6 @@ def load_model(model_path=None):
             logger.error(f"Failed to load model: {e}")
             logger.error(traceback.format_exc())
             return False
-
-# Load model on startup
-load_model()
 
 # --- OPTIMIZED HELPER FUNCTIONS ---
 
@@ -490,7 +585,7 @@ def detect_faces_optimized(frames, max_faces=MAX_FACES):
             if max_dim > 640:
                 scale = 640 / max_dim
                 small_frame = cv2.resize(frame, (int(w * scale), int(h * scale)), 
-                                        interpolation=cv2.INTER_LINEAR)
+                                         interpolation=cv2.INTER_LINEAR)
                 scale_back = max_dim / 640
             else:
                 small_frame = frame
@@ -504,7 +599,7 @@ def detect_faces_optimized(frames, max_faces=MAX_FACES):
             
             if len(face_locations) > 0:
                 best_face_loc = max(face_locations, 
-                                   key=lambda loc: (loc[2] - loc[0]) * (loc[1] - loc[3]))
+                                    key=lambda loc: (loc[2] - loc[0]) * (loc[1] - loc[3]))
                 
                 top, right, bottom, left = best_face_loc
                 
@@ -789,60 +884,74 @@ def after_request(response):
     
     return response
 
-# --- MAIN EXECUTION ---
+# --- MAIN EXECUTION (MODIFIED FOR DOWNLOAD) ---
 if __name__ == '__main__':
     print("\n" + "="*70)
     print("🚀 VERIFEED PREDICTION SERVER - FIXED & SECURED")
     print("="*70)
+    
+    # NEW: Try to download model if URL provided
+    if os.environ.get('MODEL_URL'):
+        downloaded_path = download_model_from_url_robust()
+        if downloaded_path:
+            load_model(downloaded_path) # Load from the downloaded path
+        else:
+            # If download fails, fall back to trying local paths (original behavior)
+            load_model() 
+    else:
+        # If MODEL_URL is not set, use original local loading logic
+        load_model()
+    
     print(f"Device: {DEVICE}")
-    print(f"Models Directory: {MODELS_DIR}")
+    print(f"Models Directory (Local Check Path): {MODELS_DIR}")
     print(f"Model Loaded: {model_info['loaded']}")
     if model_info['loaded']:
         print(f"✓ Model ready for inference")
     else:
         print(f"✗ Model Error: {model_info['error']}")
     print("\n🔐 Security Features:")
-    print("  ✓ API Key Authentication")
-    print("  ✓ JWT Token Support")
-    print("  ✓ CORS Properly Configured (No Wildcard)")
-    print("  ✓ Admin-Only Model Reload" + (" [DISABLED]" if not ALLOW_MODEL_RELOAD else ""))
-    print("  ✓ Secure Key Management (No Defaults in Prod)")
-    print("  ✓ Path Traversal Prevention")
-    print("  ✓ Input Validation & Sanitization")
-    print(f"  ✓ Rate Limiting: {RATE_LIMIT_ENABLED}")
-    print(f"  ✓ Max Content Size: {app.config['MAX_CONTENT_LENGTH'] / (1024*1024):.0f}MB")
-    print(f"  ✓ Max Frames Input: {MAX_FRAMES_INPUT}")
-    print(f"  ✓ Production Mode: {not app.config['DEBUG']}")
+    print("  ✓ API Key Authentication")
+    print("  ✓ JWT Token Support")
+    print("  ✓ CORS Properly Configured (No Wildcard)")
+    print("  ✓ Admin-Only Model Reload" + (" [DISABLED]" if not ALLOW_MODEL_RELOAD else ""))
+    print("  ✓ Secure Key Management (No Defaults in Prod)")
+    print("  ✓ Path Traversal Prevention")
+    print("  ✓ Input Validation & Sanitization")
+    print(f"  ✓ Rate Limiting: {RATE_LIMIT_ENABLED}")
+    print(f"  ✓ Max Content Size: {app.config['MAX_CONTENT_LENGTH'] / (1024*1024):.0f}MB")
+    print(f"  ✓ Max Frames Input: {MAX_FRAMES_INPUT}")
+    print(f"  ✓ Production Mode: {not app.config['DEBUG']}")
     print("\n⚡ Performance Optimizations:")
-    print(f"  ✓ Max Frames to Process: {MAX_FRAMES_TO_PROCESS}")
-    print(f"  ✓ Detection Stride: {DETECTION_STRIDE}")
-    print(f"  ✓ Parallel Workers: {MAX_WORKERS}")
-    print(f"  ✓ Face Detection Model: {get_detection_model()}")
-    print("  ✓ Smart Frame Sampling")
-    print("  ✓ Parallel Frame Decoding")
-    print("  ✓ Mixed Precision Inference (CUDA)")
+    print(f"  ✓ Max Frames to Process: {MAX_FRAMES_TO_PROCESS}")
+    print(f"  ✓ Detection Stride: {DETECTION_STRIDE}")
+    print(f"  ✓ Parallel Workers: {MAX_WORKERS}")
+    print(f"  ✓ Face Detection Model: {get_detection_model()}")
+    print("  ✓ Smart Frame Sampling")
+    print("  ✓ Parallel Frame Decoding")
+    print("  ✓ Mixed Precision Inference (CUDA)")
     print("\n📡 Available Endpoints:")
-    print("  - GET  /health (Public)")
-    print("  - POST /auth/token (API Key → JWT)")
-    print("  - POST /predict (Authenticated + Rate Limited)")
-    print("  - POST /frame_analyze (Authenticated + Rate Limited)")
-    print("  - GET  /model/info (Authenticated)")
-    print("  - POST /model/reload (Admin Only" + (" - DISABLED)" if not ALLOW_MODEL_RELOAD else ")"))
+    print("  - GET  /health (Public)")
+    print("  - POST /auth/token (API Key → JWT)")
+    print("  - POST /predict (Authenticated + Rate Limited)")
+    print("  - POST /frame_analyze (Authenticated + Rate Limited)")
+    print("  - GET  /model/info (Authenticated)")
+    print("  - POST /model/reload (Admin Only" + (" - DISABLED)" if not ALLOW_MODEL_RELOAD else ")"))
     
     if RATE_LIMIT_ENABLED:
         print("\n🚦 Rate Limits:")
-        print(f"  - Per Minute: {RATE_LIMIT_PER_MINUTE}")
-        print(f"  - Per Hour: {RATE_LIMIT_PER_HOUR}")
-        print(f"  - Per Day: {RATE_LIMIT_PER_DAY}")
+        print(f"  - Per Minute: {RATE_LIMIT_PER_MINUTE}")
+        print(f"  - Per Hour: {RATE_LIMIT_PER_HOUR}")
+        print(f"  - Per Day: {RATE_LIMIT_PER_DAY}")
     
     print("\n✅ FIXES APPLIED:")
-    print("  ✓ PyTorch 2.6 model loading (weights_only=False)")
-    print("  ✓ CORS wildcard removed")
-    print("  ✓ API key logging removed")
-    print("  ✓ Parallel frame decoding")
-    print("  ✓ Better error messages")
+    print("  ✓ Robust Google Drive download logic added")
+    print("  ✓ PyTorch 2.6 model loading (weights_only=False)")
+    print("  ✓ CORS wildcard removed")
+    print("  ✓ API key logging removed")
+    print("  ✓ Parallel frame decoding")
+    print("  ✓ Better error messages")
     
-    print("\n⚠️  Using Waitress for production deployment")
+    print("\n⚠️  Using Waitress for production deployment")
     print("="*70 + "\n")
     
     # Use Waitress for production serving
@@ -863,7 +972,7 @@ if __name__ == '__main__':
             ident=None
         )
     except ImportError:
-        print("⚠️  Waitress not installed. Install with: pip install waitress")
-        print("⚠️  Falling back to Flask development server (NOT FOR PRODUCTION)")
+        print("⚠️  Waitress not installed. Install with: pip install waitress")
+        print("⚠️  Falling back to Flask development server (NOT FOR PRODUCTION)")
         port = int(os.environ.get("PORT", 5000))
         app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
