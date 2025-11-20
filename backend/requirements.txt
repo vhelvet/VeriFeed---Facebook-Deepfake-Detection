@@ -39,5 +39,7 @@ scipy==1.11.3
 rich==13.6.0
 orjson==3.9.10
 
+gdown>=4.7.1
+
 # CRITICAL: Custom index for CPU-only PyTorch installation
 --extra-index-url https://download.pytorch.org/whl/cpu
