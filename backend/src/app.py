@@ -30,11 +30,12 @@ import threading
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
-import requests # NEW: For robust downloading
-import tempfile # NEW: For safe file storage
-import shutil # NEW: For moving files
-import re # NEW: For parsing
-from urllib.parse import urlparse # NEW: For URL parsing
+import requests 
+import tempfile 
+import shutil 
+import re 
+from urllib.parse import urlparse 
+import gdown # NEW: Import gdown for robust download
 
 load_dotenv()
 
@@ -336,148 +337,71 @@ model_info = {'loaded': False, 'path': None, 'error': None}
 model_lock = threading.Lock()
 
 
+# ====================================================================
+# ✅ GDOWN IMPLEMENTATION
+# ====================================================================
+
 def download_model_from_url_robust():
     """
-    Download model from Google Drive with proper large file handling.
-    This consolidated function replaces the manual/gdown wrapper for simplicity.
+    Download model using gdown, which handles Google Drive access and warnings.
     """
-    global model_info # <-- CRITICAL FIX: Must be the first reference
+    global model_info 
 
     if not MODEL_URL:
         model_info['error'] = "MODEL_URL environment variable is not set."
         return None
     
-    temp_path = None # Initialize temp_path early for use in the finally block
-
+    # Extract file ID from various Google Drive URL formats
+    file_id = None
+    patterns = [
+        r'/file/d/([a-zA-Z0-9_-]+)',
+        r'[?&]id=([a-zA-Z0-9_-]+)',
+        r'/open\?id=([a-zA-Z0-9_-]+)'
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, MODEL_URL)
+        if match:
+            file_id = match.group(1)
+            break
+            
+    if not file_id:
+        if re.match(r'^[a-zA-Z0-9_-]+$', MODEL_URL):
+            file_id = MODEL_URL
+        else:
+            model_info['error'] = f"Could not extract file ID from MODEL_URL: {MODEL_URL}"
+            logger.error(model_info['error'])
+            return None
+    
+    logger.info(f"Extracted Google Drive file ID: {file_id}")
+    
+    final_path = os.path.join(MODELS_DIR_DOWNLOAD, MODEL_FILENAME)
+    
     try:
-        # Extract file ID from various Google Drive URL formats
-        file_id = None
-        patterns = [
-            r'/file/d/([a-zA-Z0-9_-]+)',
-            r'[?&]id=([a-zA-Z0-9_-]+)',
-            r'/open\?id=([a-zA-Z0-9_-]+)'
-        ]
+        logger.info(f"Starting model download via gdown (ID: {file_id})...")
         
-        for pattern in patterns:
-            match = re.search(pattern, MODEL_URL)
-            if match:
-                file_id = match.group(1)
-                break
-        
-        if not file_id:
-            if re.match(r'^[a-zA-Z0-9_-]+$', MODEL_URL):
-                file_id = MODEL_URL
-            else:
-                model_info['error'] = f"Could not extract file ID from MODEL_URL: {MODEL_URL}"
-                logger.error(model_info['error'])
-                return None
-        
-        logger.info(f"Extracted Google Drive file ID: {file_id}")
-        
-        # Prepare download
-        temp_path = os.path.join(tempfile.gettempdir(), MODEL_FILENAME)
-        session = requests.Session()
-        
-        # Google Drive download base URL
-        DOWNLOAD_URL = "https://drive.google.com/uc"
-        
-        logger.info(f"Starting model download (ID: {file_id})...")
-        
-        # Step 1: Initial request to check file and get cookies
-        response = session.get(
-            DOWNLOAD_URL,
-            params={'id': file_id, 'export': 'download'},
-            stream=True,
-            timeout=30,
-            allow_redirects=True
+        # gdown automatically handles the 'Download anyway' prompt and quota limits
+        gdown.download(
+            id=file_id, 
+            output=final_path, 
+            fuzzy=True, # Allows passing the full URL or just the ID
+            quiet=False # Show progress
         )
-        response.raise_for_status()
         
-        # Check for confirmation token in cookies
-        token = None
-        for key, value in session.cookies.items():
-            if key.startswith('download_warning'):
-                token = value
-                logger.info(f"Found confirmation token in cookies: {token}")
-                break
-        
-        # Step 2: Download with confirmation token if necessary
-        if token:
-            logger.info(f"Large file detected, downloading with confirmation...")
-            response = session.get(
-                DOWNLOAD_URL,
-                params={'id': file_id, 'export': 'download', 'confirm': token},
-                stream=True,
-                timeout=REQUEST_TIMEOUT,
-                allow_redirects=True
-            )
-            response.raise_for_status()
-        
-        # Verify content type (ensure we aren't getting HTML error pages)
-        content_type = response.headers.get('Content-Type', '')
-        if 'text/html' in content_type:
-            model_info['error'] = "Download failed: received HTML instead of model file (possible quota limit or invalid link)"
-            logger.error(model_info['error'])
-            return None
-        
-        # Step 3: Stream download to disk with progress
-        total_size = int(response.headers.get('content-length', 0))
-        downloaded_size = 0
-        
-        logger.info(f"Downloading model... (Total: {total_size / (1024*1024):.2f} MB)")
-        
-        with open(temp_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    downloaded_size += len(chunk)
-                    
-                    # Log progress every 50MB
-                    if downloaded_size % (50 * 1024 * 1024) < 8192:
-                        progress = (downloaded_size / total_size * 100) if total_size > 0 else 0
-                        logger.info(f"Download progress: {progress:.1f}% ({downloaded_size / (1024*1024):.1f} MB)")
-        
-        # Step 4: Verify download
-        actual_size = os.path.getsize(temp_path)
-        logger.info(f"Download complete: {actual_size / (1024*1024):.2f} MB")
-        
-        if actual_size < 1024 * 1024:
-            model_info['error'] = f"Downloaded file too small ({actual_size} bytes), likely an error page"
-            logger.error(model_info['error'])
-            os.remove(temp_path)
-            return None
-        
-        # Step 5: Move to models directory
-        final_path = os.path.join(MODELS_DIR_DOWNLOAD, MODEL_FILENAME)
-        
-        if os.path.exists(final_path):
-            os.remove(final_path)
-        
-        shutil.move(temp_path, final_path)
-        logger.info(f"✓ Model saved to: {final_path}")
-        
+        # Check if the file was downloaded (gdown raises error if download fails)
+        if not os.path.exists(final_path) or os.path.getsize(final_path) == 0:
+             raise IOError("gdown failed to download the file or the file is empty.")
+             
+        logger.info(f"✓ Model downloaded successfully by gdown to: {final_path}")
         return final_path
         
-    except requests.exceptions.Timeout:
-        model_info['error'] = "Model download timed out. Please check your connection."
-        logger.error(model_info['error'])
-        return None
-    except requests.exceptions.RequestException as e:
-        model_info['error'] = f"Model download failed (Network error): {str(e)}"
-        logger.error(model_info['error'])
-        return None
     except Exception as e:
-        model_info['error'] = f"Model download or file operation failed: {str(e)}"
+        model_info['error'] = f"gdown download failed: {str(e)}. Check file permissions or quota."
         logger.error(model_info['error'])
         logger.error(traceback.format_exc())
         return None
-    finally:
-        # Cleanup temp file if it still exists and wasn't moved
-        if temp_path and os.path.exists(temp_path):
-            try:
-                os.remove(temp_path)
-            except:
-                pass
+
+# ====================================================================
 
 
 def load_model(model_path=None):
@@ -497,8 +421,8 @@ def load_model(model_path=None):
         is_safe = False
         for root in valid_root_dirs:
              if str(model_path).startswith(root):
-                is_safe = True
-                break
+                 is_safe = True
+                 break
         
         if '..' in str(model_path) or not is_safe:
             model_info['error'] = "Invalid model path (path traversal detected or not in a safe location)"
@@ -942,8 +866,6 @@ def after_request(response):
     """
     FIXED: Security headers without overriding CORS
     """
-    # Don't override CORS - Flask-CORS handles it correctly
-    
     # Add security headers
     response.headers.add('X-Content-Type-Options', 'nosniff')
     response.headers.add('X-Frame-Options', 'DENY')
@@ -958,92 +880,36 @@ def after_request(response):
 # --- MAIN EXECUTION (MODIFIED FOR DOWNLOAD) ---
 if __name__ == '__main__':
     print("\n" + "="*70)
-    print("🚀 VERIFEED PREDICTION SERVER - FIXED & SECURED")
+    print("🚀 VERIFEED PREDICTION SERVER - FIXED, SECURED & GDOWN MODEL DOWNLOAD")
     print("="*70)
     
-    # NEW: Try to download model if URL provided
-    if os.environ.get('MODEL_URL'):
-        downloaded_path = download_model_from_url_robust()
-        if downloaded_path:
-            load_model(downloaded_path) # Load from the downloaded path
-        else:
-            # If download fails, fall back to trying local paths (original behavior)
-            load_model() 
-    else:
-        # If MODEL_URL is not set, use original local loading logic
-        load_model()
+    if not MODEL_URL:
+        raise ValueError("MODEL_URL environment variable is required for Google Drive download.")
+
+    print(f"📥 Attempting to download model from Google Drive URL...")
+    downloaded_path = download_model_from_url_robust() # Uses gdown
     
+    if downloaded_path:
+        print(f"✓ Model downloaded successfully: {downloaded_path}")
+        load_model(downloaded_path)
+    else:
+        print(f"⚠️ Model download failed. Attempting local fallback...")
+        load_model() 
+
     print(f"Device: {DEVICE}")
-    print(f"Models Directory (Local Check Path): {MODELS_DIR}")
     print(f"Model Loaded: {model_info['loaded']}")
     if model_info['loaded']:
         print(f"✓ Model ready for inference")
     else:
         print(f"✗ Model Error: {model_info['error']}")
-    print("\n🔐 Security Features:")
-    print("  ✓ API Key Authentication")
-    print("  ✓ JWT Token Support")
-    print("  ✓ CORS Properly Configured (No Wildcard)")
-    print("  ✓ Admin-Only Model Reload" + (" [DISABLED]" if not ALLOW_MODEL_RELOAD else ""))
-    print("  ✓ Secure Key Management (No Defaults in Prod)")
-    print("  ✓ Path Traversal Prevention")
-    print("  ✓ Input Validation & Sanitization")
-    print(f"  ✓ Rate Limiting: {RATE_LIMIT_ENABLED}")
-    print(f"  ✓ Max Content Size: {app.config['MAX_CONTENT_LENGTH'] / (1024*1024):.0f}MB")
-    print(f"  ✓ Max Frames Input: {MAX_FRAMES_INPUT}")
-    print(f"  ✓ Production Mode: {not app.config['DEBUG']}")
-    print("\n⚡ Performance Optimizations:")
-    print(f"  ✓ Max Frames to Process: {MAX_FRAMES_TO_PROCESS}")
-    print(f"  ✓ Detection Stride: {DETECTION_STRIDE}")
-    print(f"  ✓ Parallel Workers: {MAX_WORKERS}")
-    print(f"  ✓ Face Detection Model: {get_detection_model()}")
-    print("  ✓ Smart Frame Sampling")
-    print("  ✓ Parallel Frame Decoding")
-    print("  ✓ Mixed Precision Inference (CUDA)")
-    print("\n📡 Available Endpoints:")
-    print("  - GET  /health (Public)")
-    print("  - POST /auth/token (API Key → JWT)")
-    print("  - POST /predict (Authenticated + Rate Limited)")
-    print("  - POST /frame_analyze (Authenticated + Rate Limited)")
-    print("  - GET  /model/info (Authenticated)")
-    print("  - POST /model/reload (Admin Only" + (" - DISABLED)" if not ALLOW_MODEL_RELOAD else ")"))
-    
-    if RATE_LIMIT_ENABLED:
-        print("\n🚦 Rate Limits:")
-        print(f"  - Per Minute: {RATE_LIMIT_PER_MINUTE}")
-        print(f"  - Per Hour: {RATE_LIMIT_PER_HOUR}")
-        print(f"  - Per Day: {RATE_LIMIT_PER_DAY}")
-    
-    print("\n✅ FIXES APPLIED:")
-    print("  ✓ Robust Google Drive download logic added")
-    print("  ✓ PyTorch 2.6 model loading (weights_only=False)")
-    print("  ✓ CORS wildcard removed")
-    print("  ✓ API key logging removed")
-    print("  ✓ Parallel frame decoding")
-    print("  ✓ Better error messages")
-    
-    print("\n⚠️  Using Waitress for production deployment")
-    print("="*70 + "\n")
-    
-    # Use Waitress for production serving
+
+    # Start server
     try:
         from waitress import serve
-        print("🚀 Starting Waitress WSGI Server...")
         port = int(os.environ.get("PORT", 5000))
-        print(f"📍 Listening on http://0.0.0.0:{port}")
-        print("✓ Press CTRL+C to stop\n")
-        serve(
-            app,
-            host='0.0.0.0',
-            port=port,
-            threads=4,
-            channel_timeout=REQUEST_TIMEOUT,
-            cleanup_interval=30,
-            connection_limit=1000,
-            ident=None
-        )
+        print(f"🚀 Starting Waitress on http://0.0.0.0:{port}")
+        serve(app, host='0.0.0.0', port=port, threads=4)
     except ImportError:
-        print("⚠️  Waitress not installed. Install with: pip install waitress")
-        print("⚠️  Falling back to Flask development server (NOT FOR PRODUCTION)")
+        print("⚠️ Waitress not installed. Falling back to Flask dev server")
         port = int(os.environ.get("PORT", 5000))
         app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
