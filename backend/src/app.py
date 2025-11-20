@@ -336,7 +336,209 @@ inference_model = None
 model_info = {'loaded': False, 'path': None, 'error': None}
 model_lock = threading.Lock()
 
+"""
+ALTERNATIVE APPROACH: Using gdown library (more reliable)
+Add to requirements.txt: gdown>=4.7.1
+"""
+
+def download_model_from_url_gdown():
+    """
+    Download model from Google Drive using gdown library.
+    This is more reliable than manual implementation.
+    """
+    global model_info
+    
+    if not MODEL_URL:
+        model_info['error'] = "MODEL_URL environment variable is not set."
+        return None
+    
+    try:
+        import gdown
+    except ImportError:
+        model_info['error'] = "gdown library not installed. Run: pip install gdown"
+        logger.error(model_info['error'])
+        return None
+    
+    try:
+        # Extract file ID from URL
+        file_id = None
+        patterns = [
+            r'/file/d/([a-zA-Z0-9_-]+)',
+            r'[?&]id=([a-zA-Z0-9_-]+)',
+            r'/open\?id=([a-zA-Z0-9_-]+)'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, MODEL_URL)
+            if match:
+                file_id = match.group(1)
+                break
+        
+        if not file_id:
+            if re.match(r'^[a-zA-Z0-9_-]+$', MODEL_URL):
+                file_id = MODEL_URL
+            else:
+                model_info['error'] = f"Could not extract file ID from MODEL_URL: {MODEL_URL}"
+                logger.error(model_info['error'])
+                return None
+        
+        logger.info(f"Downloading model using gdown (ID: {file_id})...")
+        
+        # Ensure models directory exists
+        os.makedirs(MODELS_DIR_DOWNLOAD, exist_ok=True)
+        output_path = os.path.join(MODELS_DIR_DOWNLOAD, MODEL_FILENAME)
+        
+        # Download using gdown
+        url = f"https://drive.google.com/uc?id={file_id}"
+        gdown.download(url, output_path, quiet=False, fuzzy=True)
+        
+        # Verify download
+        if not os.path.exists(output_path):
+            model_info['error'] = "Download completed but file not found"
+            logger.error(model_info['error'])
+            return None
+        
+        file_size = os.path.getsize(output_path)
+        if file_size < 1024 * 1024:  # Less than 1MB
+            model_info['error'] = f"Downloaded file too small ({file_size} bytes)"
+            logger.error(model_info['error'])
+            os.remove(output_path)
+            return None
+        
+        logger.info(f"✓ Model downloaded: {file_size / (1024*1024):.2f} MB")
+        logger.info(f"✓ Saved to: {output_path}")
+        
+        return output_path
+        
+    except Exception as e:
+        model_info['error'] = f"Model download failed: {str(e)}"
+        logger.error(model_info['error'])
+        logger.error(traceback.format_exc())
+        return None
+
+
 def download_model_from_url_robust():
+    """
+    Wrapper that tries gdown first, falls back to manual method.
+    """
+    # Try gdown first (more reliable)
+    try:
+        import gdown
+        logger.info("Using gdown for Google Drive download...")
+        return download_model_from_url_gdown()
+    except ImportError:
+        logger.warning("gdown not available, using manual download method...")
+        return download_model_from_url_manual()
+
+
+def download_model_from_url_manual():
+    """
+    Manual Google Drive download implementation (fallback).
+    """
+    global model_info
+    
+    if not MODEL_URL:
+        model_info['error'] = "MODEL_URL environment variable is not set."
+        return None
+    
+    try:
+        # Extract file ID
+        file_id = None
+        patterns = [
+            r'/file/d/([a-zA-Z0-9_-]+)',
+            r'[?&]id=([a-zA-Z0-9_-]+)',
+            r'/open\?id=([a-zA-Z0-9_-]+)'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, MODEL_URL)
+            if match:
+                file_id = match.group(1)
+                break
+        
+        if not file_id:
+            if re.match(r'^[a-zA-Z0-9_-]+$', MODEL_URL):
+                file_id = MODEL_URL
+            else:
+                model_info['error'] = f"Could not extract file ID from MODEL_URL: {MODEL_URL}"
+                logger.error(model_info['error'])
+                return None
+        
+        logger.info(f"Starting manual download (ID: {file_id})...")
+        
+        temp_path = os.path.join(tempfile.gettempdir(), MODEL_FILENAME)
+        session = requests.Session()
+        
+        # URL for direct download
+        url = f"https://drive.google.com/uc?export=download&id={file_id}"
+        
+        # First request - may get confirmation page
+        response = session.get(url, stream=True, timeout=30)
+        
+        # Check if we need confirmation
+        cookies = session.cookies.get_dict()
+        if 'download_warning' in cookies:
+            # Large file - need confirmation
+            token = cookies['download_warning']
+            logger.info(f"Large file - using confirmation token")
+            url = f"https://drive.google.com/uc?export=download&id={file_id}&confirm={token}"
+            response = session.get(url, stream=True, timeout=REQUEST_TIMEOUT)
+        
+        response.raise_for_status()
+        
+        # Check content type
+        content_type = response.headers.get('Content-Type', '').lower()
+        if 'text/html' in content_type:
+            # Still getting HTML - try alternative method
+            logger.warning("Received HTML, trying alternative download URL...")
+            url = f"https://drive.usercontent.google.com/download?id={file_id}&export=download&confirm=t"
+            response = session.get(url, stream=True, timeout=REQUEST_TIMEOUT)
+            response.raise_for_status()
+        
+        # Download to temp file
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
+        
+        logger.info(f"Downloading: {total_size / (1024*1024):.2f} MB")
+        
+        with open(temp_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=32768):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    
+                    # Progress every 50MB
+                    if downloaded % (50 * 1024 * 1024) < 32768:
+                        percent = (downloaded / total_size * 100) if total_size > 0 else 0
+                        logger.info(f"Progress: {percent:.1f}% ({downloaded / (1024*1024):.1f} MB)")
+        
+        # Verify
+        actual_size = os.path.getsize(temp_path)
+        logger.info(f"Download complete: {actual_size / (1024*1024):.2f} MB")
+        
+        if actual_size < 1024 * 1024:
+            model_info['error'] = f"File too small ({actual_size} bytes)"
+            logger.error(model_info['error'])
+            os.remove(temp_path)
+            return None
+        
+        # Move to final location
+        os.makedirs(MODELS_DIR_DOWNLOAD, exist_ok=True)
+        final_path = os.path.join(MODELS_DIR_DOWNLOAD, MODEL_FILENAME)
+        
+        if os.path.exists(final_path):
+            os.remove(final_path)
+        
+        shutil.move(temp_path, final_path)
+        logger.info(f"✓ Model saved to: {final_path}")
+        
+        return final_path
+        
+    except Exception as e:
+        model_info['error'] = f"Download failed: {str(e)}"
+        logger.error(model_info['error'])
+        logger.error(traceback.format_exc())
+        return None
     """
     Download model from Google Drive with proper large file handling.
     Supports both direct download links and file IDs.
