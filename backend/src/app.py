@@ -337,77 +337,182 @@ model_info = {'loaded': False, 'path': None, 'error': None}
 model_lock = threading.Lock()
 
 def download_model_from_url_robust():
-    """Download model from Google Drive, handling large file confirmation."""
+    """
+    Download model from Google Drive with proper large file handling.
+    Supports both direct download links and file IDs.
+    """
     global model_info
     
     if not MODEL_URL:
         model_info['error'] = "MODEL_URL environment variable is not set."
         return None
-        
-    # 1. Extract File ID
-    parsed_url = urlparse(MODEL_URL)
-    # Extract 'id' from query parameters (e.g., id=1ABC123XYZ...)
-    file_id = dict(re.findall(r"([^=]+)=([^&]*)", parsed_url.query)).get('id')
-    
-    if not file_id:
-        model_info['error'] = f"Could not extract file ID from MODEL_URL: {MODEL_URL}"
-        logger.error(model_info['error'])
-        return None
-
-    temp_path = os.path.join(tempfile.gettempdir(), MODEL_FILENAME)
-    
-    # URL for file download request
-    DOWNLOAD_URL = "https://drive.google.com/uc?id=18LRYNIJ7ul9j94RG4Dk9yQbWWFiXkK5c&export=download"
-    session = requests.Session()
     
     try:
-        logger.info(f"Downloading model (ID: {file_id})...")
+        # Extract file ID from various Google Drive URL formats
+        file_id = None
         
-        # 2. First Request to get Token (Handles large file warning)
-        response = session.get(DOWNLOAD_URL, params={'id': file_id}, stream=True, timeout=REQUEST_TIMEOUT)
+        # Pattern 1: /file/d/{FILE_ID}/view or /uc?id={FILE_ID}
+        patterns = [
+            r'/file/d/([a-zA-Z0-9_-]+)',
+            r'[?&]id=([a-zA-Z0-9_-]+)',
+            r'/open\?id=([a-zA-Z0-9_-]+)'
+        ]
         
-        # Check for confirmation token in cookies (for files > ~100MB)
-        token = None
-        for key, value in response.cookies.items():
-            if key.startswith('download_warning'):
-                token = value
+        for pattern in patterns:
+            match = re.search(pattern, MODEL_URL)
+            if match:
+                file_id = match.group(1)
                 break
         
-        # 3. Second Request with Token (If necessary)
-        if token:
-            logger.info("Handling large file warning with confirmation token...")
-            params = {'id': file_id, 'confirm': token}
-            response = session.get(DOWNLOAD_URL, params=params, stream=True, timeout=REQUEST_TIMEOUT)
-            
-        # 4. Final Download & Save
+        if not file_id:
+            # Check if MODEL_URL is already just the file ID
+            if re.match(r'^[a-zA-Z0-9_-]+$', MODEL_URL):
+                file_id = MODEL_URL
+            else:
+                model_info['error'] = f"Could not extract file ID from MODEL_URL: {MODEL_URL}"
+                logger.error(model_info['error'])
+                return None
+        
+        logger.info(f"Extracted Google Drive file ID: {file_id}")
+        
+        # Prepare download
+        temp_path = os.path.join(tempfile.gettempdir(), MODEL_FILENAME)
+        session = requests.Session()
+        
+        # Google Drive download URL
+        DOWNLOAD_URL = "https://drive.google.com/uc"
+        
+        logger.info(f"Starting model download (ID: {file_id})...")
+        
+        # Step 1: Initial request to check file and get cookies
+        response = session.get(
+            DOWNLOAD_URL,
+            params={'id': file_id, 'export': 'download'},
+            stream=True,
+            timeout=30,
+            allow_redirects=True
+        )
         response.raise_for_status()
         
-        # Stream the file content to disk
+        # Step 2: Check if we got HTML (confirmation page) or binary (direct download)
+        content_type = response.headers.get('Content-Type', '').lower()
+        
+        # Check for confirmation token in cookies
+        token = None
+        for key, value in session.cookies.items():
+            if key.startswith('download_warning'):
+                token = value
+                logger.info(f"Found confirmation token in cookies: {token}")
+                break
+        
+        # If we got HTML and no token yet, parse it
+        if not token and 'text/html' in content_type:
+            # Read first chunk to check for confirmation
+            first_chunk = next(response.iter_content(chunk_size=4096), b'')
+            content_preview = first_chunk.decode('utf-8', errors='ignore')
+            
+            # Look for various confirmation patterns
+            patterns = [
+                r'confirm=([a-zA-Z0-9_-]+)',
+                r'id="confirm"[^>]*value="([^"]+)"',
+                r'confirm-download-form[^>]*action="[^"]*confirm=([^&"]+)'
+            ]
+            
+            for pattern in patterns:
+                match = re.search(pattern, content_preview)
+                if match:
+                    token = match.group(1)
+                    logger.info(f"Found confirmation token in HTML: {token}")
+                    break
+        
+        # Step 3: Download with confirmation token
+        if token:
+            logger.info(f"Large file detected, downloading with confirmation...")
+            response = session.get(
+                DOWNLOAD_URL,
+                params={'id': file_id, 'export': 'download', 'confirm': token},
+                stream=True,
+                timeout=REQUEST_TIMEOUT,
+                allow_redirects=True
+            )
+            response.raise_for_status()
+        elif 'text/html' in content_type:
+            # Still HTML after trying to get token - might be an error
+            model_info['error'] = "Unable to bypass Google Drive confirmation page"
+            logger.error(model_info['error'])
+            return None
+        else:
+            # Already got binary content in first request
+            logger.info("Direct download (small file, no confirmation needed)")
+        
+        # Verify we're getting binary content (not an error page)
+        content_type = response.headers.get('Content-Type', '')
+        if 'text/html' in content_type:
+            model_info['error'] = "Download failed: received HTML instead of model file (possible quota limit)"
+            logger.error(model_info['error'])
+            return None
+        
+        # Step 4: Stream download to disk with progress
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded_size = 0
+        
+        logger.info(f"Downloading model... (Total: {total_size / (1024*1024):.2f} MB)")
+        
         with open(temp_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
-                if chunk: 
+                if chunk:
                     f.write(chunk)
+                    downloaded_size += len(chunk)
+                    
+                    # Log progress every 50MB
+                    if downloaded_size % (50 * 1024 * 1024) < 8192:
+                        progress = (downloaded_size / total_size * 100) if total_size > 0 else 0
+                        logger.info(f"Download progress: {progress:.1f}% ({downloaded_size / (1024*1024):.1f} MB)")
         
-        # Verify download
-        size = os.path.getsize(temp_path)
-        logger.info(f"Downloaded model: {size / (1024*1024):.2f} MB")
+        # Step 5: Verify download
+        actual_size = os.path.getsize(temp_path)
+        logger.info(f"Download complete: {actual_size / (1024*1024):.2f} MB")
         
-        # Move to models directory
-        final_path = os.path.join(MODELS_DIR_DOWNLOAD, MODEL_FILENAME) # Use the writeable temp path
+        # Basic validation: ensure file is at least 1MB (model should be much larger)
+        if actual_size < 1024 * 1024:
+            model_info['error'] = f"Downloaded file too small ({actual_size} bytes), likely an error page"
+            logger.error(model_info['error'])
+            os.remove(temp_path)
+            return None
+        
+        # Step 6: Move to models directory
+        os.makedirs(MODELS_DIR_DOWNLOAD, exist_ok=True)
+        final_path = os.path.join(MODELS_DIR_DOWNLOAD, MODEL_FILENAME)
+        
+        # Remove existing file if present
+        if os.path.exists(final_path):
+            os.remove(final_path)
+        
         shutil.move(temp_path, final_path)
-        logger.info(f"Model saved to: {final_path}")
+        logger.info(f"✓ Model saved to: {final_path}")
         
         return final_path
         
+    except requests.exceptions.Timeout:
+        model_info['error'] = "Model download timed out. Please check your connection."
+        logger.error(model_info['error'])
+        return None
     except requests.exceptions.RequestException as e:
-        model_info['error'] = f"Model download failed (HTTP/Network error): {e}"
+        model_info['error'] = f"Model download failed (Network error): {str(e)}"
         logger.error(model_info['error'])
         return None
     except Exception as e:
-        model_info['error'] = f"Model download or file operation failed: {e}"
+        model_info['error'] = f"Model download or file operation failed: {str(e)}"
         logger.error(model_info['error'])
+        logger.error(traceback.format_exc())
         return None
-
+    finally:
+        # Cleanup temp file if it still exists
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except:
+                pass
 
 def load_model(model_path=None):
     """
