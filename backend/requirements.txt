@@ -27,7 +27,17 @@ Pillow==10.4.0
 python-dotenv==1.0.1
 PyJWT==2.10.1
 
+# --- Google Drive Download Support ---
+requests==2.31.0
 
+# --- Utility ---
+tqdm==4.66.1
+psutil==5.9.5
+scipy==1.11.3
+
+# --- Logging & JSON ---
+rich==13.6.0
+orjson==3.9.10
 
 # CRITICAL: Custom index for CPU-only PyTorch installation
 --extra-index-url https://download.pytorch.org/whl/cpu
