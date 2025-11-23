@@ -1,5 +1,5 @@
 """
-VeriFeed Advanced Training Script - Target Accuracy: 94-100%
+VeriFeed Advanced Training Script
 70% Training / 30% Testing Split
 Features: Advanced augmentation, learning rate scheduling, early stopping, gradient clipping
 """
@@ -37,10 +37,10 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Training Hyperparameters
 BATCH_SIZE = 8
-EPOCHS = 40
+EPOCHS = 30
 LEARNING_RATE = 0.0001
 WEIGHT_DECAY = 1e-5
-PATIENCE = 30
+PATIENCE = 10
 MIN_DELTA = 0.001
 
 # Paths
@@ -69,7 +69,7 @@ val_transforms = transforms.Compose([
     transforms.Normalize(MEAN, STD)
 ])
 
-# Model Architecture with Improved Design
+# Model Architecture 
 class ImprovedDeepfakeDetectionModel(nn.Module):
     def __init__(self, num_classes=2, latent_dim=2048, lstm_layers=2,
                  hidden_dim=2048, bidirectional=True, dropout=0.5):
@@ -130,7 +130,7 @@ class ImprovedDeepfakeDetectionModel(nn.Module):
         return out
 
 
-# Custom Dataset
+# Dataset
 class DeepfakeDataset(Dataset):
     def __init__(self, samples, transform=None):
         self.samples = samples
