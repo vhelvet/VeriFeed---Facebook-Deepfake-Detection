@@ -17,7 +17,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     // Set default settings
     chrome.storage.local.set({
       verifeedEnabled: true,
-      serverUrl: 'http://localhost:5000',
+      serverUrl: 'https://verifeed-facebook-deepfake-detection-production-6b6e.up.railway.app',
       autoAnalyze: true,
       showNotifications: true,
       minConfidence: 70
