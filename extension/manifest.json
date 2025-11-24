@@ -1,3 +1,52 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:121d95c54bb5d0c7355e3b830e791a7f8d7922b955ce996570fb9fb96b9ad90d
-size 1274
+{
+  "manifest_version": 3,
+  "name": "VeriFeed - Deepfake Video Detector",
+  "version": "1.0.0",
+  "description": "Detect deepfake videos on Facebook with AI-powered analysis",
+  "icons": {
+    "16": "assets/VeriFeed-Logo.png",
+    "48": "assets/VeriFeed-Logo.png",
+    "128": "assets/VeriFeed-Logo.png"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://facebook.com/*",
+    "https://www.facebook.com/*",
+    "http://localhost:5000/*",
+    "https://verifeed-facebook-deepfake-detection-production-6b6e.up.railway.app/*"
+  ],
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://facebook.com/*",   
+        "https://www.facebook.com/*",  
+        "https://*.facebook.com/*"
+      ],
+      "js": ["scripts/content.js"],
+      "css": ["styles/styles.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "VeriFeed - Check for Deepfakes"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["scripts/popup.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
