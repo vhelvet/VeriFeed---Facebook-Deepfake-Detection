@@ -1,7 +1,7 @@
 // VeriFeed Popup Script - Enhanced with NLP Integration
 class VeriFeedPopup {
   constructor() {
-    this.serverUrl = "http://localhost:5000";
+    this.serverUrl = "https://verifeed-facebook-deepfake-detection-production-6b6e.up.railway.app";
     this.settings = {
       verifeedEnabled: true,
     };
