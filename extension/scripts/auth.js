@@ -5,11 +5,11 @@
 
 class VerifeedAuth {
     constructor() {
-        this.apiUrl = 'http://localhost:5000';
+        this.apiUrl = 'https://verifeed-facebook-deepfake-detection-production-6b6e.up.railway.app';
         this.apiKey = '5hTeoaOm5m-91clhe2iVqKy2jpkiN54JLQ4vNbiDodU';  // ← PASTE YOUR API_KEY HERE!
         this.token = null;
         this.tokenExpiry = null;
-        
+    
         this.loadToken();
     }
 
