@@ -91,7 +91,7 @@ print(f"🔑 API Keys: {'✓ Configured' if API_KEY else '✗ Missing'}")
 
 # --- CORS CONFIGURATION ---
 ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 
-    'chrome-extension://iljbbfgejddphakhekbonjioflbodjoh,chrome-extension://pjebiibiippeffhmimailefekjgcbgbm/*,chrome-extension://oekbgfgljexjhfingafboenphifoifog/*,http://localhost,http://127.0.0.1'
+    'chrome-extension://*,http://localhost,http://127.0.0.1'
 ).split(',')
 
 CORS(app, resources={
