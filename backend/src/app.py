@@ -662,7 +662,7 @@ def process_prediction(frames_b64):
         face_frames = detect_faces_optimized(frames, max_faces=MAX_FACES)
         
         if face_frames is None:
-            return {'error': 'No faces detected in video'}, 400
+            return {'error': 'This can happen if there is no face in the video or the person is too far from the camera. VeriFeed does not support distant or small faces.'}, 400
 
         transformed_frames = [val_transforms(frame) for frame in face_frames]
         sequence = torch.stack(transformed_frames).unsqueeze(0).to(DEVICE)
